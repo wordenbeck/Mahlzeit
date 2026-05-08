@@ -1,85 +1,103 @@
-# Tests Pending — manuelle Smoke-Tests
+# Tests Pending — Smoke-Test-Liste
 
-> Was Thomas am nächsten Tag durchklicken sollte. Updated jedes Mal wenn neue Features pushen.
-> Wenn ein Test grün ist: Punkt durchstreichen oder Eintrag löschen.
+> Stand nach Sprint 4 (Sa/So-Test). Punkte abhaken oder löschen wenn grün.
 
 ---
 
-## Sprint 1 — Auth + Onboarding ✓ (sollte stehen, lokal getestet)
+## 🔴 Blocker zuerst (ohne diese geht nix)
 
-- [x] Onboarding `/` → `/onboarding` Redirect ohne Profile
-- [ ] **Live-Test:** Onboarding auf https://mahlzeit123.vercel.app durchklicken — Name → Neuer Haushalt → landest auf `/` mit App-Menü
-- [ ] App-Menü Logo zeigt 3-Diamond-Mark (nach letztem Push)
-- [ ] App-Menü Scroll-Shrink funktioniert beim Scrollen
-- [ ] Profile-Dot im App-Menü zeigt deinen Initial in deiner Profile-Color
-- [ ] Zweites Browser-Profil/Inkognito → `/join/<DEIN-CODE>` → tritt zweitem Member bei
-
-## Sprint 2 — Recipe Schema + Import
-
-- [ ] Storage-Bucket `recipe-images` ist in Supabase Storage sichtbar (Schritt 1 SQL)
-- [ ] Groq-API-Key als `GROQ_API_KEY` Secret in Supabase Edge Functions
+- [ ] **Vercel-Deploy live** — https://mahlzeit123.vercel.app öffnet sich, kein 500-Fehler
+- [ ] Storage-Bucket `recipe-images` ist in Supabase Storage sichtbar
+- [ ] `GROQ_API_KEY` als Secret in Supabase Edge Functions
 - [ ] `supabase functions deploy import-recipe-from-url` durchgelaufen
-- [ ] **URL-Import-Test:** `/rezepte/import` → Insta-Reel-URL → „Rezept extrahieren"
-  - [ ] Caption + Bild werden extrahiert (~5-10s)
-  - [ ] Recipe-Preview zeigt Titel, Zutaten, Zubereitung
-  - [ ] Speichern → landet auf `/rezepte/:id`
-  - [ ] Bild ist via Storage-Mirror live (nicht expired Insta-CDN)
-- [ ] **Caption-Fallback-Test:** Insta-Reel mit Login-Wall → Fallback-Textarea zeigt sich → Caption manuell paste → Rezept extrahieren funktioniert
-- [ ] **Manuell-Anlegen-Test:** Tab „Manuell" → Titel + Zutaten + Zubereitung → Speichern
-- [ ] **Detail-Page-Test:** `/rezepte/:id` → Fav-Toggle synct mit DB → Delete entfernt
-- [ ] **Suche-Test:** `/rezepte` → Suchfeld filtert nach Titel/Tags/Kategorie
-- [ ] **Multi-Workspace-Isolation:** Anderer Browser/anderer Workspace sieht **keine** Rezepte vom ersten Workspace (RLS-Check)
+- [ ] Onboarding klappt: `/` → `/onboarding` Redirect → Name → Neuer Haushalt → landest auf `/` (Heute-Page)
 
-## Sprint 3 — Plan / Einkauf / Liste mit echten Daten
+## 🧪 Happy-Path-Test (in dieser Reihenfolge durchklicken)
 
-- [ ] **Plan-Test:** `/plan` → aktuelle KW + ◀ ▶ Navigation funktioniert
-- [ ] Auf Recipe im Grid klicken → Modal „Zu welchem Tag?" → Tag+Mahlzeit-Pick → Slot erscheint links beim richtigen Tag
-- [ ] Mehrere Slots pro Tag möglich
-- [ ] Hover über Slot → Trash-Icon zeigt sich → Klick → entfernt
-- [ ] Wochenende-Toggle blendet Sa/So ein/aus
-- [ ] Einkauf-Test: `/einkauf` zeigt geplante Rezepte mit Zutaten als Spalten
-- [ ] Portionen-Stepper pro Slot (`👥 [-] N [+]`) → Mengen scalen live
-- [ ] Liste-Test: `/liste` zeigt konsolidierte Einkaufsliste
-- [ ] Items haben Day-Pills die zeigen aus welchen Tagen die Zutat kommt
-- [ ] Multi-Tage-Scaling: Wenn z.B. „Knoblauch" in Mo + Fr → konsolidierte Menge stimmt
-- [ ] Mengen-Input in Liste editierbar
-- [ ] Eigene Zutat hinzufügen → erscheint im „Extras"-Block
-- [ ] Abhaken-Toggle funktioniert
-- [ ] Trash entfernt aus der Liste (lokal — refresh setzt zurück, Persistierung kommt später)
-- [ ] **Multi-User-Test:** zweiter Member im Workspace fügt Slot hinzu → erster Member sieht's nach Reload (real-time-sync kommt später, jetzt nur via Refresh)
+1. **Onboarding**
+   - [ ] Workspace anlegen mit Namen „Test"
+   - [ ] App-Menü oben zeigt Logo + „Mahlzeit", Profile-Dot rechts in deiner Farbe
+   - [ ] Scroll-Shrink: nach unten scrollen → Menu kompakter
 
-## Sprint 4 — Heute-View, Code-Splitting, D&D
+2. **Erstes Rezept anlegen — manuell**
+   - [ ] `/rezepte/import` → Tab „Manuell" → Titel + 3 Zutaten + 2 Schritte → Speichern
+   - [ ] Landest auf `/rezepte/:id` mit Detail-Page
+   - [ ] Klick Star-Icon → wird Favorit (Star-Fill)
 
-- [ ] **Heute-Page (`/`):** Tageszeit-passende Begrüßung („Guten Morgen, Thomas")
-- [ ] Aktuelles Datum (Wochentag + Tag + Monat) angezeigt
-- [ ] Heute geplante Slots werden angezeigt — Click → /rezepte/:id
-- [ ] „Morgen schon mal vorbereitet"-Block zeigt morgige Slots wenn vorhanden
-- [ ] 3 Quick-Action-Tiles (Plan / Einkauf / Neu) funktionieren
-- [ ] Empty-State wenn nichts geplant: zwei CTAs („Spontan zum Plan", „Rezepte stöbern")
-- [ ] **Code-Splitting:** `/` lädt nur Haupt-Bundle (~485kb), `/proto/*` lädt Prototypen-Chunks separat (Browser-DevTools Network-Tab → check)
-- [ ] **D&D in `/plan`:** Recipe-Card-Lang-Pressen + Ziehen → in Tag-Spalte ablegen → Slot wird hinzugefügt (Default-Mahlzeit: Abend)
-- [ ] Drag-Overlay zeigt Recipe-Card schwebend mit leichter Rotation
-- [ ] Drop-Target-Hint: Tag bekommt mint-tint beim Drag-Over
-- [ ] Click auf Recipe-Card öffnet weiterhin Modal (für genauere Mahlzeit-Wahl als Default)
-- [ ] **Touch-Test (iPad):** D&D klappt auch auf Touch-Geräten (Long-Press 8px Distance-Threshold)
+3. **Insta-Reel-Import**
+   - [ ] Tab „Aus URL / Insta" → Insta-Reel-URL paste → „Rezept extrahieren"
+   - [ ] Nach 5-10s: Recipe-Preview mit Bild, Titel, Zutaten, Zubereitung
+   - [ ] Speichern → landest auf Detail
+   - [ ] Bild ist sichtbar (sollte aus Storage kommen, nicht Insta-CDN — Browser-Network-Tab → URL prüfen)
+   - **Falls Caption-Extraction fehlschlägt:** Fallback-Textarea zeigt sich → Caption manuell paste → erneut extrahieren
 
-## Allgemein / Cross-Cutting
+4. **Wochenplanung mit D&D**
+   - [ ] `/plan` → Recipes rechts, leere Tage links
+   - [ ] **D&D-Test:** Recipe lange drücken (250ms) + ziehen → über Tag-Spalte schweben → loslassen → Slot erscheint
+   - [ ] Drop-Hint: Tag bekommt mint-Tint beim Drag-Over
+   - [ ] Drag-Overlay: Card schwebt mit leichter Rotation
+   - [ ] **Click-Path-Test:** Klick auf Recipe (kein Drag) → Modal „Zu welchem Tag?" → Tag+Mahlzeit-Pick → Slot wird angelegt mit gewählter Mahlzeit
+   - [ ] Hover über Slot → Trash-Icon → klick → Slot weg
+   - [ ] ◀ ▶ Wochen-Navigation funktioniert
+   - [ ] „+ Wochenende anzeigen" → Sa+So erscheinen
+
+5. **Wochenübersicht**
+   - [ ] `/einkauf` zeigt geplante Rezepte als Spalten mit Zutaten-Listen
+   - [ ] Portionen-Stepper (`👥 [-] N [+]`) an Recipe → Mengen scalen live + persistieren (refresh → bleibt)
+
+6. **Einkaufsliste**
+   - [ ] `/liste` zeigt konsolidierte Liste aller Zutaten der Woche
+   - [ ] Day-Pills zeigen aus welchen Tagen die Zutat kommt
+   - [ ] Multi-Tag-Konsolidierung: gleiche Zutat aus 2 Rezepten → Mengen summiert
+   - [ ] Mengen-Input editierbar
+   - [ ] „Eigene Zutat hinzufügen" → erscheint im Extras-Block
+   - [ ] Abhaken-Toggle funktioniert
+   - [ ] Trash entfernt Item lokal (Refresh setzt zurück — Persist ist Backlog)
+
+7. **Heute-View (`/`)**
+   - [ ] Tageszeit-Begrüßung passt zur Uhrzeit („Guten Morgen", „Mahlzeit", „Guten Abend")
+   - [ ] Aktuelles Datum: „Donnerstag, 8. Mai" o.ä.
+   - [ ] Heutige Slots werden als große Cards gezeigt (wenn welche geplant)
+   - [ ] Click auf Slot → `/rezepte/:id`
+   - [ ] Empty-State: zwei CTAs („Spontan zum Plan", „Rezepte stöbern")
+   - [ ] 3 Quick-Tiles funktionieren (Plan / Einkauf / Neu)
+
+## 🔁 Multi-User / Sharing
+
+- [ ] **Workspace-Code teilen:** zweiter Browser/Inkognito → `https://mahlzeit123.vercel.app/join/<DEIN-CODE>` → tritt als Lisa o.ä. bei
+- [ ] **RLS-Isolation:** dritter Browser → komplett neuer Workspace anlegen → sieht **keine** Rezepte/Plans des ersten
+- [ ] **Family-Plan-Test:** Lisa fügt Slot via Plan-Page hinzu → Thomas refreshed → sieht den Slot
+
+## 📱 PWA / Mobile
+
+- [ ] iPad Safari: https://mahlzeit123.vercel.app öffnen
+- [ ] Teilen → „Zum Home-Bildschirm" → App-Icon ist 3-Diamond-Mark
+- [ ] App vom Home-Screen öffnen → läuft fullscreen, Status-Bar in Emerald
+- [ ] D&D auf echtem iPad funktioniert flüssig (nicht laggy)
+- [ ] iPhone: Layout läuft (responsive — bisher nicht optimiert, aber crash-frei)
+
+## 🌗 Cross-Cutting
 
 - [ ] Vercel-Deploy ist grün (latest commit auf main)
-- [ ] PWA: iPad → Safari → mahlzeit123.vercel.app → Teilen → Zum Home-Bildschirm → App-Icon ist 3-Diamond-Mark
-- [ ] Lighthouse-Score auf der Live-URL: PWA ≥ 90, Performance ≥ 80
-- [ ] Dark-Mode (System-Setting umstellen) → App passt sich an, keine Kontrast-Bugs
+- [ ] Browser-Console: keine roten Fehler nach dem ersten Page-Load
+- [ ] Dark-Mode (System-Setting umstellen) → App passt sich an, alle Texte lesbar
+- [ ] Lighthouse-Score auf https://mahlzeit123.vercel.app:
+  - PWA ≥ 90
+  - Performance ≥ 80
+  - Accessibility ≥ 90
 
----
+## 🐛 Known Issues / wahrscheinliche Stolpersteine
 
-## Bekannte offene Punkte (Backlog)
+- **Bundle-Size 527kb** — über Vites 500kb-Warning. Funktional nicht kritisch, optimieren wenn Performance leidet
+- **Modal vs D&D auf Touch** — Click und Drag über selber Button: bei zu schnellem Tap könnte Modal nicht öffnen wenn Drag-Sensor 8px Distance erkennt
+- **`/proto/*`-Pages** sind ungeschützt erreichbar (kein Auth-Guard) — by design für Visual-Reference, aber falls peinlich: zu Auth-Guard hinzufügen
+- **Workspace-Code-Lookup ohne Auth** — `joinWorkspaceByCode` macht erst Anonymous-SignIn, dann Lookup. Wenn jemand /join/CODE öffnet ohne Profile, könnte's hängen. Bisher nicht gesehen.
 
-Stehen in `DESIGN-BRIEF.md` → Phase-2-Backlog. Nichts davon muss Sprint-1/2 testbar sein:
+## 📋 Nach den Tests
 
-- Onboarding-Polish (Step-Indicator, Animated-Blobs, Success-Moment)
-- Rezept-Modal mit Backdrop-Blur + Drag-to-Plan
-- Echte Bilder bei den Sprint-0-Mock-Rezepten (sind nur in `/proto/*` relevant)
-- Zutaten-Icons à la Bring
-- iPhone-Layout (Sprint 5+)
-- Bring-Echtintegration (Sprint 6)
-- App-Icon + Splash-Screen für PWA
+Was klappt: Häkchen oder Punkt löschen.  
+Was nicht klappt: Fehlertext + Browser/Device hier rein, dann ich fixe.  
+
+Format z.B.:
+> ❌ D&D auf iPad: Drag startet nicht, Recipe-Card scrollt mit
+> Browser: Safari iPad Pro 11", iOS 17.4

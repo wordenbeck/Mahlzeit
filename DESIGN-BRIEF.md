@@ -356,6 +356,10 @@ Nicht für Sprint 1, aber dokumentiert damit's nicht verloren geht:
 - **Rezept-Modal** — Klick auf Recipe-Card vergrößert zum Modal mit Backdrop-Blur, Drag-to-Plan vom Modal aus.
 - **Echte Bilder** statt Emojis — kommt mit Insta-Import in Sprint 2.
 - **„Heute"-View + „Woche umsetzen"-View** — Sprint 5+, eigener Tagesfokus mit aktuellem Rezept.
+- **Refereo-Verknüpfung im Redesign-Pass** *(TBD)* — Thomas hat das genannt im Kontext „nächster Redesign". Klärung nötig: meint er Refereo als Mood-/Design-Reference-Tool? Oder ein Referral-System für Familie-Einladungen aus der App heraus? Oder Refeero/Refero (TBD welches Tool genau)? **→ Beim nächsten Sync mit Thomas klären, dann konkret planen.**
+- **Slot-Move per D&D** — bestehender Slot zwischen Tagen verschiebbar (aktuell nur Recipe → Tag, kein Tag ↔ Tag).
+- **Real-time-Sync** — andere Family-Members sehen Slot-Adds live (Supabase Realtime Channels).
+- **Profile-Page** — Display-Name ändern, Workspace-Code teilen via QR + Link, andere Mitglieder anzeigen.
 
 ## Iterativer Workflow für Design-Tuning (nach Sprint 0)
 
