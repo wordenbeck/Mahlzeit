@@ -138,7 +138,21 @@ export type Database = {
       };
     };
     Views: Empty;
-    Functions: { current_workspace_id: { Args: Empty; Returns: string } };
+    Functions: {
+      current_workspace_id: { Args: Empty; Returns: string };
+      create_workspace_and_join: {
+        Args: { p_name: string; p_code: string; p_display_name: string; p_color: string };
+        Returns: string;
+      };
+      lookup_workspace_by_code: {
+        Args: { p_code: string };
+        Returns: { workspace_id: string; workspace_name: string }[];
+      };
+      join_workspace_by_code: {
+        Args: { p_code: string; p_display_name: string; p_color: string };
+        Returns: string;
+      };
+    };
     Enums: Empty;
     CompositeTypes: Empty;
   };

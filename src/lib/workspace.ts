@@ -12,7 +12,6 @@ export function generateWorkspaceCode(): string {
   for (let i = 0; i < 6; i++) {
     code += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
   }
-  // Format: 4-2 mit Bindestrich für Lesbarkeit (z.B. "KOCH-42")
   return `${code.slice(0, 4)}-${code.slice(4)}`;
 }
 
@@ -32,42 +31,41 @@ export function pickProfileColor(takenColorVars: string[] = []): string {
 }
 
 // =====================================================================
-// Create + Join
+// Create + Join — über RPCs (lösen RLS-After-Insert-Problem)
 // =====================================================================
 
 export async function createWorkspace(workspaceName: string, displayName: string) {
-  // 1. Anonymous-User muss schon angelegt sein (auth.uid() vorhanden)
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Kein Auth-User. Anonymous Sign-In zuerst.');
 
-  // 2. Workspace anlegen mit eindeutigem Code (max 5 Versuche bei Kollision)
+  // RPC mit max 5 Retries bei Code-Kollision
   let workspaceId: string | null = null;
   let code = '';
+  let lastError: unknown = null;
   for (let attempt = 0; attempt < 5; attempt++) {
     code = generateWorkspaceCode();
-    const { data, error } = await supabase
-      .from('workspaces')
-      .insert({ name: workspaceName, code })
-      .select('id')
-      .single();
-    if (!error) {
-      workspaceId = data.id;
+    const { data, error } = await supabase.rpc('create_workspace_and_join', {
+      p_name: workspaceName,
+      p_code: code,
+      p_display_name: displayName,
+      p_color: pickProfileColor(),
+    } as never) as { data: string | null; error: { code?: string; message: string } | null };
+
+    if (!error && data) {
+      workspaceId = data;
       break;
     }
-    if (error.code !== '23505') throw error; // 23505 = unique_violation
+    lastError = error;
+    // 23505 = unique_violation auf workspaces.code → retry mit neuem Code
+    if (error?.code !== '23505') {
+      throw new Error(error?.message ?? 'Konnte Haushalt nicht anlegen.');
+    }
   }
-  if (!workspaceId) throw new Error('Konnte keinen eindeutigen Code generieren.');
-
-  // 3. Profile anlegen
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .insert({
-      id: user.id,
-      workspace_id: workspaceId,
-      display_name: displayName,
-      color: pickProfileColor(),
-    });
-  if (profileError) throw profileError;
+  if (!workspaceId) {
+    throw new Error(
+      `Konnte keinen eindeutigen Code generieren${lastError ? ` (${(lastError as { message?: string }).message})` : ''}.`
+    );
+  }
 
   return { workspaceId, code };
 }
@@ -78,42 +76,36 @@ export async function joinWorkspaceByCode(code: string, displayName: string) {
 
   const normalized = code.trim().toUpperCase();
 
-  // 1. Workspace per Code finden
-  const { data: ws, error: wsError } = await supabase
-    .from('workspaces')
-    .select('id, name')
-    .eq('code', normalized)
-    .single();
-  if (wsError || !ws) throw new Error('Workspace nicht gefunden. Stimmt der Code?');
+  // 1. Lookup um den Workspace-Namen zurückzugeben + zu prüfen dass er existiert
+  const lookupResult = await supabase.rpc('lookup_workspace_by_code', {
+    p_code: normalized,
+  } as never) as { data: { workspace_id: string; workspace_name: string }[] | null; error: { message: string } | null };
 
-  // 2. Bereits-genommene Profile-Farben holen
-  const { data: existing } = await supabase
-    .from('profiles')
-    .select('color')
-    .eq('workspace_id', ws.id);
-  const taken = (existing ?? []).map(p => p.color);
+  if (lookupResult.error) throw new Error(lookupResult.error.message);
+  const found = lookupResult.data?.[0];
+  if (!found) throw new Error('Workspace nicht gefunden. Stimmt der Code?');
 
-  // 3. Profile anlegen
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .insert({
-      id: user.id,
-      workspace_id: ws.id,
-      display_name: displayName,
-      color: pickProfileColor(taken),
-    });
-  if (profileError) throw profileError;
+  // 2. Bereits-genommene Profile-Farben holen — geht erst NACH dem Beitritt,
+  //    daher zuerst joinen, dann optional Farbe nachher anpassen.
+  const { error } = await supabase.rpc('join_workspace_by_code', {
+    p_code: normalized,
+    p_display_name: displayName,
+    p_color: pickProfileColor(),
+  } as never) as { data: string | null; error: { message: string } | null };
 
-  return { workspaceId: ws.id, workspaceName: ws.name };
+  if (error) throw new Error(error.message);
+
+  return { workspaceId: found.workspace_id, workspaceName: found.workspace_name };
 }
 
 export async function lookupWorkspaceByCode(code: string) {
   const normalized = code.trim().toUpperCase();
-  const { data, error } = await supabase
-    .from('workspaces')
-    .select('id, name, code')
-    .eq('code', normalized)
-    .maybeSingle();
-  if (error) throw error;
-  return data;
+  const { data, error } = await supabase.rpc('lookup_workspace_by_code', {
+    p_code: normalized,
+  } as never) as { data: { workspace_id: string; workspace_name: string }[] | null; error: { message: string } | null };
+
+  if (error) throw new Error(error.message);
+  const found = data?.[0];
+  if (!found) return null;
+  return { id: found.workspace_id, name: found.workspace_name, code: normalized };
 }
