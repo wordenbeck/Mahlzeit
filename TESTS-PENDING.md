@@ -30,6 +30,24 @@
 - [ ] **Suche-Test:** `/rezepte` → Suchfeld filtert nach Titel/Tags/Kategorie
 - [ ] **Multi-Workspace-Isolation:** Anderer Browser/anderer Workspace sieht **keine** Rezepte vom ersten Workspace (RLS-Check)
 
+## Sprint 3 — Plan / Einkauf / Liste mit echten Daten
+
+- [ ] **Plan-Test:** `/plan` → aktuelle KW + ◀ ▶ Navigation funktioniert
+- [ ] Auf Recipe im Grid klicken → Modal „Zu welchem Tag?" → Tag+Mahlzeit-Pick → Slot erscheint links beim richtigen Tag
+- [ ] Mehrere Slots pro Tag möglich
+- [ ] Hover über Slot → Trash-Icon zeigt sich → Klick → entfernt
+- [ ] Wochenende-Toggle blendet Sa/So ein/aus
+- [ ] Einkauf-Test: `/einkauf` zeigt geplante Rezepte mit Zutaten als Spalten
+- [ ] Portionen-Stepper pro Slot (`👥 [-] N [+]`) → Mengen scalen live
+- [ ] Liste-Test: `/liste` zeigt konsolidierte Einkaufsliste
+- [ ] Items haben Day-Pills die zeigen aus welchen Tagen die Zutat kommt
+- [ ] Multi-Tage-Scaling: Wenn z.B. „Knoblauch" in Mo + Fr → konsolidierte Menge stimmt
+- [ ] Mengen-Input in Liste editierbar
+- [ ] Eigene Zutat hinzufügen → erscheint im „Extras"-Block
+- [ ] Abhaken-Toggle funktioniert
+- [ ] Trash entfernt aus der Liste (lokal — refresh setzt zurück, Persistierung kommt später)
+- [ ] **Multi-User-Test:** zweiter Member im Workspace fügt Slot hinzu → erster Member sieht's nach Reload (real-time-sync kommt später, jetzt nur via Refresh)
+
 ## Allgemein / Cross-Cutting
 
 - [ ] Vercel-Deploy ist grün (latest commit auf main)
