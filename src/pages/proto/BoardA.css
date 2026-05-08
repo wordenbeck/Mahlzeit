@@ -1,0 +1,299 @@
+/* Board A — Planungsmodus: 25/75 Split, ◀ Datum ▶, List = Default, Classic-Toggle */
+
+.board-a {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-top: 64px;
+}
+
+.board-a__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%);
+  border-bottom: 1px solid var(--accent-soft);
+  gap: var(--space-4);
+}
+
+.board-a__header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.board-a__week-eyebrow {
+  font-size: var(--fs-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.board-a__date-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.board-a__date-nav h1 {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+
+.board-a__nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-card);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-a__nav-btn:hover {
+  color: var(--accent);
+}
+
+.board-a__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.board-a__magic {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background: var(--gradient-cta);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
+  box-shadow: var(--shadow-card);
+}
+
+.board-a__split {
+  display: grid;
+  grid-template-columns: 25% 75%;
+  height: calc(100vh - 96px);
+}
+
+.board-a__days {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-1);   /* weißer linker Wochenbereich */
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+
+/* Tag = textliche Trennung + Slots, KEIN Card-Container, KEIN Inner-Scroll */
+.board-a__day {
+  background: transparent;
+  border-radius: 0;
+  padding: var(--space-2) 0 var(--space-3);
+  box-shadow: none;
+  border-left: 0;
+  border-top: 1px solid var(--border);
+  flex: 0 0 auto;              /* Tag wächst mit Inhalt, leere Tage werden klein */
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.board-a__day:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.board-a__day.is-weekend {
+  opacity: 0.85;
+}
+
+.board-a__day-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.board-a__day-short {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+.board-a__day-date {
+  font-size: var(--fs-caption);
+  color: var(--text-3);
+  font-weight: var(--fw-medium);
+}
+
+.board-a__day-slots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  /* KEIN Inner-Scroll mehr — Slots stack natürlich */
+}
+
+.board-a__day-empty {
+  flex: 1;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  min-height: 32px;
+}
+
+.board-a__weekend-toggle {
+  flex-shrink: 0;
+  padding: var(--space-2);
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: var(--fw-medium);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
+}
+
+.board-a__weekend-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.board-a__grid-area {
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.board-a__toolbar {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding-bottom: var(--space-3);
+  z-index: 5;
+}
+
+.board-a__search-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.board-a__search-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.board-a__search {
+  width: 100%;
+  padding: var(--space-3) var(--space-3) var(--space-3) calc(var(--space-3) + 24px);
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-card);
+  border: 0;
+  font-size: var(--fs-body);
+  outline: none;
+}
+
+.board-a__search:focus {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.board-a__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-card);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-body);
+}
+
+.board-a__variant-toggle {
+  display: flex;
+  background: var(--surface-1);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  padding: 3px;
+  gap: 2px;
+}
+
+.board-a__variant-toggle button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.board-a__variant-toggle button.is-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.board-a__new {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--gradient-cta);
+  color: #fff;
+  font-weight: var(--fw-semibold);
+}
+
+.board-a__grid {
+  padding-bottom: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.board-a__grid--list {
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+}
+
+.board-a__grid--classic {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .board-a__split {
+    grid-template-columns: 30% 70%;
+  }
+}
+
+@media (max-width: 900px) {
+  .board-a__split {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .board-a__days {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .board-a__grid--list {
+    grid-template-columns: 1fr;
+  }
+}

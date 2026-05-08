@@ -1,0 +1,149 @@
+/* =====================================================================
+   Design Tokens — MealPlanner
+   Source: DESIGN-BRIEF.md
+   Diese Datei ist Single Source of Truth. Components hardcoden keine
+   Hex-Werte. Claude Design tuned hier später Mood/Farben/Spacing.
+   ===================================================================== */
+
+:root {
+  /* --- Color: Light Mode (Defaults) --- */
+  --bg: #FAF7F2;             /* warm cream */
+  --surface-1: #FFFFFF;      /* cards */
+  --surface-2: #F2EDE5;      /* sekundär */
+  --text-1: #2A2620;
+  --text-2: #5C544A;
+  --text-3: #9A9080;
+  --accent: #006C49;         /* emerald (Stitch-Vibe) */
+  --accent-soft: #D1FADF;    /* mint container */
+  --success: #15803D;        /* deeper green, koexistiert mit accent */
+  --danger: #DC2626;
+  --border: rgba(0, 0, 0, 0.06);
+  --border-strong: rgba(0, 0, 0, 0.12);
+
+  /* --- Profile Colors (Pastell, harmonisch) --- */
+  --profile-amber:    #F6C27A;
+  --profile-rose:     #E8A4A4;
+  --profile-sage:     #9DBF9E;
+  --profile-sky:      #9EC0DE;
+  --profile-lavender: #B8A8D9;
+  --profile-ochre:    #C8A35E;
+
+  /* --- Day-Of-Week Colors (Wiedererkennung) --- */
+  /* Pastell-Background + dunkler Text. Mo–Fr = warme Reihe, Sa/So = etwas kühler */
+  --day-mo-bg: #FFD7B5;  /* peach */
+  --day-mo-fg: #8C4A1A;
+  --day-di-bg: #FCE4A6;  /* butter */
+  --day-di-fg: #7A5A12;
+  --day-mi-bg: #DDEBC6;  /* sage-light */
+  --day-mi-fg: #4F6A2E;
+  --day-do-bg: #C9E1E8;  /* mint-sky */
+  --day-do-fg: #2E5A66;
+  --day-fr-bg: #D6D3F0;  /* lavender-light */
+  --day-fr-fg: #4D4480;
+  --day-sa-bg: #F5C9D4;  /* rose-light */
+  --day-sa-fg: #8A3B52;
+  --day-so-bg: #F0B8B0;  /* coral-light */
+  --day-so-fg: #843326;
+
+  /* --- Recipe-Mock-Gradients (für Card-Bilder ohne echte Bilder) --- */
+  --gradient-recipe-1: linear-gradient(135deg, #FFE0B5 0%, #F6C27A 100%);  /* amber */
+  --gradient-recipe-2: linear-gradient(135deg, #FCD4D4 0%, #E8A4A4 100%);  /* rose */
+  --gradient-recipe-3: linear-gradient(135deg, #D4E8D5 0%, #9DBF9E 100%);  /* sage */
+  --gradient-recipe-4: linear-gradient(135deg, #D5E5F2 0%, #9EC0DE 100%);  /* sky */
+  --gradient-recipe-5: linear-gradient(135deg, #E2D8F0 0%, #B8A8D9 100%);  /* lavender */
+  --gradient-recipe-6: linear-gradient(135deg, #EBD9B4 0%, #C8A35E 100%);  /* ochre */
+
+  /* --- Hero-Gradients (subtil, max 8% Helligkeitsdifferenz) --- */
+  --gradient-today:   linear-gradient(135deg, #F0FDF4 0%, #D1FADF 100%);
+  --gradient-cta:     linear-gradient(135deg, #10B981 0%, #006C49 100%);  /* "vitality"-grad */
+  --gradient-splash:  linear-gradient(180deg, #FAF7F2 0%, #ECFDF5 100%);
+
+  /* --- Typography --- */
+  --font-system: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+                 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --fs-h1: 28px;        /* iPad page title */
+  --fs-h2: 20px;        /* iPad section */
+  --fs-body: 15px;      /* iPad body */
+  --fs-caption: 12px;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* --- Spacing (4px grid) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* --- Radius --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-card: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* --- Shadows (soft, iOS-feel, leicht emerald-getintet → "organic") --- */
+  --shadow-card: 0 1px 2px rgba(6, 78, 59, 0.05), 0 4px 12px rgba(6, 78, 59, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(6, 78, 59, 0.08), 0 8px 24px rgba(6, 78, 59, 0.10);
+  --shadow-sheet: 0 -4px 24px rgba(6, 78, 59, 0.10);
+
+  /* --- Motion --- */
+  --ease-ios: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 400ms;
+}
+
+/* iPhone Sizes via media query */
+@media (max-width: 768px) {
+  :root {
+    --fs-h1: 22px;
+    --fs-h2: 17px;
+    --fs-body: 14px;
+  }
+}
+
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Day colors: leicht abgedunkelt, gleicher Hue */
+    --day-mo-bg: #6E4520; --day-mo-fg: #FFD7B5;
+    --day-di-bg: #6E5520; --day-di-fg: #FCE4A6;
+    --day-mi-bg: #3F5230; --day-mi-fg: #DDEBC6;
+    --day-do-bg: #2E4A55; --day-do-fg: #C9E1E8;
+    --day-fr-bg: #3D3868; --day-fr-fg: #D6D3F0;
+    --day-sa-bg: #6A2E40; --day-sa-fg: #F5C9D4;
+    --day-so-bg: #6A2E25; --day-so-fg: #F0B8B0;
+
+    --bg: #1A1814;
+    --surface-1: #26221C;
+    --surface-2: #332E26;
+    --text-1: #F2EDE5;
+    --text-2: #BDB5A8;
+    --text-3: #7A7165;
+    --accent: #4EDEA3;       /* emerald light, dark-mode invers */
+    --accent-soft: #1A4D3A;
+    --success: #4ADE80;
+    --danger: #EF4444;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    --gradient-today: linear-gradient(135deg, #1A2E24 0%, #235038 100%);
+    --gradient-cta:   linear-gradient(135deg, #34D399 0%, #10B981 100%);
+    --gradient-splash: linear-gradient(180deg, #1A1814 0%, #1F2D24 100%);
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+    --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

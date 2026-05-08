@@ -1,0 +1,158 @@
+/* App-Menü — abgeleitet aus MenuVerbal-Prototyp.
+   Kompakte Defaults, scroll-shrink wie im Prototyp. */
+
+.app-menu {
+  --m-pad-y: 8px;
+  --m-pad-x: var(--space-4);
+  --m-logo: 28px;
+  --m-brand-fs: 16px;
+  --m-item-pad-y: 6px;
+  --m-item-pad-x: 12px;
+  --m-item-fs: 13px;
+  --m-label-w: 110px;
+  --m-label-ml: 6px;
+  --m-profile: 30px;
+  --m-nav-gap: 0px;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%);
+  border-bottom: 1px solid var(--accent-soft);
+  padding: var(--m-pad-y) var(--m-pad-x);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  transition: padding 350ms var(--ease-ios), box-shadow 350ms var(--ease-ios);
+}
+
+.app-menu.is-compact {
+  --m-pad-y: 4px;
+  --m-logo: 24px;
+  --m-brand-fs: 14px;
+  --m-item-pad-y: 6px;
+  --m-item-pad-x: 10px;
+  --m-item-fs: 12px;
+  --m-label-w: 0px;
+  --m-label-ml: 0px;
+  --m-profile: 26px;
+  --m-nav-gap: 14px;
+
+  box-shadow: 0 4px 16px rgba(6, 78, 59, 0.06);
+}
+
+.app-menu__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.app-menu__logo {
+  width: var(--m-logo);
+  height: var(--m-logo);
+  border-radius: var(--radius-sm);
+  background: var(--gradient-cta);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 350ms var(--ease-ios), height 350ms var(--ease-ios);
+}
+
+.app-menu__brand-name {
+  font-size: var(--m-brand-fs);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  transition: font-size 350ms var(--ease-ios);
+}
+
+.app-menu__nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--m-nav-gap);
+  transition: gap 350ms var(--ease-ios);
+}
+
+.app-menu__item-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-menu__item {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--m-item-pad-y) var(--m-item-pad-x);
+  border-radius: var(--radius-pill);
+  font-size: var(--m-item-fs);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  white-space: nowrap;
+  text-decoration: none;
+  overflow: hidden;
+  transition:
+    padding 350ms var(--ease-ios),
+    font-size 350ms var(--ease-ios),
+    background var(--dur-fast) var(--ease-ios),
+    color var(--dur-fast) var(--ease-ios);
+}
+
+.app-menu__item:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.app-menu__item.is-active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: var(--fw-semibold);
+}
+
+.app-menu__label {
+  display: inline-block;
+  max-width: var(--m-label-w);
+  margin-left: var(--m-label-ml);
+  overflow: hidden;
+  white-space: nowrap;
+  transition:
+    max-width 350ms var(--ease-ios),
+    margin-left 350ms var(--ease-ios),
+    opacity 250ms var(--ease-ios);
+  opacity: 1;
+}
+
+.app-menu.is-compact .app-menu__label {
+  opacity: 0;
+}
+
+.app-menu__connector {
+  color: var(--text-3);
+  margin: 0 2px;
+  max-width: 16px;
+  overflow: hidden;
+  transition:
+    opacity 350ms var(--ease-ios),
+    max-width 350ms var(--ease-ios),
+    margin 350ms var(--ease-ios);
+}
+
+.app-menu.is-compact .app-menu__connector {
+  opacity: 0;
+  max-width: 0;
+  margin: 0;
+}
+
+.app-menu__profile {
+  width: var(--m-profile);
+  height: var(--m-profile);
+  border-radius: var(--radius-pill);
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: var(--fw-semibold);
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: width 350ms var(--ease-ios), height 350ms var(--ease-ios);
+}

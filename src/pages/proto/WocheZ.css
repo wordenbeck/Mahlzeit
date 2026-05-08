@@ -1,0 +1,426 @@
+/* Woche Z — At-a-glance: 5 (oder 7) Tage horizontal, Rezepte+Zutaten pro Spalte, → Einkaufstüte */
+
+.woche-z {
+  min-height: 100vh;
+  background: var(--bg);    /* creme — Akzent kommt über Karten/CTAs */
+  padding-top: 64px;
+  display: flex;
+  flex-direction: column;
+}
+
+.woche-z__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%);
+  border-bottom: 1px solid var(--accent-soft);
+  gap: var(--space-4);
+}
+
+.woche-z__header h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.woche-z__eyebrow {
+  font-size: var(--fs-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.woche-z__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.woche-z__title-row h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.woche-z__nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-card);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.woche-z__nav-btn:hover {
+  color: var(--accent);
+}
+
+.woche-z__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.woche-z__style-toggle {
+  display: flex;
+  background: var(--surface-1);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.woche-z__style-toggle button {
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  color: var(--text-3);
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.woche-z__style-toggle button.is-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Header-Buttons: gleiche Größe, kompakt */
+.woche-z__weekend-toggle,
+.woche-z__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  min-height: 32px;
+  white-space: nowrap;
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.woche-z__weekend-toggle {
+  background: var(--surface-1);
+  color: var(--text-2);
+  border: 1px solid var(--accent-soft);
+  box-shadow: var(--shadow-card);
+}
+
+.woche-z__weekend-toggle.is-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.woche-z__cta {
+  background: var(--gradient-cta);
+  color: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.woche-z__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.woche-z__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-caption);
+  color: var(--text-2);
+  font-weight: var(--fw-medium);
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-card);
+}
+
+.woche-z__back:hover {
+  color: var(--accent);
+}
+
+/* --- 5/7 day grid --- */
+.woche-z__grid {
+  flex: 1;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  overflow-x: auto;
+}
+
+.woche-z__grid.is-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.woche-z__grid.is-7 {
+  grid-template-columns: repeat(7, minmax(180px, 1fr));
+}
+
+.woche-z__column {
+  /* Tagesspalte = mit mint-Verlauf (Card hat den Akzent) → Recipe-Cards drinnen sind weiß */
+  background: linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  border: 1px solid var(--accent-soft);
+  border-top: 4px solid var(--day-mo-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Day-spezifischer Top-Strip pro Spalte (Mo..So in Render-Reihenfolge) */
+.woche-z__column:nth-child(1) { border-top-color: var(--day-mo-bg); }
+.woche-z__column:nth-child(2) { border-top-color: var(--day-di-bg); }
+.woche-z__column:nth-child(3) { border-top-color: var(--day-mi-bg); }
+.woche-z__column:nth-child(4) { border-top-color: var(--day-do-bg); }
+.woche-z__column:nth-child(5) { border-top-color: var(--day-fr-bg); }
+.woche-z__column:nth-child(6) { border-top-color: var(--day-sa-bg); }
+.woche-z__column:nth-child(7) { border-top-color: var(--day-so-bg); }
+
+.woche-z__column.is-weekend {
+  opacity: 0.85;
+}
+
+.woche-z__col-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-1);
+}
+
+.woche-z__col-day {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+
+.woche-z__col-date {
+  font-size: var(--fs-caption);
+  color: var(--text-3);
+  font-weight: var(--fw-medium);
+}
+
+.woche-z__col-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+/* Leerer Tag: mint-soft Pill, deutlich und einladend, aber NICHT der finale CTA */
+.woche-z__col-empty-cta {
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: all var(--dur-fast) var(--ease-ios);
+  min-height: 44px;
+  background: var(--gradient-today);
+  border: 1px solid var(--accent-soft);
+  color: var(--accent);
+}
+
+.woche-z__col-empty-cta:hover {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+/* Wenn schon Rezept(e) da: kleiner Plus-Kreis am Ende der Spalte */
+.woche-z__col-add-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-top: var(--space-1);
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.woche-z__col-add-circle:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Footer — uniform cream, keine grüne Hervorhebung */
+.woche-z__footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  position: sticky;
+  bottom: 0;
+}
+
+.woche-z__footer-info {
+  font-size: var(--fs-caption);
+  color: var(--text-2);
+}
+
+.woche-z__cta-large {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--gradient-cta);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  box-shadow: var(--shadow-card);
+}
+
+/* --- Einkaufen-Route --- */
+.woche-z--einkaufen .woche-z__list-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-6) var(--space-7);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.woche-z--einkaufen .woche-z__header {
+  background: linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%);
+  border-bottom: 1px solid var(--accent-soft);
+}
+
+.woche-z__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-self: start;
+}
+
+.woche-z__breakdown {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+
+.woche-z__breakdown-item:hover {
+  background: rgba(16, 185, 129, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  margin: -4px -6px;
+}
+
+.woche-z__breakdown h3 {
+  font-size: var(--fs-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.woche-z__breakdown ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.woche-z__breakdown-item {
+  display: grid;
+  grid-template-columns: auto 32px 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-caption);
+}
+
+.woche-z__breakdown-emoji {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.woche-z__breakdown-title {
+  color: var(--text-1);
+  font-weight: var(--fw-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.woche-z__breakdown-portionen {
+  color: var(--text-3);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.woche-z__bring-card {
+  background: var(--gradient-today);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-self: start;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--accent-soft);
+}
+
+.woche-z__bring-card h3 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+}
+
+.woche-z__bring-card p {
+  font-size: var(--fs-body);
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.woche-z__bring-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--gradient-cta);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  box-shadow: var(--shadow-card);
+}
+
+.woche-z__bring-card small {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+@media (max-width: 1100px) {
+  .woche-z__grid.is-5 { grid-template-columns: repeat(5, minmax(180px, 1fr)); }
+  .woche-z--einkaufen .woche-z__list-area { grid-template-columns: 1fr; }
+}

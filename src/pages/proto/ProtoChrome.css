@@ -1,0 +1,72 @@
+.proto-chrome {
+  position: fixed;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  z-index: 100;
+  font-size: var(--fs-caption);
+  max-width: calc(100vw - var(--space-5));
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.proto-chrome::-webkit-scrollbar { display: none; }
+
+.proto-chrome__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.proto-chrome__divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-strong);
+  margin: 0 var(--space-1);
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .proto-chrome {
+    background: rgba(38, 34, 28, 0.85);
+  }
+}
+
+.proto-chrome__link {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--text-2);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.proto-chrome__group--archiv .proto-chrome__link {
+  color: var(--text-3);
+  font-weight: var(--fw-regular);
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.proto-chrome__group--archiv .proto-chrome__link.is-active {
+  opacity: 1;
+}
+
+.proto-chrome__link:hover {
+  color: var(--text-1);
+  background: var(--surface-2);
+}
+
+.proto-chrome__link.is-active {
+  color: var(--text-1);
+  background: var(--accent-soft);
+}

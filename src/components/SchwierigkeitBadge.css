@@ -1,0 +1,11 @@
+.schwierigkeit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--text-2);
+}
+
+.schwierigkeit-badge__label {
+  font-weight: var(--fw-medium);
+}

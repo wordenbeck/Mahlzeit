@@ -1,0 +1,219 @@
+/* Board B — Magazine-bold: 30/70 Split, große bildlastige Cards, prominenter Akzent-Header */
+
+.board-b {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-top: 64px;
+}
+
+.board-b__hero {
+  background: var(--gradient-cta);
+  color: #fff;
+  padding: var(--space-6) var(--space-6) var(--space-7);
+  position: relative;
+  overflow: hidden;
+}
+
+.board-b__hero::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.board-b__hero-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  position: relative;
+  z-index: 1;
+}
+
+.board-b__eyebrow {
+  font-size: var(--fs-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: var(--fw-semibold);
+  opacity: 0.85;
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.board-b__title {
+  font-size: 44px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.board-b__subtitle {
+  font-size: var(--fs-h2);
+  margin-top: var(--space-2);
+  opacity: 0.9;
+}
+
+.board-b__hero-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.board-b__pill {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  backdrop-filter: blur(8px);
+}
+
+.board-b__pill:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.board-b__cta {
+  padding: var(--space-3) var(--space-4);
+  background: #fff;
+  color: var(--accent);
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+  box-shadow: var(--shadow-card);
+}
+
+.board-b__cta--small {
+  padding: var(--space-2) var(--space-3);
+  background: var(--gradient-cta);
+  color: #fff;
+}
+
+.board-b__split {
+  display: grid;
+  grid-template-columns: 30% 70%;
+}
+
+.board-b__days {
+  padding: var(--space-5) var(--space-4);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--surface-2);
+}
+
+.board-b__day {
+  background: var(--surface-1);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+
+.board-b__day.is-today {
+  background: var(--gradient-today);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.board-b__day-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.board-b__day-name {
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-1);
+}
+
+.board-b__day-date {
+  font-size: var(--fs-caption);
+  color: var(--text-3);
+}
+
+.board-b__today-pill {
+  margin-left: auto;
+  padding: 2px var(--space-2);
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold);
+}
+
+.board-b__day-slots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.board-b__grid-area {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.board-b__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.board-b__section {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+}
+
+.board-b__toolbar-spacer {
+  flex: 1;
+}
+
+.board-b__search {
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-1);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  border: 0;
+  font-size: var(--fs-body);
+  width: 200px;
+  outline: none;
+}
+
+.board-b__filter-pill {
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  color: var(--text-2);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+}
+
+.board-b__filter-pill.is-active {
+  background: var(--text-1);
+  color: var(--bg);
+  border-color: var(--text-1);
+}
+
+.board-b__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+  padding-bottom: var(--space-7);
+}
+
+@media (max-width: 900px) {
+  .board-b__split { grid-template-columns: 1fr; }
+  .board-b__title { font-size: 32px; }
+}

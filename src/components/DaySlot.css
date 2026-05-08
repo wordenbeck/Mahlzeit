@@ -1,0 +1,120 @@
+.day-slot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--accent-soft);    /* uni dezent-grün, kein Verlauf */
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-fast) var(--ease-ios);
+}
+
+.day-slot__drag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  flex-shrink: 0;
+  cursor: grab;
+  opacity: 0.5;
+  transition: opacity var(--dur-fast) var(--ease-ios);
+}
+
+.day-slot:hover .day-slot__drag {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.day-slot:hover {
+  transform: translateY(-1px);
+}
+
+.day-slot__thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-slot__emoji {
+  font-size: 22px;
+}
+
+.day-slot__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.day-slot__title {
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  font-weight: var(--fw-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-slot__meta {
+  font-size: 11px;
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: 2px;
+}
+
+.day-slot__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.day-slot__meta-sep {
+  color: var(--text-3);
+}
+
+.day-slot--compact {
+  padding: var(--space-1) var(--space-2);
+}
+.day-slot--compact .day-slot__thumb {
+  width: 32px;
+  height: 32px;
+}
+.day-slot--compact .day-slot__emoji {
+  font-size: 16px;
+}
+.day-slot--compact .day-slot__title {
+  font-size: var(--fs-caption);
+}
+
+.day-slot__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-3);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.day-slot__add:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.day-slot__add span {
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+}
