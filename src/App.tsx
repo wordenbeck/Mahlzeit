@@ -2,12 +2,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { Onboarding } from './pages/Onboarding';
 import { JoinByCode } from './pages/JoinByCode';
-import {
-  HeuteStub, PlanStub, EinkaufPruefenStub, EinkaufenStub,
-} from './pages/StubPages';
+import { HeuteStub } from './pages/StubPages';
 import { Rezepte } from './pages/Rezepte';
 import { RezeptImport } from './pages/RezeptImport';
 import { RezeptDetail } from './pages/RezeptDetail';
+import { Plan } from './pages/Plan';
+import { Einkauf } from './pages/Einkauf';
+import { Liste } from './pages/Liste';
 
 // Sprint-0-Prototypen bleiben unter /proto/* erhalten
 import { ProtoIndex } from './pages/proto/ProtoIndex';
@@ -34,9 +35,9 @@ export function App() {
         {/* App-Routes mit Shell + Auth-Guard */}
         <Route element={<AppShell />}>
           <Route path="/" element={<HeuteStub />} />
-          <Route path="/plan" element={<PlanStub />} />
-          <Route path="/einkauf" element={<EinkaufPruefenStub />} />
-          <Route path="/liste" element={<EinkaufenStub />} />
+          <Route path="/plan" element={<Plan />} />
+          <Route path="/einkauf" element={<Einkauf />} />
+          <Route path="/liste" element={<Liste />} />
           <Route path="/rezepte" element={<Rezepte />} />
           <Route path="/rezepte/import" element={<RezeptImport />} />
           <Route path="/rezepte/:id" element={<RezeptDetail />} />
