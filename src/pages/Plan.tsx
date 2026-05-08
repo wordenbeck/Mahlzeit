@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import {
   ChevronLeft, ChevronRight, Sparkles, Plus, Search, Trash2, X,
 } from 'lucide-react';
+import {
+  DndContext, DragOverlay, PointerSensor, useDraggable, useDroppable,
+  useSensor, useSensors,
+  type DragEndEvent, type DragStartEvent,
+} from '@dnd-kit/core';
 import './Plan.css';
 import { useAuth } from '../lib/auth';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
@@ -32,6 +37,46 @@ export function Plan() {
   // Add-to-day modal state
   const [addTarget, setAddTarget] = useState<RecipeListItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // D&D state
+  const [activeRecipe, setActiveRecipe] = useState<RecipeListItem | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+
+  const handleDragStart = (e: DragStartEvent) => {
+    const id = String(e.active.id);
+    if (id.startsWith('recipe:')) {
+      const recipeId = id.slice('recipe:'.length);
+      const recipe = recipes.find(r => r.id === recipeId);
+      setActiveRecipe(recipe ?? null);
+    }
+  };
+
+  const handleDragEnd = async (e: DragEndEvent) => {
+    setActiveRecipe(null);
+    const overId = e.over?.id;
+    const activeId = String(e.active.id);
+    if (!overId || !weekplan) return;
+    if (!activeId.startsWith('recipe:')) return;
+    if (!String(overId).startsWith('day:')) return;
+
+    const recipeId = activeId.slice('recipe:'.length);
+    const day = parseInt(String(overId).slice('day:'.length), 10);
+    if (isNaN(day)) return;
+
+    try {
+      const slot = await addSlot({
+        weekplan_id: weekplan.id,
+        day_of_week: day,
+        meal_type: 'abendessen',  // Default — über Modal/Detail später anpassbar
+        recipe_id: recipeId,
+      });
+      setWeekplan({ ...weekplan, slots: [...weekplan.slots, slot] });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
+    }
+  };
 
   const reload = async () => {
     if (!auth.profile) return;
@@ -103,6 +148,7 @@ export function Plan() {
   };
 
   return (
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
     <div className="plan">
       <header className="plan__header">
         <div className="plan__header-main">
@@ -133,14 +179,14 @@ export function Plan() {
           {!loading && visibleDays.map(i => {
             const slots = slotsForDay(i);
             return (
-              <section key={i} className="plan__day">
+              <DayDroppable key={i} day={i}>
                 <header className="plan__day-header">
                   <span className="plan__day-short">{dayLabelShort(weekStart, i)}</span>
                   <span className="plan__day-date">{dayDateLong(weekStart, i)}</span>
                 </header>
                 <div className="plan__day-slots">
                   {slots.length === 0 ? (
-                    <div className="plan__day-empty" />
+                    <div className="plan__day-empty">Hier ablegen</div>
                   ) : (
                     slots.map(s => {
                       const r = recipeForSlot(s);
@@ -162,7 +208,7 @@ export function Plan() {
                     })
                   )}
                 </div>
-              </section>
+              </DayDroppable>
             );
           })}
           <button
@@ -201,28 +247,32 @@ export function Plan() {
 
           <div className="plan__grid">
             {filtered.map(r => (
-              <button
+              <RecipeDraggable
                 key={r.id}
-                className="plan__recipe"
+                recipe={r}
                 onClick={() => setAddTarget(r)}
-              >
-                <div
-                  className="plan__recipe-thumb"
-                  style={r.bild_url ? { background: `url(${r.bild_url}) center/cover` } : undefined}
-                >
-                  {!r.bild_url && <span>🍽</span>}
-                </div>
-                <div className="plan__recipe-body">
-                  <span className="plan__recipe-title">{r.titel}</span>
-                  {r.zubereitungszeit_min != null && (
-                    <span className="plan__recipe-meta">⏱ {r.zubereitungszeit_min} Min</span>
-                  )}
-                </div>
-              </button>
+              />
             ))}
           </div>
         </main>
       </div>
+
+      {/* Drag-Overlay — zeigt das gezogene Rezept */}
+      <DragOverlay dropAnimation={null}>
+        {activeRecipe && (
+          <div className="plan__recipe plan__recipe--dragging">
+            <div
+              className="plan__recipe-thumb"
+              style={activeRecipe.bild_url ? { background: `url(${activeRecipe.bild_url}) center/cover` } : undefined}
+            >
+              {!activeRecipe.bild_url && <span>🍽</span>}
+            </div>
+            <div className="plan__recipe-body">
+              <span className="plan__recipe-title">{activeRecipe.titel}</span>
+            </div>
+          </div>
+        )}
+      </DragOverlay>
 
       {/* Add-to-day Modal */}
       {addTarget && (
@@ -265,5 +315,53 @@ export function Plan() {
         </>
       )}
     </div>
+    </DndContext>
+  );
+}
+
+// =====================================================================
+// D&D Helper Components
+// =====================================================================
+
+function RecipeDraggable({
+  recipe,
+  onClick,
+}: {
+  recipe: RecipeListItem;
+  onClick: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `recipe:${recipe.id}`,
+  });
+  return (
+    <button
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`plan__recipe ${isDragging ? 'is-dragging' : ''}`}
+      onClick={onClick}
+    >
+      <div
+        className="plan__recipe-thumb"
+        style={recipe.bild_url ? { background: `url(${recipe.bild_url}) center/cover` } : undefined}
+      >
+        {!recipe.bild_url && <span>🍽</span>}
+      </div>
+      <div className="plan__recipe-body">
+        <span className="plan__recipe-title">{recipe.titel}</span>
+        {recipe.zubereitungszeit_min != null && (
+          <span className="plan__recipe-meta">⏱ {recipe.zubereitungszeit_min} Min</span>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function DayDroppable({ day, children }: { day: number; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `day:${day}` });
+  return (
+    <section ref={setNodeRef} className={`plan__day ${isOver ? 'is-drop-over' : ''}`}>
+      {children}
+    </section>
   );
 }

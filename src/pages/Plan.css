@@ -137,6 +137,32 @@
   height: 32px;
   border: 1px dashed var(--border);
   border-radius: var(--radius-md);
+  font-size: 10px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan__day.is-drop-over .plan__day-empty {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.plan__day.is-drop-over {
+  background: rgba(16, 185, 129, 0.04);
+  border-radius: var(--radius-md);
+}
+
+.plan__recipe.is-dragging {
+  opacity: 0.4;
+}
+
+.plan__recipe--dragging {
+  cursor: grabbing;
+  transform: rotate(2deg);
+  box-shadow: 0 16px 32px rgba(6, 78, 59, 0.25);
 }
 
 .plan__slot {

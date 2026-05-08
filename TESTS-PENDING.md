@@ -48,6 +48,21 @@
 - [ ] Trash entfernt aus der Liste (lokal — refresh setzt zurück, Persistierung kommt später)
 - [ ] **Multi-User-Test:** zweiter Member im Workspace fügt Slot hinzu → erster Member sieht's nach Reload (real-time-sync kommt später, jetzt nur via Refresh)
 
+## Sprint 4 — Heute-View, Code-Splitting, D&D
+
+- [ ] **Heute-Page (`/`):** Tageszeit-passende Begrüßung („Guten Morgen, Thomas")
+- [ ] Aktuelles Datum (Wochentag + Tag + Monat) angezeigt
+- [ ] Heute geplante Slots werden angezeigt — Click → /rezepte/:id
+- [ ] „Morgen schon mal vorbereitet"-Block zeigt morgige Slots wenn vorhanden
+- [ ] 3 Quick-Action-Tiles (Plan / Einkauf / Neu) funktionieren
+- [ ] Empty-State wenn nichts geplant: zwei CTAs („Spontan zum Plan", „Rezepte stöbern")
+- [ ] **Code-Splitting:** `/` lädt nur Haupt-Bundle (~485kb), `/proto/*` lädt Prototypen-Chunks separat (Browser-DevTools Network-Tab → check)
+- [ ] **D&D in `/plan`:** Recipe-Card-Lang-Pressen + Ziehen → in Tag-Spalte ablegen → Slot wird hinzugefügt (Default-Mahlzeit: Abend)
+- [ ] Drag-Overlay zeigt Recipe-Card schwebend mit leichter Rotation
+- [ ] Drop-Target-Hint: Tag bekommt mint-tint beim Drag-Over
+- [ ] Click auf Recipe-Card öffnet weiterhin Modal (für genauere Mahlzeit-Wahl als Default)
+- [ ] **Touch-Test (iPad):** D&D klappt auch auf Touch-Geräten (Long-Press 8px Distance-Threshold)
+
 ## Allgemein / Cross-Cutting
 
 - [ ] Vercel-Deploy ist grün (latest commit auf main)
