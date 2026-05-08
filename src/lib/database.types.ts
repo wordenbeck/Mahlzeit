@@ -3,6 +3,8 @@
 
 export type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
 
+type Empty = Record<string, never>;
+
 export type Database = {
   public: {
     Tables: {
@@ -20,6 +22,7 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['workspaces']['Insert']>;
+        Relationships: [];
       };
       profiles: {
         Row: {
@@ -37,6 +40,7 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
+        Relationships: [];
       };
       recipes: {
         Row: {
@@ -63,21 +67,32 @@ export type Database = {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['recipes']['Row'],
-          'id' | 'created_at' | 'updated_at' | 'kategorie' | 'tags' | 'ai_warnings' | 'is_favorite' | 'portionen' | 'zutaten' | 'zubereitung'
-        > & {
+        Insert: {
           id?: string;
-          kategorie?: string[];
-          tags?: string[];
-          ai_warnings?: string[];
-          is_favorite?: boolean;
+          workspace_id: string;
+          created_by: string;
+          source: string;
+          source_url?: string | null;
+          source_author?: string | null;
+          source_caption_raw?: string | null;
+          titel: string;
+          beschreibung?: string | null;
           portionen?: number;
+          zubereitungszeit_min?: number | null;
+          schwierigkeit?: string | null;
+          kategorie?: string[];
           zutaten?: Json;
           zubereitung?: Json;
+          tags?: string[];
+          bild_url?: string | null;
+          is_favorite?: boolean;
+          ai_confidence?: string | null;
+          ai_warnings?: string[];
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['recipes']['Insert']>;
+        Relationships: [];
       };
       weekplans: {
         Row: {
@@ -87,6 +102,7 @@ export type Database = {
         };
         Insert: { id?: string; workspace_id: string; week_start: string };
         Update: Partial<Database['public']['Tables']['weekplans']['Insert']>;
+        Relationships: [];
       };
       weekplan_slots: {
         Row: {
@@ -118,9 +134,12 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['weekplan_slots']['Insert']>;
+        Relationships: [];
       };
     };
-    Functions: { current_workspace_id: { Args: Record<string, never>; Returns: string } };
-    Enums: Record<string, never>;
+    Views: Empty;
+    Functions: { current_workspace_id: { Args: Empty; Returns: string } };
+    Enums: Empty;
+    CompositeTypes: Empty;
   };
 };

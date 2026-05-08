@@ -8,7 +8,6 @@ import { EinkaufslisteView } from '../../components/EinkaufslisteView';
 import { DayPill } from '../../components/DayPill';
 import {
   DAY_LABELS,
-  DAY_LABELS_LONG,
   WEEK_NUMBER,
   WEEK_RANGE_LABEL,
   WEEKPLAN_SLOTS,

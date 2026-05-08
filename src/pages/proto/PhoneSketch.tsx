@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './PhoneSketch.css';
 import { ProtoChrome } from './ProtoChrome';
 import { RecipeCard } from '../../components/RecipeCard';
-import { DaySlot, AddSlotButton } from '../../components/DaySlot';
+import { DaySlot } from '../../components/DaySlot';
 import {
   RECIPES,
   DAY_LABELS,
