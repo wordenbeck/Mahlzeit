@@ -3,8 +3,11 @@ import { AppShell } from './AppShell';
 import { Onboarding } from './pages/Onboarding';
 import { JoinByCode } from './pages/JoinByCode';
 import {
-  HeuteStub, PlanStub, EinkaufPruefenStub, EinkaufenStub, RezepteStub,
+  HeuteStub, PlanStub, EinkaufPruefenStub, EinkaufenStub,
 } from './pages/StubPages';
+import { Rezepte } from './pages/Rezepte';
+import { RezeptImport } from './pages/RezeptImport';
+import { RezeptDetail } from './pages/RezeptDetail';
 
 // Sprint-0-Prototypen bleiben unter /proto/* erhalten
 import { ProtoIndex } from './pages/proto/ProtoIndex';
@@ -34,7 +37,9 @@ export function App() {
           <Route path="/plan" element={<PlanStub />} />
           <Route path="/einkauf" element={<EinkaufPruefenStub />} />
           <Route path="/liste" element={<EinkaufenStub />} />
-          <Route path="/rezepte" element={<RezepteStub />} />
+          <Route path="/rezepte" element={<Rezepte />} />
+          <Route path="/rezepte/import" element={<RezeptImport />} />
+          <Route path="/rezepte/:id" element={<RezeptDetail />} />
         </Route>
 
         {/* Prototypen — bleiben ungeschützt für Vergleich/Reference */}
