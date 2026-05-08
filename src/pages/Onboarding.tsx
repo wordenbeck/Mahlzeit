@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Sparkles, ChefHat, Users, ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { ChefHat, Users, ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { MahlzeitLogo } from '../components/MahlzeitLogo';
 import './Onboarding.css';
 import { createWorkspace, joinWorkspaceByCode, lookupWorkspaceByCode } from '../lib/workspace';
 import { useAuth } from '../lib/auth';
@@ -88,7 +89,7 @@ export function Onboarding() {
   return (
     <div className="onboarding">
       <header className="onboarding__brand">
-        <span className="onboarding__logo"><Sparkles size={22} strokeWidth={2.5} /></span>
+        <span className="onboarding__logo"><MahlzeitLogo size={24} /></span>
         <span>Mahlzeit</span>
       </header>
 

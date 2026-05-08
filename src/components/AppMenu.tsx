@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Calendar, ChefHat, ShoppingBag, ListChecks, Sparkles, Home, ChevronRight,
+  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight,
 } from 'lucide-react';
 import './AppMenu.css';
 import { useAuth } from '../lib/auth';
+import { MahlzeitLogo } from './MahlzeitLogo';
 
 const items: { id: string; to: string; label: string; icon: typeof Home; flowStep?: number }[] = [
   { id: 'heute',   to: '/',          label: 'Heute kochen',   icon: Home },
@@ -35,7 +36,7 @@ export function AppMenu() {
   return (
     <header className={`app-menu ${compact ? 'is-compact' : ''}`}>
       <Link to="/" className="app-menu__brand">
-        <span className="app-menu__logo"><Sparkles size={18} strokeWidth={2.5} /></span>
+        <span className="app-menu__logo"><MahlzeitLogo size={18} /></span>
         <span className="app-menu__brand-name">Mahlzeit</span>
       </Link>
 
