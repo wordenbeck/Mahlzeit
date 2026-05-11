@@ -13,7 +13,8 @@ import { useAuth } from '../lib/auth';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import {
   isoWeekStart, isoWeekNumber, isoWeekRangeLabel, dayLabelShort, dayDateLong, shiftWeek,
-  getOrCreateWeekplan, addSlot, deleteSlot, type WeekplanWithSlots, type Slot,
+  getOrCreateWeekplan, addSlot, deleteSlot, moveSlot,
+  type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
 import { RealRecipeCard } from '../components/RealRecipeCard';
 
@@ -78,6 +79,11 @@ export function Plan() {
       const recipeId = id.slice('recipe:'.length);
       const recipe = recipes.find(r => r.id === recipeId);
       setActiveRecipe(recipe ?? null);
+    } else if (id.startsWith('slot:')) {
+      const slotId = id.slice('slot:'.length);
+      const slot = weekplan?.slots.find(s => s.id === slotId);
+      const recipe = slot ? recipes.find(r => r.id === slot.recipe_id) : null;
+      setActiveRecipe(recipe ?? null);
     }
   };
 
@@ -86,23 +92,50 @@ export function Plan() {
     const overId = e.over?.id;
     const activeId = String(e.active.id);
     if (!overId || !weekplan) return;
-    if (!activeId.startsWith('recipe:')) return;
     if (!String(overId).startsWith('day:')) return;
 
-    const recipeId = activeId.slice('recipe:'.length);
     const day = parseInt(String(overId).slice('day:'.length), 10);
     if (isNaN(day)) return;
 
-    try {
-      const slot = await addSlot({
-        weekplan_id: weekplan.id,
-        day_of_week: day,
-        meal_type: 'mittag',     // Dummy — UI zeigt's nicht mehr
-        recipe_id: recipeId,
+    // CASE 1: Neues Recipe → Slot
+    if (activeId.startsWith('recipe:')) {
+      const recipeId = activeId.slice('recipe:'.length);
+      try {
+        const slot = await addSlot({
+          weekplan_id: weekplan.id,
+          day_of_week: day,
+          meal_type: 'mittag',
+          recipe_id: recipeId,
+        });
+        setWeekplan({ ...weekplan, slots: [...weekplan.slots, slot] });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
+      }
+      return;
+    }
+
+    // CASE 2: Existierender Slot wird verschoben
+    if (activeId.startsWith('slot:')) {
+      const slotId = activeId.slice('slot:'.length);
+      const slot = weekplan.slots.find(s => s.id === slotId);
+      if (!slot || slot.day_of_week === day) return;  // gleicher Tag = nichts zu tun
+
+      // Optimistic UI Update
+      setWeekplan({
+        ...weekplan,
+        slots: weekplan.slots.map(s => s.id === slotId ? { ...s, day_of_week: day } : s),
       });
-      setWeekplan({ ...weekplan, slots: [...weekplan.slots, slot] });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
+
+      try {
+        await moveSlot(slotId, day);
+      } catch (err) {
+        // Rollback bei Fehler
+        setWeekplan({
+          ...weekplan,
+          slots: weekplan.slots.map(s => s.id === slotId ? slot : s),
+        });
+        setError(err instanceof Error ? err.message : 'Konnte nicht verschieben.');
+      }
     }
   };
 
@@ -161,18 +194,13 @@ export function Plan() {
                     slots.map(s => {
                       const r = recipeForSlot(s);
                       return (
-                        <div key={s.id} className="plan__slot">
-                          <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__slot-link">
-                            <span className="plan__slot-title">{r?.titel ?? '—'}</span>
-                          </Link>
-                          <button
-                            className="plan__slot-del"
-                            onClick={() => handleDeleteSlot(s)}
-                            aria-label="Entfernen"
-                          >
-                            <Trash2 size={12} strokeWidth={1.75} />
-                          </button>
-                        </div>
+                        <SlotDraggable
+                          key={s.id}
+                          slot={s}
+                          recipeTitle={r?.titel ?? '—'}
+                          recipeId={r?.id}
+                          onDelete={() => handleDeleteSlot(s)}
+                        />
                       );
                     })
                   )}
@@ -251,6 +279,43 @@ function RecipeDraggable({ recipe }: { recipe: RecipeListItem }) {
       className={`plan__recipe-wrap ${isDragging ? 'is-dragging' : ''}`}
     >
       <RealRecipeCard recipe={recipe} />
+    </div>
+  );
+}
+
+function SlotDraggable({
+  slot, recipeTitle, recipeId, onDelete,
+}: {
+  slot: Slot;
+  recipeTitle: string;
+  recipeId?: string;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `slot:${slot.id}`,
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`plan__slot ${isDragging ? 'is-dragging' : ''}`}
+    >
+      <Link
+        to={recipeId ? `/rezepte/${recipeId}` : '#'}
+        className="plan__slot-link"
+        onClick={e => { if (isDragging) e.preventDefault(); }}
+      >
+        <span className="plan__slot-title">{recipeTitle}</span>
+      </Link>
+      <button
+        className="plan__slot-del"
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        onPointerDown={(e) => e.stopPropagation()}
+        aria-label="Entfernen"
+      >
+        <Trash2 size={12} strokeWidth={1.75} />
+      </button>
     </div>
   );
 }

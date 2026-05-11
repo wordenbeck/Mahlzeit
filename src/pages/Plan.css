@@ -172,6 +172,14 @@
   padding: var(--space-3);
   background: var(--accent-soft);
   border-radius: var(--radius-md);
+  cursor: grab;
+  touch-action: none;
+}
+
+.plan__slot:active { cursor: grabbing; }
+
+.plan__slot.is-dragging {
+  opacity: 0.4;
 }
 
 .plan__slot-link {
