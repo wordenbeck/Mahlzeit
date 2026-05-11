@@ -1,0 +1,116 @@
+.cooking-spinner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cooking-spinner__pot {
+  position: relative;
+  border-radius: 50% 50% 12px 12px;
+  background: linear-gradient(180deg, var(--accent) 0%, #006C49 100%);
+  box-shadow:
+    inset 0 -8px 16px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(6, 78, 59, 0.25);
+}
+
+/* Topf-Henkel links + rechts */
+.cooking-spinner__pot::before,
+.cooking-spinner__pot::after {
+  content: '';
+  position: absolute;
+  top: 30%;
+  width: 12%;
+  height: 30%;
+  background: transparent;
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+}
+
+.cooking-spinner__pot::before {
+  left: -14%;
+  border-right-color: transparent;
+}
+
+.cooking-spinner__pot::after {
+  right: -14%;
+  border-left-color: transparent;
+}
+
+/* Suppe in der Mitte */
+.cooking-spinner__pot {
+  overflow: hidden;
+}
+
+/* Löffel — dreht sich um Topf-Mitte */
+.cooking-spinner__spoon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5%;
+  height: 70%;
+  background: #FAF7F2;
+  border-radius: 2px;
+  transform-origin: 50% 0%;
+  animation: cooking-stir 1.4s linear infinite;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.cooking-spinner__spoon::after {
+  content: '';
+  position: absolute;
+  bottom: -8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 18%;
+  background: #FAF7F2;
+  border-radius: 50%;
+}
+
+@keyframes cooking-stir {
+  from { transform: translate(-50%, 0) rotate(0deg); }
+  to   { transform: translate(-50%, 0) rotate(360deg); }
+}
+
+/* Dampf — drei Punkte die nach oben floaten */
+.cooking-spinner__steam {
+  position: absolute;
+  font-size: 28px;
+  color: rgba(6, 78, 59, 0.4);
+  font-weight: 700;
+  pointer-events: none;
+  animation: cooking-steam 2.4s ease-out infinite;
+  opacity: 0;
+}
+
+.cooking-spinner__steam--1 {
+  top: -10%;
+  left: 30%;
+  animation-delay: 0s;
+}
+
+.cooking-spinner__steam--2 {
+  top: -10%;
+  left: 50%;
+  animation-delay: 0.6s;
+}
+
+.cooking-spinner__steam--3 {
+  top: -10%;
+  left: 70%;
+  animation-delay: 1.2s;
+}
+
+@keyframes cooking-steam {
+  0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+  20%  { opacity: 0.8; }
+  100% { transform: translateY(-60px) scale(1.4); opacity: 0; }
+}
+
+.cooking-spinner__label {
+  font-size: var(--fs-caption);
+  color: var(--text-2);
+  font-weight: var(--fw-medium);
+  text-align: center;
+}

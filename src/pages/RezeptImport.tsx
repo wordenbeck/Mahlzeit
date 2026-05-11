@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Link2, Pencil, Sparkles, AlertTriangle, ChefHat } from 'lucide-react';
 import './RezeptImport.css';
+import { CookingSpinner } from '../components/CookingSpinner';
 import {
   RECIPE_PARSER_SYSTEM_PROMPT,
   formatRecipeFewShotExamples,
@@ -197,14 +198,20 @@ function UrlImport({ onSaved }: { onSaved: (id: string) => void }) {
         </div>
       )}
 
-      {!parsed && (
+      {!parsed && !parsing && (
         <button
           className="rimp__cta"
-          disabled={!url.trim() || parsing}
+          disabled={!url.trim()}
           onClick={handleImport}
         >
-          {parsing ? 'Parse Rezept…' : 'Rezept extrahieren'}
+          Rezept extrahieren
         </button>
+      )}
+
+      {parsing && (
+        <div className="rimp__parsing">
+          <CookingSpinner size={80} label="Rührt im Topf — extrahiere Rezept-Daten…" />
+        </div>
       )}
 
       {parsed && (

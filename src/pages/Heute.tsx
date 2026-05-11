@@ -11,13 +11,6 @@ import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-const MEAL_LABEL: Record<string, string> = {
-  fruehstueck: 'Frühstück',
-  mittag: 'Mittag',
-  abendessen: 'Abend',
-  snack: 'Snack',
-};
-
 function todayIndexInWeek(): number {
   // 0 = Mo .. 6 = So
   const d = new Date().getDay();
@@ -126,7 +119,6 @@ export function Heute() {
                           {!recipe.bild_url && <span>🍽</span>}
                         </div>
                         <div className="heute__slot-body">
-                          <span className="heute__slot-meal">{MEAL_LABEL[slot.meal_type] ?? slot.meal_type}</span>
                           <span className="heute__slot-title">{recipe.titel}</span>
                           {recipe.zubereitungszeit_min != null && (
                             <span className="heute__slot-meta">
@@ -156,7 +148,6 @@ export function Heute() {
                   return (
                     <li key={slot.id}>
                       <Link to={`/rezepte/${recipe.id}`} className="heute__mini-slot">
-                        <span className="heute__mini-meal">{MEAL_LABEL[slot.meal_type] ?? slot.meal_type}</span>
                         <span className="heute__mini-title">{recipe.titel}</span>
                       </Link>
                     </li>

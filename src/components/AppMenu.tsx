@@ -65,13 +65,14 @@ export function AppMenu() {
         })}
       </nav>
 
-      <button
+      <Link
+        to="/profil"
         className="app-menu__profile"
         style={{ background: `var(${profileColor})` }}
         aria-label={auth.profile?.display_name ?? 'Profil'}
       >
         {initial}
-      </button>
+      </Link>
     </header>
   );
 }

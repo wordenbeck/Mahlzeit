@@ -5,7 +5,8 @@ import './Einkauf.css';
 import { useAuth } from '../lib/auth';
 import {
   isoWeekStart, isoWeekRangeLabel, dayLabelShort, dayDateLong, shiftWeek,
-  getOrCreateWeekplan, setPortionenOverride, type WeekplanWithSlots, type Slot,
+  getOrCreateWeekplan, setPortionenOverride, setZutatenOverride,
+  type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
 import { getRecipe } from '../lib/recipes';
 import type { Recipe } from '../lib/types/recipe';
@@ -60,6 +61,22 @@ export function Einkauf() {
     });
     try {
       await setPortionenOverride(slot.id, next);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Konnte nicht speichern.');
+    }
+  };
+
+  const handleZutatChange = async (slot: Slot, zutatName: string, menge: number) => {
+    if (!weekplan) return;
+    const key = zutatName.toLowerCase();
+    const currentOverride = (slot.zutaten_override ?? {}) as Record<string, number>;
+    const nextOverride = { ...currentOverride, [key]: menge };
+    setWeekplan({
+      ...weekplan,
+      slots: weekplan.slots.map(s => s.id === slot.id ? { ...s, zutaten_override: nextOverride } : s),
+    });
+    try {
+      await setZutatenOverride(slot.id, nextOverride);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Konnte nicht speichern.');
     }
@@ -145,31 +162,36 @@ export function Einkauf() {
                           </div>
                         </header>
                         <ul className="ekf__zutaten">
-                          {recipe.zutaten.slice(0, 6).map((z, idx) => {
+                          {recipe.zutaten.map((z, idx) => {
                             if (z.menge == null) {
                               return (
                                 <li key={idx} className="ekf__zutat">
-                                  <span>{z.name}</span>
-                                  <span className="ekf__zutat-menge">nach Geschmack</span>
+                                  <span className="ekf__zutat-name">{z.name}</span>
+                                  <span className="ekf__zutat-menge-text">nach Geschmack</span>
                                 </li>
                               );
                             }
                             const factor = recipe.portionen > 0 ? portionen / recipe.portionen : 1;
-                            const menge = Math.round(z.menge * factor * 10) / 10;
+                            const skaliert = Math.round(z.menge * factor * 10) / 10;
+                            const overrideKey = z.name.toLowerCase();
+                            const overrides = (slot.zutaten_override ?? {}) as Record<string, number>;
+                            const value = overrides[overrideKey] ?? skaliert;
+                            const isOverridden = overrides[overrideKey] !== undefined;
                             return (
-                              <li key={idx} className="ekf__zutat">
-                                <span>{z.name}</span>
-                                <span className="ekf__zutat-menge">
-                                  {Number.isInteger(menge) ? menge : menge.toFixed(1)} {z.einheit}
-                                </span>
+                              <li key={idx} className={`ekf__zutat ${isOverridden ? 'is-overridden' : ''}`}>
+                                <span className="ekf__zutat-name">{z.name}</span>
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  min="0"
+                                  value={value}
+                                  onChange={e => handleZutatChange(slot, z.name, parseFloat(e.target.value) || 0)}
+                                  className="ekf__zutat-input"
+                                />
+                                <span className="ekf__zutat-einheit">{z.einheit}</span>
                               </li>
                             );
                           })}
-                          {recipe.zutaten.length > 6 && (
-                            <li className="ekf__zutat ekf__zutat--more">
-                              + {recipe.zutaten.length - 6} weitere
-                            </li>
-                          )}
                         </ul>
                       </article>
                     );

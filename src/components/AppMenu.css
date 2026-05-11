@@ -154,5 +154,11 @@
   font-weight: var(--fw-semibold);
   font-size: 12px;
   flex-shrink: 0;
-  transition: width 350ms var(--ease-ios), height 350ms var(--ease-ios);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: width 350ms var(--ease-ios), height 350ms var(--ease-ios), transform var(--dur-fast) var(--ease-ios);
 }
+
+.app-menu__profile:hover { transform: scale(1.05); }

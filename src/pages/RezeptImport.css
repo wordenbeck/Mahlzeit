@@ -140,6 +140,16 @@
 .rimp__cta:hover:not(:disabled) { transform: translateY(-1px); }
 .rimp__cta:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.rimp__parsing {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
 .rimp__secondary {
   padding: var(--space-3) var(--space-4);
   background: var(--surface-1);

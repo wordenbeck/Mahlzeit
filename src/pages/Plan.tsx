@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ChevronLeft, ChevronRight, Sparkles, Plus, Search, Trash2, X,
+  ChevronLeft, ChevronRight, Sparkles, Plus, Search, Trash2,
 } from 'lucide-react';
 import {
   DndContext, DragOverlay, PointerSensor, useDraggable, useDroppable,
@@ -15,14 +15,7 @@ import {
   isoWeekStart, isoWeekNumber, isoWeekRangeLabel, dayLabelShort, dayDateLong, shiftWeek,
   getOrCreateWeekplan, addSlot, deleteSlot, type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
-import type { MealType } from '../lib/types/recipe';
-
-const MEAL_TYPES: { id: MealType; label: string }[] = [
-  { id: 'mittag',     label: 'Mittag' },
-  { id: 'abendessen', label: 'Abend' },
-  { id: 'fruehstueck',label: 'Frühstück' },
-  { id: 'snack',      label: 'Snack' },
-];
+import { RealRecipeCard } from '../components/RealRecipeCard';
 
 export function Plan() {
   const auth = useAuth();
@@ -34,49 +27,11 @@ export function Plan() {
   const [showWeekend, setShowWeekend] = useState(false);
   const [query, setQuery] = useState('');
 
-  // Add-to-day modal state
-  const [addTarget, setAddTarget] = useState<RecipeListItem | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
   // D&D state
   const [activeRecipe, setActiveRecipe] = useState<RecipeListItem | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
-
-  const handleDragStart = (e: DragStartEvent) => {
-    const id = String(e.active.id);
-    if (id.startsWith('recipe:')) {
-      const recipeId = id.slice('recipe:'.length);
-      const recipe = recipes.find(r => r.id === recipeId);
-      setActiveRecipe(recipe ?? null);
-    }
-  };
-
-  const handleDragEnd = async (e: DragEndEvent) => {
-    setActiveRecipe(null);
-    const overId = e.over?.id;
-    const activeId = String(e.active.id);
-    if (!overId || !weekplan) return;
-    if (!activeId.startsWith('recipe:')) return;
-    if (!String(overId).startsWith('day:')) return;
-
-    const recipeId = activeId.slice('recipe:'.length);
-    const day = parseInt(String(overId).slice('day:'.length), 10);
-    if (isNaN(day)) return;
-
-    try {
-      const slot = await addSlot({
-        weekplan_id: weekplan.id,
-        day_of_week: day,
-        meal_type: 'abendessen',  // Default — über Modal/Detail später anpassbar
-        recipe_id: recipeId,
-      });
-      setWeekplan({ ...weekplan, slots: [...weekplan.slots, slot] });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
-    }
-  };
 
   const reload = async () => {
     if (!auth.profile) return;
@@ -117,22 +72,37 @@ export function Plan() {
   const recipeForSlot = (slot: Slot) =>
     recipes.find(r => r.id === slot.recipe_id);
 
-  const handleAddSlot = async (day: number, meal: MealType) => {
-    if (!addTarget || !weekplan) return;
-    setSubmitting(true);
+  const handleDragStart = (e: DragStartEvent) => {
+    const id = String(e.active.id);
+    if (id.startsWith('recipe:')) {
+      const recipeId = id.slice('recipe:'.length);
+      const recipe = recipes.find(r => r.id === recipeId);
+      setActiveRecipe(recipe ?? null);
+    }
+  };
+
+  const handleDragEnd = async (e: DragEndEvent) => {
+    setActiveRecipe(null);
+    const overId = e.over?.id;
+    const activeId = String(e.active.id);
+    if (!overId || !weekplan) return;
+    if (!activeId.startsWith('recipe:')) return;
+    if (!String(overId).startsWith('day:')) return;
+
+    const recipeId = activeId.slice('recipe:'.length);
+    const day = parseInt(String(overId).slice('day:'.length), 10);
+    if (isNaN(day)) return;
+
     try {
       const slot = await addSlot({
         weekplan_id: weekplan.id,
         day_of_week: day,
-        meal_type: meal,
-        recipe_id: addTarget.id,
+        meal_type: 'mittag',     // Dummy — UI zeigt's nicht mehr
+        recipe_id: recipeId,
       });
       setWeekplan({ ...weekplan, slots: [...weekplan.slots, slot] });
-      setAddTarget(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Konnte nicht hinzufügen.');
-    } finally {
-      setSubmitting(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
     }
   };
 
@@ -193,7 +163,6 @@ export function Plan() {
                       return (
                         <div key={s.id} className="plan__slot">
                           <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__slot-link">
-                            <span className="plan__slot-meal">{MEAL_TYPES.find(m => m.id === s.meal_type)?.label ?? s.meal_type}</span>
                             <span className="plan__slot-title">{r?.titel ?? '—'}</span>
                           </Link>
                           <button
@@ -219,7 +188,7 @@ export function Plan() {
           </button>
         </aside>
 
-        {/* Recipe grid */}
+        {/* Recipe list — gleiche Card wie in /rezepte, plus D&D-Wrapper */}
         <main className="plan__grid-area">
           <div className="plan__toolbar">
             <div className="plan__search-wrap">
@@ -245,13 +214,9 @@ export function Plan() {
             </div>
           )}
 
-          <div className="plan__grid">
+          <div className="plan__list">
             {filtered.map(r => (
-              <RecipeDraggable
-                key={r.id}
-                recipe={r}
-                onClick={() => setAddTarget(r)}
-              />
+              <RecipeDraggable key={r.id} recipe={r} />
             ))}
           </div>
         </main>
@@ -260,100 +225,33 @@ export function Plan() {
       {/* Drag-Overlay — zeigt das gezogene Rezept */}
       <DragOverlay dropAnimation={null}>
         {activeRecipe && (
-          <div className="plan__recipe plan__recipe--dragging">
-            <div
-              className="plan__recipe-thumb"
-              style={activeRecipe.bild_url ? { background: `url(${activeRecipe.bild_url}) center/cover` } : undefined}
-            >
-              {!activeRecipe.bild_url && <span>🍽</span>}
-            </div>
-            <div className="plan__recipe-body">
-              <span className="plan__recipe-title">{activeRecipe.titel}</span>
-            </div>
+          <div className="plan__drag-preview">
+            <RealRecipeCard recipe={activeRecipe} />
           </div>
         )}
       </DragOverlay>
-
-      {/* Add-to-day Modal */}
-      {addTarget && (
-        <>
-          <div className="plan__backdrop" onClick={() => setAddTarget(null)} />
-          <div className="plan__modal" role="dialog" aria-label="Zu Tag hinzufügen">
-            <header className="plan__modal-header">
-              <div>
-                <span className="plan__modal-eyebrow">Zu Tag hinzufügen</span>
-                <h2>{addTarget.titel}</h2>
-              </div>
-              <button className="plan__modal-close" onClick={() => setAddTarget(null)} aria-label="Schließen">
-                <X size={18} strokeWidth={2} />
-              </button>
-            </header>
-            <p className="plan__modal-lead">Auf welchen Tag und zu welcher Mahlzeit?</p>
-            <div className="plan__day-picker">
-              {visibleDays.map(i => (
-                <div key={i} className="plan__day-pick-row">
-                  <span className="plan__day-pick-label">
-                    <strong>{dayLabelShort(weekStart, i)}</strong>
-                    <small>{dayDateLong(weekStart, i)}</small>
-                  </span>
-                  <div className="plan__day-pick-meals">
-                    {MEAL_TYPES.map(m => (
-                      <button
-                        key={m.id}
-                        className="plan__day-pick-btn"
-                        disabled={submitting}
-                        onClick={() => handleAddSlot(i, m.id)}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
     </div>
     </DndContext>
   );
 }
 
 // =====================================================================
-// D&D Helper Components
+// D&D Helper
 // =====================================================================
 
-function RecipeDraggable({
-  recipe,
-  onClick,
-}: {
-  recipe: RecipeListItem;
-  onClick: () => void;
-}) {
+function RecipeDraggable({ recipe }: { recipe: RecipeListItem }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `recipe:${recipe.id}`,
   });
   return (
-    <button
+    <div
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`plan__recipe ${isDragging ? 'is-dragging' : ''}`}
-      onClick={onClick}
+      className={`plan__recipe-wrap ${isDragging ? 'is-dragging' : ''}`}
     >
-      <div
-        className="plan__recipe-thumb"
-        style={recipe.bild_url ? { background: `url(${recipe.bild_url}) center/cover` } : undefined}
-      >
-        {!recipe.bild_url && <span>🍽</span>}
-      </div>
-      <div className="plan__recipe-body">
-        <span className="plan__recipe-title">{recipe.titel}</span>
-        {recipe.zubereitungszeit_min != null && (
-          <span className="plan__recipe-meta">⏱ {recipe.zubereitungszeit_min} Min</span>
-        )}
-      </div>
-    </button>
+      <RealRecipeCard recipe={recipe} />
+    </div>
   );
 }
 
