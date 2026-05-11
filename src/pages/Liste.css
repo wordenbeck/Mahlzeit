@@ -101,9 +101,11 @@
   font-weight: var(--fw-semibold);
   font-size: var(--fs-body);
   box-shadow: var(--shadow-card);
-  opacity: 0.6;
-  cursor: not-allowed;
+  transition: transform var(--dur-fast) var(--ease-ios);
 }
+
+.liste__bring:hover:not(:disabled) { transform: translateY(-1px); }
+.liste__bring:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .liste__add {
   display: flex;
@@ -205,10 +207,13 @@
 }
 
 .liste__name {
-  flex: 0 0 200px;
+  flex: 0 0 220px;
   font-size: var(--fs-body);
   color: var(--text-1);
   font-weight: var(--fw-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .liste__menge {
@@ -289,4 +294,24 @@
 @media (max-width: 1000px) {
   .liste__name { flex: 0 0 160px; }
   .liste__origin { display: none; }
+}
+
+@media (max-width: 600px) {
+  .liste { padding: var(--space-3); }
+  .liste__header h1 { font-size: 20px; }
+  .liste__card { padding: var(--space-3); }
+  .liste__card-header {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .liste__item {
+    flex-wrap: wrap;
+    padding: var(--space-2);
+    gap: var(--space-2);
+  }
+  .liste__name { flex: 1 1 100%; order: 1; }
+  .liste__check { order: 0; }
+  .liste__menge { flex: 0 0 auto; order: 2; margin-left: 32px; }
+  .liste__days { flex: 1 1 auto; order: 3; justify-content: flex-end; margin-left: 0; }
+  .liste__remove { order: 4; }
 }

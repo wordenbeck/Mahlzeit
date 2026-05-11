@@ -10,6 +10,7 @@ import {
 } from '../lib/weekplan';
 import { getRecipe } from '../lib/recipes';
 import type { Recipe } from '../lib/types/recipe';
+import { ZutatIcon } from '../components/ZutatIcon';
 import { useRealtimeReload } from '../lib/realtime';
 
 export function Einkauf() {
@@ -167,7 +168,10 @@ export function Einkauf() {
                             if (z.menge == null) {
                               return (
                                 <li key={idx} className="ekf__zutat">
-                                  <span className="ekf__zutat-name">{z.name}</span>
+                                  <span className="ekf__zutat-name">
+                                    <ZutatIcon name={z.name} size={14} />
+                                    {z.name}
+                                  </span>
                                   <span className="ekf__zutat-menge-text">nach Geschmack</span>
                                 </li>
                               );
@@ -180,7 +184,10 @@ export function Einkauf() {
                             const isOverridden = overrides[overrideKey] !== undefined;
                             return (
                               <li key={idx} className={`ekf__zutat ${isOverridden ? 'is-overridden' : ''}`}>
-                                <span className="ekf__zutat-name">{z.name}</span>
+                                <span className="ekf__zutat-name">
+                                  <ZutatIcon name={z.name} size={14} />
+                                  {z.name}
+                                </span>
                                 <input
                                   type="number"
                                   step="0.5"

@@ -92,3 +92,18 @@
   font-weight: var(--fw-medium);
   text-transform: lowercase;
 }
+
+/* iPhone — kompaktere Card */
+@media (max-width: 600px) {
+  .rrc {
+    gap: var(--space-3);
+    padding: var(--space-2);
+  }
+  .rrc__image {
+    width: 72px;
+    height: 72px;
+  }
+  .rrc__title {
+    font-size: 15px;
+  }
+}

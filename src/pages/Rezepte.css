@@ -123,3 +123,13 @@
   max-width: 40ch;
   line-height: 1.5;
 }
+
+@media (max-width: 600px) {
+  .rezepte { padding: var(--space-3); }
+  .rezepte__header { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .rezepte__header h1 { font-size: 22px; }
+  .rezepte__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+}

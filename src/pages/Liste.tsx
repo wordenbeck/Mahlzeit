@@ -8,6 +8,7 @@ import {
   getOrCreateWeekplan, consolidateFromSlots,
   type ShoppingItem,
 } from '../lib/weekplan';
+import { ZutatIcon } from '../components/ZutatIcon';
 
 export function Liste() {
   const auth = useAuth();
@@ -66,6 +67,33 @@ export function Liste() {
 
   const dayShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
+  const exportToBring = async () => {
+    // Web-Share-API als Bridge: User wählt Bring im iOS-Share-Sheet
+    // Format: eine Zutat pro Zeile, "Menge Einheit Name"
+    const lines = items
+      .filter(i => !i.checked)
+      .map(i => {
+        const m = Number.isInteger(i.menge) ? i.menge : i.menge.toFixed(1);
+        return `${m} ${i.einheit} ${i.name}`;
+      });
+    const text = `Mahlzeit Einkaufsliste · ${isoWeekRangeLabel(weekStart)}\n\n${lines.join('\n')}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Einkaufsliste', text });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Liste in Zwischenablage kopiert — füg sie in Bring ein.');
+      } catch {
+        alert('Web-Share nicht verfügbar. Markier die Liste und kopier sie manuell.');
+      }
+    }
+  };
+
   return (
     <div className="liste">
       <header className="liste__header">
@@ -91,8 +119,13 @@ export function Liste() {
                 </span>
                 <h2>{remaining} {remaining === 1 ? 'Zutat' : 'Zutaten'} · diese Woche</h2>
               </div>
-              <button className="liste__bring" disabled title="Bring-Echtintegration kommt in Sprint 6">
-                <Share2 size={14} strokeWidth={2} /> An Bring exportieren
+              <button
+                className="liste__bring"
+                onClick={exportToBring}
+                disabled={items.filter(i => !i.checked).length === 0}
+                title="Öffnet iOS-Share-Sheet — wähle Bring aus"
+              >
+                <Share2 size={14} strokeWidth={2} /> Teilen / An Bring
               </button>
             </header>
 
@@ -125,7 +158,10 @@ export function Liste() {
                       <button className="liste__check" onClick={() => toggle(item.key)}>
                         {item.checked && <Check size={14} strokeWidth={2.5} />}
                       </button>
-                      <span className="liste__name">{item.name}</span>
+                      <span className="liste__name">
+                        <ZutatIcon name={item.name} size={18} />
+                        {item.name}
+                      </span>
                       <span className="liste__menge">
                         <input
                           type="number"
@@ -165,7 +201,10 @@ export function Liste() {
                       <button className="liste__check" onClick={() => toggle(item.key)}>
                         {item.checked && <Check size={14} strokeWidth={2.5} />}
                       </button>
-                      <span className="liste__name">{item.name}</span>
+                      <span className="liste__name">
+                        <ZutatIcon name={item.name} size={18} />
+                        {item.name}
+                      </span>
                       <span className="liste__menge">
                         <input
                           type="number"

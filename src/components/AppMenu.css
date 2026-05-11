@@ -162,3 +162,40 @@
 }
 
 .app-menu__profile:hover { transform: scale(1.05); }
+
+/* === iPhone (<600px): kompaktes Menü dauerhaft === */
+@media (max-width: 600px) {
+  .app-menu {
+    --m-pad-x: var(--space-3);
+    --m-logo: 26px;
+    --m-brand-fs: 0px;        /* Brand-Name versteckt */
+    --m-item-pad-y: 6px;
+    --m-item-pad-x: 8px;
+    --m-item-fs: 11px;
+    --m-label-w: 0px;
+    --m-label-ml: 0px;
+    --m-profile: 28px;
+    --m-nav-gap: 8px;
+    gap: var(--space-2);
+  }
+
+  .app-menu__brand-name {
+    display: none;
+  }
+
+  .app-menu__label {
+    opacity: 0;
+    max-width: 0;
+    margin-left: 0;
+  }
+
+  .app-menu__connector {
+    opacity: 0;
+    max-width: 0;
+    margin: 0;
+  }
+
+  .app-menu__nav {
+    gap: 8px;
+  }
+}
