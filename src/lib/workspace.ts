@@ -8,11 +8,13 @@ import { supabase } from './supabase';
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
 export function generateWorkspaceCode(): string {
+  // 4-stellig, alphanumerisch ohne verwechslungsfähige Zeichen
+  // → ~707k Kombinationen, für Hobby/Familie weit ausreichend
   let code = '';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 4; i++) {
     code += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
   }
-  return `${code.slice(0, 4)}-${code.slice(4)}`;
+  return code;
 }
 
 const PROFILE_COLORS = [

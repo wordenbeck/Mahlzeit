@@ -22,9 +22,14 @@ export function RezeptImport() {
         <Link to="/rezepte" className="rimp__back">
           <ArrowLeft size={14} strokeWidth={2} /> zurück zu Rezepten
         </Link>
-        <div>
-          <span className="rimp__eyebrow">Mahlzeit · Rezept hinzufügen</span>
-          <h1>Neues Rezept</h1>
+        <div className="rimp__header-row">
+          <div>
+            <span className="rimp__eyebrow">Mahlzeit · Rezept hinzufügen</span>
+            <h1>Neues Rezept</h1>
+          </div>
+          <Link to="/rezepte/bulk" className="rimp__bulk-link">
+            Mehrere auf einmal →
+          </Link>
         </div>
       </header>
 

@@ -140,6 +140,29 @@
 .rimp__cta:hover:not(:disabled) { transform: translateY(-1px); }
 .rimp__cta:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.rimp__header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.rimp__bulk-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px var(--space-3);
+  background: var(--surface-1);
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+}
+
+.rimp__bulk-link:hover { background: var(--accent-soft); }
+
 .rimp__parsing {
   display: flex;
   justify-content: center;

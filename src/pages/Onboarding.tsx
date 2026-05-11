@@ -175,15 +175,15 @@ export function Onboarding() {
               <ArrowLeft size={14} strokeWidth={2} /> zurück
             </button>
             <h1>Beitreten</h1>
-            <p className="onboarding__lead">Gib den 6-stelligen Code ein, den dir jemand geschickt hat.</p>
+            <p className="onboarding__lead">Gib den 4-stelligen Code ein, den dir jemand geschickt hat.</p>
             <label className="onboarding__field">
               <span>Workspace-Code</span>
               <input
                 value={code}
                 onChange={e => setCode(e.target.value.toUpperCase())}
                 onBlur={handleLookup}
-                placeholder="KOCH-42"
-                maxLength={7}
+                placeholder="KOCH"
+                maxLength={4}
                 autoFocus
                 className="onboarding__code-input"
               />

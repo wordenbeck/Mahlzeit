@@ -11,6 +11,7 @@ import { Plan } from './pages/Plan';
 import { Einkauf } from './pages/Einkauf';
 import { Liste } from './pages/Liste';
 import { Profile } from './pages/Profile';
+import { BulkImport } from './pages/BulkImport';
 
 // Sprint-0-Prototypen lazy-loaded (separates Bundle, nicht im Haupt-Bundle)
 const ProtoIndex = lazy(() => import('./pages/proto/ProtoIndex').then(m => ({ default: m.ProtoIndex })));
@@ -52,6 +53,7 @@ export function App() {
           <Route path="/liste" element={<Liste />} />
           <Route path="/rezepte" element={<Rezepte />} />
           <Route path="/rezepte/import" element={<RezeptImport />} />
+          <Route path="/rezepte/bulk" element={<BulkImport />} />
           <Route path="/rezepte/:id" element={<RezeptDetail />} />
           <Route path="/profil" element={<Profile />} />
         </Route>
