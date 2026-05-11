@@ -5,16 +5,9 @@ import { supabase } from './supabase';
 // 6-stellig alphanumerisch ohne verwechslungsfähige Zeichen (0/O, 1/I/L)
 // =====================================================================
 
-const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-
 export function generateWorkspaceCode(): string {
-  // 4-stellig, alphanumerisch ohne verwechslungsfähige Zeichen
-  // → ~707k Kombinationen, für Hobby/Familie weit ausreichend
-  let code = '';
-  for (let i = 0; i < 4; i++) {
-    code += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
-  }
-  return code;
+  // 4-stellig numerisch (0000–9999), 10k Kombinationen — für Familie ausreichend
+  return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
 }
 
 const PROFILE_COLORS = [

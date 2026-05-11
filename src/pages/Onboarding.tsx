@@ -180,9 +180,11 @@ export function Onboarding() {
               <span>Workspace-Code</span>
               <input
                 value={code}
-                onChange={e => setCode(e.target.value.toUpperCase())}
+                onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
                 onBlur={handleLookup}
-                placeholder="KOCH"
+                placeholder="0000"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 maxLength={4}
                 autoFocus
                 className="onboarding__code-input"
