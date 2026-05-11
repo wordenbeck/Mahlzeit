@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Star, Trash2, ExternalLink, ChefHat } from 'lucide-react';
+import {
+  ArrowLeft, Clock, Star, Trash2, ExternalLink, ChefHat, Pencil, Save, X, Plus,
+} from 'lucide-react';
 import './RezeptDetail.css';
 import { SchwierigkeitBadge } from '../components/SchwierigkeitBadge';
-import { getRecipe, deleteRecipe, toggleFavorite } from '../lib/recipes';
-import type { Recipe, Schwierigkeit } from '../lib/types/recipe';
+import { ZutatIcon } from '../components/ZutatIcon';
+import { getRecipe, deleteRecipe, toggleFavorite, updateRecipe } from '../lib/recipes';
+import type { Recipe, Schwierigkeit, Zutat } from '../lib/types/recipe';
 
 export function RezeptDetail() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +15,11 @@ export function RezeptDetail() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Edit-Mode state
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Recipe | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -46,14 +54,86 @@ export function RezeptDetail() {
     }
   };
 
+  const startEdit = () => {
+    if (!recipe) return;
+    setDraft({ ...recipe, zutaten: [...recipe.zutaten], zubereitung: [...recipe.zubereitung] });
+    setEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+    setDraft(null);
+  };
+
+  const saveEdit = async () => {
+    if (!draft) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await updateRecipe(draft.id, {
+        titel: draft.titel,
+        beschreibung: draft.beschreibung,
+        portionen: draft.portionen,
+        zubereitungszeit_min: draft.zubereitungszeit_min,
+        schwierigkeit: draft.schwierigkeit,
+        kategorie: draft.kategorie,
+        zutaten: draft.zutaten,
+        zubereitung: draft.zubereitung,
+        tags: draft.tags,
+      });
+      setRecipe(updated);
+      setEditing(false);
+      setDraft(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Konnte nicht speichern.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Zutat-Editor-Helfer
+  const patchZutat = (idx: number, patch: Partial<Zutat>) => {
+    if (!draft) return;
+    const next = [...draft.zutaten];
+    next[idx] = { ...next[idx], ...patch };
+    setDraft({ ...draft, zutaten: next });
+  };
+  const addZutat = () => {
+    if (!draft) return;
+    setDraft({ ...draft, zutaten: [...draft.zutaten, { name: '', menge: 1, einheit: 'Stk', hinweis: null }] });
+  };
+  const removeZutat = (idx: number) => {
+    if (!draft) return;
+    setDraft({ ...draft, zutaten: draft.zutaten.filter((_, i) => i !== idx) });
+  };
+
+  // Zubereitung-Editor-Helfer
+  const patchStep = (idx: number, text: string) => {
+    if (!draft) return;
+    const next = [...draft.zubereitung];
+    next[idx] = text;
+    setDraft({ ...draft, zubereitung: next });
+  };
+  const addStep = () => {
+    if (!draft) return;
+    setDraft({ ...draft, zubereitung: [...draft.zubereitung, ''] });
+  };
+  const removeStep = (idx: number) => {
+    if (!draft) return;
+    setDraft({ ...draft, zubereitung: draft.zubereitung.filter((_, i) => i !== idx) });
+  };
+
   if (loading) return <div className="rdet"><p className="rdet__loading">Lade…</p></div>;
-  if (error) return <div className="rdet"><div className="rdet__error">{error}</div></div>;
+  if (error && !recipe) return <div className="rdet"><div className="rdet__error">{error}</div></div>;
   if (!recipe) return (
     <div className="rdet">
       <p className="rdet__loading">Rezept nicht gefunden.</p>
       <Link to="/rezepte" className="rdet__back">← zurück zu Rezepten</Link>
     </div>
   );
+
+  // Render-Quelle: draft im Edit-Mode, sonst recipe
+  const r = editing && draft ? draft : recipe;
 
   return (
     <div className="rdet">
@@ -63,72 +143,206 @@ export function RezeptDetail() {
         </Link>
 
         <div className="rdet__hero">
-          {recipe.bild_url ? (
-            <img src={recipe.bild_url} alt={recipe.titel} className="rdet__image" />
+          {r.bild_url ? (
+            <img src={r.bild_url} alt={r.titel} className="rdet__image" />
           ) : (
             <div className="rdet__image rdet__image--placeholder"><ChefHat size={48} /></div>
           )}
 
           <div className="rdet__title-block">
-            <h1>{recipe.titel}</h1>
-            {recipe.beschreibung && <p className="rdet__desc">{recipe.beschreibung}</p>}
-            <div className="rdet__meta">
-              {recipe.zubereitungszeit_min != null && (
-                <span className="rdet__meta-item">
-                  <Clock size={14} strokeWidth={1.75} /> {recipe.zubereitungszeit_min} Min
-                </span>
-              )}
-              {recipe.schwierigkeit && (
-                <SchwierigkeitBadge schwierigkeit={recipe.schwierigkeit as Schwierigkeit} size={14} />
-              )}
-              <span className="rdet__meta-item">{recipe.portionen} Portionen</span>
-            </div>
-            {recipe.source_url && (
-              <a href={recipe.source_url} target="_blank" rel="noopener noreferrer" className="rdet__source">
-                <ExternalLink size={12} strokeWidth={1.75} /> {recipe.source_author ?? recipe.source}
-              </a>
+            {editing && draft ? (
+              <>
+                <input
+                  className="rdet__title-input"
+                  value={draft.titel}
+                  onChange={e => setDraft({ ...draft, titel: e.target.value })}
+                  placeholder="Rezept-Titel"
+                />
+                <textarea
+                  className="rdet__desc-input"
+                  value={draft.beschreibung ?? ''}
+                  onChange={e => setDraft({ ...draft, beschreibung: e.target.value || null })}
+                  placeholder="Kurze Beschreibung (optional)"
+                  rows={2}
+                />
+                <div className="rdet__meta-edit">
+                  <label className="rdet__meta-field">
+                    <span>Min</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={draft.zubereitungszeit_min ?? ''}
+                      onChange={e => setDraft({ ...draft, zubereitungszeit_min: e.target.value ? parseInt(e.target.value) : null })}
+                    />
+                  </label>
+                  <label className="rdet__meta-field">
+                    <span>Portionen</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={draft.portionen}
+                      onChange={e => setDraft({ ...draft, portionen: parseInt(e.target.value) || 1 })}
+                    />
+                  </label>
+                  <label className="rdet__meta-field">
+                    <span>Schwierigkeit</span>
+                    <select
+                      value={draft.schwierigkeit ?? ''}
+                      onChange={e => setDraft({ ...draft, schwierigkeit: e.target.value ? (e.target.value as Schwierigkeit) : null })}
+                    >
+                      <option value="">—</option>
+                      <option value="einfach">einfach</option>
+                      <option value="mittel">mittel</option>
+                      <option value="aufwendig">aufwendig</option>
+                    </select>
+                  </label>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1>{r.titel}</h1>
+                {r.beschreibung && <p className="rdet__desc">{r.beschreibung}</p>}
+                <div className="rdet__meta">
+                  {r.zubereitungszeit_min != null && (
+                    <span className="rdet__meta-item">
+                      <Clock size={14} strokeWidth={1.75} /> {r.zubereitungszeit_min} Min
+                    </span>
+                  )}
+                  {r.schwierigkeit && (
+                    <SchwierigkeitBadge schwierigkeit={r.schwierigkeit as Schwierigkeit} size={14} />
+                  )}
+                  <span className="rdet__meta-item">{r.portionen} Port.</span>
+                </div>
+                {r.source_url && (
+                  <a href={r.source_url} target="_blank" rel="noopener noreferrer" className="rdet__source">
+                    <ExternalLink size={12} strokeWidth={1.75} /> {r.source_author ?? r.source}
+                  </a>
+                )}
+              </>
             )}
           </div>
 
           <div className="rdet__actions">
-            <button
-              className={`rdet__fav ${recipe.is_favorite ? 'is-active' : ''}`}
-              onClick={handleFav}
-              aria-label={recipe.is_favorite ? 'Aus Favoriten entfernen' : 'Als Favorit markieren'}
-            >
-              <Star size={18} fill={recipe.is_favorite ? 'currentColor' : 'none'} />
-            </button>
-            <button className="rdet__delete" onClick={handleDelete} aria-label="Löschen">
-              <Trash2 size={16} />
-            </button>
+            {editing ? (
+              <>
+                <button className="rdet__save" onClick={saveEdit} disabled={saving} aria-label="Speichern">
+                  <Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}
+                </button>
+                <button className="rdet__cancel" onClick={cancelEdit} aria-label="Abbrechen">
+                  <X size={16} />
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="rdet__edit" onClick={startEdit} aria-label="Bearbeiten">
+                  <Pencil size={16} strokeWidth={1.75} />
+                </button>
+                <button
+                  className={`rdet__fav ${r.is_favorite ? 'is-active' : ''}`}
+                  onClick={handleFav}
+                  aria-label={r.is_favorite ? 'Aus Favoriten entfernen' : 'Als Favorit markieren'}
+                >
+                  <Star size={18} fill={r.is_favorite ? 'currentColor' : 'none'} />
+                </button>
+                <button className="rdet__delete" onClick={handleDelete} aria-label="Löschen">
+                  <Trash2 size={16} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
+      {error && <div className="rdet__error">{error}</div>}
+
       <main className="rdet__main">
         <section className="rdet__zutaten">
           <h2>Zutaten</h2>
-          <ul>
-            {recipe.zutaten.map((z, i) => (
-              <li key={i}>
-                <span className="rdet__menge">
-                  {z.menge != null ? `${z.menge}` : ''}
-                  {z.einheit && ` ${z.einheit}`}
-                </span>
-                <span className="rdet__name">{z.name}</span>
-                {z.hinweis && <em>{z.hinweis}</em>}
+          {editing && draft ? (
+            <ul className="rdet__zutaten-edit">
+              {draft.zutaten.map((z, i) => (
+                <li key={i} className="rdet__zutat-row">
+                  <ZutatIcon name={z.name} size={20} />
+                  <input
+                    className="rdet__zutat-name-input"
+                    placeholder="Name"
+                    value={z.name}
+                    onChange={e => patchZutat(i, { name: e.target.value })}
+                  />
+                  <input
+                    className="rdet__zutat-menge-input"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    placeholder="Menge"
+                    value={z.menge ?? ''}
+                    onChange={e => patchZutat(i, { menge: e.target.value ? parseFloat(e.target.value) : null })}
+                  />
+                  <input
+                    className="rdet__zutat-einheit-input"
+                    placeholder="Einheit"
+                    value={z.einheit}
+                    onChange={e => patchZutat(i, { einheit: e.target.value })}
+                  />
+                  <button className="rdet__row-del" onClick={() => removeZutat(i)} aria-label="Zutat entfernen">
+                    <Trash2 size={13} />
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button className="rdet__add-row" onClick={addZutat}>
+                  <Plus size={14} strokeWidth={2} /> Zutat
+                </button>
               </li>
-            ))}
-          </ul>
+            </ul>
+          ) : (
+            <ul>
+              {r.zutaten.map((z, i) => (
+                <li key={i}>
+                  <ZutatIcon name={z.name} size={18} />
+                  <span className="rdet__menge">
+                    {z.menge != null ? `${z.menge}` : ''}
+                    {z.einheit && ` ${z.einheit}`}
+                  </span>
+                  <span className="rdet__name">{z.name}</span>
+                  {z.hinweis && <em>{z.hinweis}</em>}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="rdet__zubereitung">
           <h2>Zubereitung</h2>
-          <ol>
-            {recipe.zubereitung.map((s, i) => (
-              <li key={i}><span className="rdet__step-num">{i + 1}</span><p>{s}</p></li>
-            ))}
-          </ol>
+          {editing && draft ? (
+            <ol className="rdet__steps-edit">
+              {draft.zubereitung.map((s, i) => (
+                <li key={i} className="rdet__step-row">
+                  <span className="rdet__step-num">{i + 1}</span>
+                  <textarea
+                    rows={2}
+                    value={s}
+                    onChange={e => patchStep(i, e.target.value)}
+                    placeholder="Schritt-Beschreibung"
+                  />
+                  <button className="rdet__row-del" onClick={() => removeStep(i)} aria-label="Schritt entfernen">
+                    <Trash2 size={13} />
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button className="rdet__add-row" onClick={addStep}>
+                  <Plus size={14} strokeWidth={2} /> Schritt
+                </button>
+              </li>
+            </ol>
+          ) : (
+            <ol>
+              {r.zubereitung.map((s, i) => (
+                <li key={i}><span className="rdet__step-num">{i + 1}</span><p>{s}</p></li>
+              ))}
+            </ol>
+          )}
         </section>
       </main>
     </div>

@@ -228,3 +228,222 @@
   color: var(--text-1);
   line-height: 1.6;
 }
+
+/* === Edit-Mode Styles === */
+
+.rdet__title-input {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  outline: none;
+  width: 100%;
+  margin-bottom: var(--space-2);
+}
+
+.rdet__title-input:focus { border-color: var(--accent); }
+
+.rdet__desc-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  font: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+  resize: vertical;
+  margin-bottom: var(--space-3);
+}
+
+.rdet__desc-input:focus { border-color: var(--accent); }
+
+.rdet__meta-edit {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.rdet__meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rdet__meta-field input,
+.rdet__meta-field select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  font: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-1);
+  font-weight: var(--fw-medium);
+  min-width: 80px;
+}
+
+.rdet__meta-field input:focus,
+.rdet__meta-field select:focus { border-color: var(--accent); }
+
+/* Save / Cancel / Edit Buttons */
+
+.rdet__edit {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.rdet__edit:hover { color: var(--accent); border-color: var(--accent); }
+
+.rdet__save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px var(--space-3);
+  background: var(--gradient-cta);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  box-shadow: var(--shadow-card);
+}
+.rdet__save:disabled { opacity: 0.6; cursor: wait; }
+
+.rdet__cancel {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.rdet__cancel:hover { color: var(--danger); }
+
+/* Zutaten-Editor */
+
+.rdet__zutaten-edit { list-style: none; padding: 0; }
+
+.rdet__zutat-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 80px 80px 28px;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.rdet__zutat-name-input,
+.rdet__zutat-menge-input,
+.rdet__zutat-einheit-input {
+  padding: 4px var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  font-size: var(--fs-caption);
+  outline: none;
+}
+
+.rdet__zutat-name-input:focus,
+.rdet__zutat-menge-input:focus,
+.rdet__zutat-einheit-input:focus { border-color: var(--accent); }
+
+.rdet__zutat-menge-input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rdet__row-del {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  color: var(--text-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.rdet__row-del:hover { color: var(--danger); background: var(--surface-2); }
+
+.rdet__add-row {
+  width: 100%;
+  padding: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  margin-top: 4px;
+}
+.rdet__add-row:hover { background: var(--accent); color: #fff; }
+
+/* Zubereitung-Editor */
+
+.rdet__steps-edit { list-style: none; padding: 0; }
+
+.rdet__step-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.rdet__step-row textarea {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  font: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.rdet__step-row textarea:focus { border-color: var(--accent); }
+
+/* Zutaten-Read-Mode mit Icon */
+
+.rdet__zutaten ul li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (max-width: 600px) {
+  .rdet { padding: var(--space-3); }
+  .rdet__hero { padding: var(--space-3); }
+  .rdet__zutat-row {
+    grid-template-columns: 24px 1fr 24px;
+    grid-template-rows: auto auto;
+  }
+  .rdet__zutat-name-input { grid-column: 2; grid-row: 1; }
+  .rdet__zutat-menge-input { grid-column: 2; grid-row: 2; }
+  .rdet__zutat-einheit-input { grid-column: 2; grid-row: 2; margin-left: 80px; }
+}
