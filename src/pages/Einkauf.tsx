@@ -10,6 +10,7 @@ import {
 } from '../lib/weekplan';
 import { getRecipe } from '../lib/recipes';
 import type { Recipe } from '../lib/types/recipe';
+import { useRealtimeReload } from '../lib/realtime';
 
 export function Einkauf() {
   const auth = useAuth();
@@ -20,30 +21,30 @@ export function Einkauf() {
   const [error, setError] = useState<string | null>(null);
   const [showWeekend, setShowWeekend] = useState(false);
 
+  const load = async () => {
+    if (!auth.profile) return;
+    setLoading(true);
+    try {
+      const wp = await getOrCreateWeekplan(weekStart);
+      const ids = Array.from(new Set(wp.slots.map(s => s.recipe_id).filter(Boolean) as string[]));
+      const recipes = await Promise.all(ids.map(id => getRecipe(id)));
+      const map: Record<string, Recipe> = {};
+      for (const r of recipes) if (r) map[r.id] = r;
+      setWeekplan(wp);
+      setRecipesById(map);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Fehler beim Laden');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      if (!auth.profile) return;
-      setLoading(true);
-      try {
-        const wp = await getOrCreateWeekplan(weekStart);
-        const ids = Array.from(new Set(wp.slots.map(s => s.recipe_id).filter(Boolean) as string[]));
-        const recipes = await Promise.all(ids.map(id => getRecipe(id)));
-        const map: Record<string, Recipe> = {};
-        for (const r of recipes) if (r) map[r.id] = r;
-        if (!cancelled) {
-          setWeekplan(wp);
-          setRecipesById(map);
-        }
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Fehler beim Laden');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
     load();
-    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekStart, auth.profile?.id]);
+
+  useRealtimeReload('weekplan_slots', load, !!auth.profile);
 
   const visibleDays = showWeekend ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 3, 4];
 

@@ -1,5 +1,4 @@
 // Recipe-Card für ECHTE Recipe-Daten aus DB.
-// Sprint-0-Mock-Card (src/components/RecipeCard.tsx) bleibt für /proto/* erhalten.
 
 import { Link } from 'react-router-dom';
 import { Clock, Star } from 'lucide-react';
@@ -10,29 +9,25 @@ import type { Schwierigkeit } from '../mocks/recipes';
 
 type Props = {
   recipe: RecipeListItem;
+  onClick?: () => void;     // Wenn gesetzt: Card wird Button (für Modal-Trigger statt Navigation)
 };
 
-// Fallback-Gradient wenn kein Bild vorhanden — basierend auf Recipe-ID hash
 function fallbackGradient(id: string): string {
   const gradients = [
-    '--gradient-recipe-1',
-    '--gradient-recipe-2',
-    '--gradient-recipe-3',
-    '--gradient-recipe-4',
-    '--gradient-recipe-5',
-    '--gradient-recipe-6',
+    '--gradient-recipe-1', '--gradient-recipe-2', '--gradient-recipe-3',
+    '--gradient-recipe-4', '--gradient-recipe-5', '--gradient-recipe-6',
   ];
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
   return gradients[Math.abs(hash) % gradients.length];
 }
 
-export function RealRecipeCard({ recipe }: Props) {
+export function RealRecipeCard({ recipe, onClick }: Props) {
   const hasImage = Boolean(recipe.bild_url);
   const gradientVar = fallbackGradient(recipe.id);
 
-  return (
-    <Link to={`/rezepte/${recipe.id}`} className="rrc">
+  const inner = (
+    <>
       <div
         className="rrc__image"
         style={{
@@ -67,6 +62,15 @@ export function RealRecipeCard({ recipe }: Props) {
           </div>
         )}
       </div>
-    </Link>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button type="button" className="rrc" onClick={onClick}>
+        {inner}
+      </button>
+    );
+  }
+  return <Link to={`/rezepte/${recipe.id}`} className="rrc">{inner}</Link>;
 }

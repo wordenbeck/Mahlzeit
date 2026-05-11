@@ -17,6 +17,8 @@ import {
   type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
 import { RealRecipeCard } from '../components/RealRecipeCard';
+import { RecipeModal } from '../components/RecipeModal';
+import { useRealtimeReload } from '../lib/realtime';
 
 export function Plan() {
   const auth = useAuth();
@@ -30,6 +32,7 @@ export function Plan() {
 
   // D&D state
   const [activeRecipe, setActiveRecipe] = useState<RecipeListItem | null>(null);
+  const [modalId, setModalId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
@@ -56,6 +59,10 @@ export function Plan() {
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekStart, auth.profile?.id]);
+
+  // Real-time: andere Family-Member adden Slots → wir laden neu
+  useRealtimeReload('weekplan_slots', reload, !!auth.profile);
+  useRealtimeReload('recipes', reload, !!auth.profile);
 
   const visibleDays = showWeekend ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 3, 4];
 
@@ -244,11 +251,13 @@ export function Plan() {
 
           <div className="plan__list">
             {filtered.map(r => (
-              <RecipeDraggable key={r.id} recipe={r} />
+              <RecipeDraggable key={r.id} recipe={r} onClick={() => setModalId(r.id)} />
             ))}
           </div>
         </main>
       </div>
+
+      {modalId && <RecipeModal recipeId={modalId} onClose={() => setModalId(null)} />}
 
       {/* Drag-Overlay — zeigt das gezogene Rezept */}
       <DragOverlay dropAnimation={null}>
@@ -267,7 +276,7 @@ export function Plan() {
 // D&D Helper
 // =====================================================================
 
-function RecipeDraggable({ recipe }: { recipe: RecipeListItem }) {
+function RecipeDraggable({ recipe, onClick }: { recipe: RecipeListItem; onClick: () => void }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `recipe:${recipe.id}`,
   });
@@ -278,7 +287,7 @@ function RecipeDraggable({ recipe }: { recipe: RecipeListItem }) {
       {...attributes}
       className={`plan__recipe-wrap ${isDragging ? 'is-dragging' : ''}`}
     >
-      <RealRecipeCard recipe={recipe} />
+      <RealRecipeCard recipe={recipe} onClick={onClick} />
     </div>
   );
 }

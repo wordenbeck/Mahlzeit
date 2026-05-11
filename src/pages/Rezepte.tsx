@@ -3,22 +3,29 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, ChefHat } from 'lucide-react';
 import './Rezepte.css';
 import { RealRecipeCard } from '../components/RealRecipeCard';
+import { RecipeModal } from '../components/RecipeModal';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
+import { useRealtimeReload } from '../lib/realtime';
 
 export function Rezepte() {
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [modalId, setModalId] = useState<string | null>(null);
+
+  const reload = () => {
+    listRecipes()
+      .then(setRecipes)
+      .catch(e => setError(e instanceof Error ? e.message : 'Fehler beim Laden'))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    listRecipes()
-      .then(data => { if (!cancelled) setRecipes(data); })
-      .catch(e => { if (!cancelled) setError(e instanceof Error ? e.message : 'Fehler beim Laden'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+    reload();
   }, []);
+
+  useRealtimeReload('recipes', reload);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return recipes;
@@ -76,10 +83,14 @@ export function Rezepte() {
 
         {filtered.length > 0 && (
           <div className="rezepte__grid">
-            {filtered.map(r => <RealRecipeCard key={r.id} recipe={r} />)}
+            {filtered.map(r => (
+              <RealRecipeCard key={r.id} recipe={r} onClick={() => setModalId(r.id)} />
+            ))}
           </div>
         )}
       </main>
+
+      {modalId && <RecipeModal recipeId={modalId} onClose={() => setModalId(null)} />}
     </div>
   );
 }
