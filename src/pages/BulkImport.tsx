@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Play, Square, Check, AlertCircle, ExternalLink, Sparkles } from 'lucide-react';
+import { ArrowLeft, Play, Square, Check, AlertCircle, ExternalLink, Sparkles, RefreshCw } from 'lucide-react';
 import './BulkImport.css';
 import { CookingSpinner } from '../components/CookingSpinner';
 import {
@@ -9,6 +9,7 @@ import {
 } from '../lib/prompts/recipeParserPrompt';
 import { importRecipeFromUrl, saveRecipe } from '../lib/recipes';
 import type { RecipeSource } from '../lib/types/recipe';
+import { useAuth } from '../lib/auth';
 
 type ItemStatus = 'pending' | 'running' | 'ok' | 'error' | 'skipped';
 
@@ -22,6 +23,13 @@ type Item = {
 
 const DELAY_BETWEEN_REQUESTS_MS = 4000;  // Groq Free hat Rate-Limits — 4s schont's
 
+const LS_KEY = (workspaceId: string) => `mahlzeit:bulk-import:${workspaceId}`;
+
+type PersistedState = {
+  items: Item[];
+  savedAt: number;
+};
+
 function detectSource(url: string): RecipeSource {
   if (url.includes('instagram.com')) return 'instagram';
   if (url.includes('tiktok.com')) return 'tiktok';
@@ -30,10 +38,54 @@ function detectSource(url: string): RecipeSource {
 }
 
 export function BulkImport() {
+  const auth = useAuth();
   const [rawText, setRawText] = useState('');
   const [items, setItems] = useState<Item[]>([]);
   const [running, setRunning] = useState(false);
+  const [resumePrompt, setResumePrompt] = useState<Item[] | null>(null);
   const cancelRef = useRef(false);
+
+  // Persistierten State beim Mount checken
+  useEffect(() => {
+    if (!auth.workspace?.id) return;
+    const raw = localStorage.getItem(LS_KEY(auth.workspace.id));
+    if (!raw) return;
+    try {
+      const parsed: PersistedState = JSON.parse(raw);
+      const incomplete = parsed.items.some(i => i.status === 'pending' || i.status === 'running');
+      if (incomplete) {
+        // running → pending zurücksetzen (war vermutlich beim Browser-Close mittendrin)
+        const normalized = parsed.items.map(i =>
+          i.status === 'running' ? { ...i, status: 'pending' as ItemStatus } : i
+        );
+        setResumePrompt(normalized);
+      } else {
+        // Alle fertig — abgeschlossener Lauf, kein Resume-Prompt nötig
+        localStorage.removeItem(LS_KEY(auth.workspace.id));
+      }
+    } catch {
+      localStorage.removeItem(LS_KEY(auth.workspace.id));
+    }
+  }, [auth.workspace?.id]);
+
+  const persist = (next: Item[]) => {
+    if (!auth.workspace?.id) return;
+    const payload: PersistedState = { items: next, savedAt: Date.now() };
+    localStorage.setItem(LS_KEY(auth.workspace.id), JSON.stringify(payload));
+  };
+
+  const clearPersist = () => {
+    if (!auth.workspace?.id) return;
+    localStorage.removeItem(LS_KEY(auth.workspace.id));
+  };
+
+  const updateItem = (index: number, patch: Partial<Item>) => {
+    setItems(prev => {
+      const next = prev.map((it, idx) => idx === index ? { ...it, ...patch } : it);
+      persist(next);
+      return next;
+    });
+  };
 
   const parseInput = (): string[] => {
     return rawText
@@ -42,42 +94,45 @@ export function BulkImport() {
       .filter(l => l.length > 0 && /^https?:\/\//i.test(l));
   };
 
-  const startImport = async () => {
-    const urls = parseInput();
-    if (urls.length === 0) return;
-    setItems(urls.map(url => ({ url, status: 'pending' })));
+  const startImport = async (resumeWith?: Item[]) => {
+    const startItems: Item[] = resumeWith ?? parseInput().map(url => ({ url, status: 'pending' as ItemStatus }));
+    if (startItems.length === 0) return;
+    setItems(startItems);
+    persist(startItems);
     setRunning(true);
     cancelRef.current = false;
+    setResumePrompt(null);
 
     const fewShots = formatRecipeFewShotExamples();
 
-    for (let i = 0; i < urls.length; i++) {
+    for (let i = 0; i < startItems.length; i++) {
       if (cancelRef.current) {
-        setItems(prev => prev.map((it, idx) =>
-          idx > i ? { ...it, status: 'skipped', message: 'Vom User abgebrochen' } : it
-        ));
+        const skipped = startItems.map((it, idx) =>
+          idx > i && it.status === 'pending' ? { ...it, status: 'skipped' as ItemStatus, message: 'Vom User abgebrochen' } : it
+        );
+        setItems(skipped);
+        persist(skipped);
         break;
+      }
+      // Skip schon-erledigte Items beim Resume
+      if (startItems[i].status === 'ok' || startItems[i].status === 'error' || startItems[i].status === 'skipped') {
+        continue;
       }
 
       // Mark running
-      setItems(prev => prev.map((it, idx) =>
-        idx === i ? { ...it, status: 'running' } : it
-      ));
+      updateItem(i, { status: 'running' });
 
       try {
-        const url = urls[i];
+        const url = startItems[i].url;
         const result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
 
         if (result.status !== 'ok' || !result.result?.rezept) {
-          setItems(prev => prev.map((it, idx) =>
-            idx === i ? {
-              ...it,
-              status: 'error',
-              message: result.status === 'extraction_failed'
-                ? 'Caption konnte nicht extrahiert werden'
-                : (result.error ?? 'Parser-Fehler'),
-            } : it
-          ));
+          updateItem(i, {
+            status: 'error',
+            message: result.status === 'extraction_failed'
+              ? 'Caption konnte nicht extrahiert werden'
+              : (result.error ?? 'Parser-Fehler'),
+          });
           continue;
         }
 
@@ -102,22 +157,34 @@ export function BulkImport() {
           is_favorite: false,
         });
 
-        setItems(prev => prev.map((it, idx) =>
-          idx === i ? { ...it, status: 'ok', recipeId: saved.id, recipeTitle: saved.titel } : it
-        ));
+        updateItem(i, { status: 'ok', recipeId: saved.id, recipeTitle: saved.titel });
       } catch (e) {
-        setItems(prev => prev.map((it, idx) =>
-          idx === i ? { ...it, status: 'error', message: e instanceof Error ? e.message : String(e) } : it
-        ));
+        updateItem(i, { status: 'error', message: e instanceof Error ? e.message : String(e) });
       }
 
       // Throttle vor dem nächsten Request
-      if (i < urls.length - 1 && !cancelRef.current) {
+      if (i < startItems.length - 1 && !cancelRef.current) {
         await new Promise(r => setTimeout(r, DELAY_BETWEEN_REQUESTS_MS));
       }
     }
 
     setRunning(false);
+    // Wenn alles durch ist, persistierte State löschen
+    setItems(current => {
+      const allDone = current.every(i => i.status !== 'pending' && i.status !== 'running');
+      if (allDone) clearPersist();
+      return current;
+    });
+  };
+
+  const resume = () => {
+    if (!resumePrompt) return;
+    startImport(resumePrompt);
+  };
+
+  const discardResume = () => {
+    setResumePrompt(null);
+    clearPersist();
   };
 
   const cancel = () => {
@@ -127,6 +194,7 @@ export function BulkImport() {
   const reset = () => {
     setItems([]);
     setRawText('');
+    clearPersist();
   };
 
   const okCount = items.filter(i => i.status === 'ok').length;
@@ -145,7 +213,26 @@ export function BulkImport() {
         </div>
       </header>
 
-      {items.length === 0 && (
+      {resumePrompt && items.length === 0 && (
+        <section className="bulk__resume">
+          <RefreshCw size={20} strokeWidth={2} />
+          <div>
+            <strong>Unterbrochener Import gefunden</strong>
+            <p>
+              {resumePrompt.filter(i => i.status === 'ok').length} von {resumePrompt.length} Rezepten waren fertig.
+              Weitermachen mit den verbleibenden {resumePrompt.filter(i => i.status === 'pending').length}?
+            </p>
+          </div>
+          <div className="bulk__resume-actions">
+            <button className="bulk__cta" onClick={resume}>
+              <Play size={14} strokeWidth={2} /> Fortsetzen
+            </button>
+            <button className="bulk__secondary" onClick={discardResume}>Verwerfen</button>
+          </div>
+        </section>
+      )}
+
+      {items.length === 0 && !resumePrompt && (
         <section className="bulk__intro">
           <p>
             Pack deine Recipe-Links rein — eine URL pro Zeile. Wir gehen die Liste der Reihe nach
@@ -171,7 +258,7 @@ export function BulkImport() {
             <button
               className="bulk__cta"
               disabled={parseInput().length === 0 || running}
-              onClick={startImport}
+              onClick={() => startImport()}
             >
               <Play size={14} strokeWidth={2} /> Import starten
             </button>
