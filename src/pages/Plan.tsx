@@ -13,9 +13,10 @@ import { useAuth } from '../lib/auth';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import {
   isoWeekStart, isoWeekNumber, isoWeekRangeLabel, dayLabelShort, dayDateLong, shiftWeek,
-  getOrCreateWeekplan, addSlot, deleteSlot, moveSlot,
+  getOrCreateWeekplan, addSlot, deleteSlot, moveSlot, magicFillWeek,
   type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
+import { CookingSpinner } from '../components/CookingSpinner';
 import { RealRecipeCard } from '../components/RealRecipeCard';
 import { RecipeModal } from '../components/RecipeModal';
 import { useRealtimeReload } from '../lib/realtime';
@@ -33,6 +34,7 @@ export function Plan() {
   // D&D state
   const [activeRecipe, setActiveRecipe] = useState<RecipeListItem | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
+  const [magicRunning, setMagicRunning] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
@@ -146,6 +148,52 @@ export function Plan() {
     }
   };
 
+  const handleMagicFill = async () => {
+    if (!weekplan || magicRunning) return;
+    // Empty days = visibleDays die noch keinen Slot haben
+    const filledDays = new Set(weekplan.slots.map(s => s.day_of_week));
+    const targets = visibleDays.filter(d => !filledDays.has(d));
+    if (targets.length === 0) {
+      alert('Alle sichtbaren Tage sind schon befüllt. Lösch erst Slots oder schau eine andere Woche.');
+      return;
+    }
+    if (recipes.length === 0) {
+      alert('Du hast noch keine Rezepte. Leg erst welche an.');
+      return;
+    }
+    if (!confirm(`Magic Fill schlägt für ${targets.length} leere Tag${targets.length === 1 ? '' : 'e'} Rezepte aus deiner Sammlung vor. Weitermachen?`)) return;
+
+    setMagicRunning(true);
+    setError(null);
+    try {
+      const suggestions = await magicFillWeek(weekplan.id, targets);
+      if (suggestions.length === 0) {
+        setError('Keine Vorschläge — wahrscheinlich zu wenige Rezepte in der Sammlung.');
+        return;
+      }
+      // Slots der Reihe nach anlegen
+      const newSlots: Slot[] = [];
+      for (const s of suggestions) {
+        try {
+          const slot = await addSlot({
+            weekplan_id: weekplan.id,
+            day_of_week: s.day_of_week,
+            meal_type: 'mittag',
+            recipe_id: s.recipe_id,
+          });
+          newSlots.push(slot);
+        } catch (err) {
+          console.warn('Slot-add fehlgeschlagen:', err);
+        }
+      }
+      setWeekplan({ ...weekplan, slots: [...weekplan.slots, ...newSlots] });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Magic Fill fehlgeschlagen.');
+    } finally {
+      setMagicRunning(false);
+    }
+  };
+
   const handleDeleteSlot = async (slot: Slot) => {
     if (!weekplan) return;
     if (!confirm('Eintrag entfernen?')) return;
@@ -174,8 +222,14 @@ export function Plan() {
           </div>
         </div>
         <div className="plan__header-actions">
-          <button className="plan__magic" disabled title="Kommt in Sprint 6">
-            <Sparkles size={14} strokeWidth={2} /> Magic Fill
+          <button
+            className="plan__magic"
+            onClick={handleMagicFill}
+            disabled={magicRunning}
+            title="KI-Vorschlag für leere Tage"
+          >
+            <Sparkles size={14} strokeWidth={2} />
+            {magicRunning ? 'Denkt nach…' : 'Magic Fill'}
           </button>
         </div>
       </header>
@@ -258,6 +312,15 @@ export function Plan() {
       </div>
 
       {modalId && <RecipeModal recipeId={modalId} onClose={() => setModalId(null)} />}
+
+      {magicRunning && (
+        <>
+          <div className="plan__magic-backdrop" />
+          <div className="plan__magic-overlay">
+            <CookingSpinner size={80} label="Magic Fill — wähle Rezepte für leere Tage…" />
+          </div>
+        </>
+      )}
 
       {/* Drag-Overlay — zeigt das gezogene Rezept */}
       <DragOverlay dropAnimation={null}>

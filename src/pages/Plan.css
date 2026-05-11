@@ -61,8 +61,33 @@
   border-radius: var(--radius-pill);
   font-size: var(--fs-caption);
   font-weight: var(--fw-semibold);
-  opacity: 0.5;
-  cursor: not-allowed;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-fast) var(--ease-ios);
+}
+
+.plan__magic:hover:not(:disabled) { transform: translateY(-1px); }
+.plan__magic:disabled { opacity: 0.6; cursor: wait; }
+
+.plan__magic-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 78, 59, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 250;
+}
+
+.plan__magic-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 251;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-card);
+  box-shadow: 0 24px 80px rgba(6, 78, 59, 0.3);
 }
 
 .plan__error {

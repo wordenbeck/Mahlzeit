@@ -174,6 +174,27 @@ export async function setZutatenOverride(slotId: string, override: Record<string
 }
 
 // =====================================================================
+// Magic Fill — KI-Vorschlag für leere Tage
+// =====================================================================
+
+export type MagicFillSuggestion = {
+  day_of_week: number;
+  recipe_id: string;
+  reason?: string;
+};
+
+export async function magicFillWeek(
+  weekplanId: string,
+  targetDays: number[]
+): Promise<MagicFillSuggestion[]> {
+  const { data, error } = await supabase.functions.invoke('magic-fill-week', {
+    body: { weekplan_id: weekplanId, target_days: targetDays },
+  });
+  if (error) throw new Error(error.message);
+  return (data as { suggestions: MagicFillSuggestion[] }).suggestions ?? [];
+}
+
+// =====================================================================
 // Shopping-List-Konsolidierung über Slots + Recipes
 // =====================================================================
 
