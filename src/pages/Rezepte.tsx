@@ -6,12 +6,14 @@ import { RealRecipeCard } from '../components/RealRecipeCard';
 import { RecipeModal } from '../components/RecipeModal';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import { useRealtimeReload } from '../lib/realtime';
+import { RECIPE_TYPE_LABELS, type RecipeType } from '../lib/types/recipe';
 
 export function Rezepte() {
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<RecipeType | 'alle'>('alle');
   const [modalId, setModalId] = useState<string | null>(null);
 
   const reload = () => {
@@ -28,14 +30,28 @@ export function Rezepte() {
   useRealtimeReload('recipes', reload);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return recipes;
-    const q = query.toLowerCase();
-    return recipes.filter(r =>
-      r.titel.toLowerCase().includes(q)
-      || r.tags.some(t => t.toLowerCase().includes(q))
-      || r.kategorie.some(k => k.toLowerCase().includes(q))
-    );
-  }, [recipes, query]);
+    let list = recipes;
+    if (typeFilter !== 'alle') {
+      list = list.filter(r => r.recipe_type === typeFilter);
+    }
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      list = list.filter(r =>
+        r.titel.toLowerCase().includes(q)
+        || r.tags.some(t => t.toLowerCase().includes(q))
+        || r.kategorie.some(k => k.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [recipes, query, typeFilter]);
+
+  const typeCounts = useMemo(() => {
+    const counts: Record<string, number> = { alle: recipes.length };
+    for (const r of recipes) {
+      counts[r.recipe_type] = (counts[r.recipe_type] ?? 0) + 1;
+    }
+    return counts;
+  }, [recipes]);
 
   return (
     <div className="rezepte">
@@ -60,6 +76,24 @@ export function Rezepte() {
           />
         </div>
       </div>
+
+      <nav className="rezepte__type-filter" aria-label="Filter nach Kategorie">
+        <button
+          className={`rezepte__type-pill ${typeFilter === 'alle' ? 'is-active' : ''}`}
+          onClick={() => setTypeFilter('alle')}
+        >
+          Alle <span className="rezepte__type-count">{typeCounts.alle ?? 0}</span>
+        </button>
+        {(Object.keys(RECIPE_TYPE_LABELS) as RecipeType[]).map(t => (
+          <button
+            key={t}
+            className={`rezepte__type-pill ${typeFilter === t ? 'is-active' : ''}`}
+            onClick={() => setTypeFilter(t)}
+          >
+            {RECIPE_TYPE_LABELS[t]} <span className="rezepte__type-count">{typeCounts[t] ?? 0}</span>
+          </button>
+        ))}
+      </nav>
 
       <main className="rezepte__main">
         {loading && <p className="rezepte__placeholder">Lade Rezepte…</p>}

@@ -33,6 +33,23 @@ export type MealType =
   | 'getraenk'
   | 'beilage';
 
+export type RecipeType =
+  | 'hauptgericht'
+  | 'snack'
+  | 'dessert'
+  | 'fruehstueck'
+  | 'beilage'
+  | 'getraenk';
+
+export const RECIPE_TYPE_LABELS: Record<RecipeType, string> = {
+  hauptgericht: 'Hauptgericht',
+  snack: 'Snack',
+  dessert: 'Dessert',
+  fruehstueck: 'Frühstück',
+  beilage: 'Beilage',
+  getraenk: 'Getränk',
+};
+
 export interface Zutat {
   name: string;
   menge: number | null;       // null wenn "nach Geschmack" / "etwas"
@@ -61,6 +78,7 @@ export interface Recipe {
   zubereitungszeit_min: number | null;
   schwierigkeit: Schwierigkeit | null;
   kategorie: MealType[];
+  recipe_type: RecipeType;
 
   zutaten: Zutat[];
   zubereitung: string[];       // Schritt-Array

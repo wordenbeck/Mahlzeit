@@ -64,6 +64,7 @@ export type Database = {
           is_favorite: boolean;
           ai_confidence: string | null;
           ai_warnings: string[];
+          recipe_type: string;
           created_at: string;
           updated_at: string;
         };
@@ -88,6 +89,7 @@ export type Database = {
           is_favorite?: boolean;
           ai_confidence?: string | null;
           ai_warnings?: string[];
+          recipe_type?: string;
           created_at?: string;
           updated_at?: string;
         };

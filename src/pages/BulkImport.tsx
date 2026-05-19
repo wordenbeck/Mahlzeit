@@ -7,7 +7,7 @@ import {
   RECIPE_PARSER_SYSTEM_PROMPT,
   formatRecipeFewShotExamples,
 } from '../lib/prompts/recipeParserPrompt';
-import { importRecipeFromUrl, saveRecipe } from '../lib/recipes';
+import { importRecipeFromUrl, saveRecipe, listExistingSourceUrls } from '../lib/recipes';
 import type { RecipeSource } from '../lib/types/recipe';
 import { useAuth } from '../lib/auth';
 
@@ -21,7 +21,9 @@ type Item = {
   recipeTitle?: string;
 };
 
-const DELAY_BETWEEN_REQUESTS_MS = 4000;  // Groq Free hat Rate-Limits — 4s schont's
+const DELAY_BETWEEN_REQUESTS_MS = 7000;   // Groq Free TPM-Limit — 7s konservativ
+const RETRY_DELAY_MS = 20000;             // Bei Fehler: 20s warten + 1× retry
+const MAX_RETRIES = 1;
 
 const LS_KEY = (workspaceId: string) => `mahlzeit:bulk-import:${workspaceId}`;
 
@@ -87,15 +89,55 @@ export function BulkImport() {
     });
   };
 
+  // Normalize Instagram-URLs (strip query params + trailing slash) für Dedup
+  const normalizeUrl = (url: string): string => {
+    try {
+      const u = new URL(url);
+      // Insta: /reel/:id/ — query weg
+      return `${u.origin}${u.pathname.replace(/\/$/, '')}`;
+    } catch {
+      return url.trim();
+    }
+  };
+
   const parseInput = (): string[] => {
-    return rawText
+    const lines = rawText
       .split('\n')
       .map(l => l.trim())
       .filter(l => l.length > 0 && /^https?:\/\//i.test(l));
+    // Dedup nach normalisierter URL
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const l of lines) {
+      const key = normalizeUrl(l);
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(l);
+      }
+    }
+    return unique;
   };
 
   const startImport = async (resumeWith?: Item[]) => {
-    const startItems: Item[] = resumeWith ?? parseInput().map(url => ({ url, status: 'pending' as ItemStatus }));
+    let startItems: Item[];
+    if (resumeWith) {
+      startItems = resumeWith;
+    } else {
+      const urls = parseInput();
+      // Gegen DB dedupen: schon importierte source_urls überspringen
+      try {
+        const existing = await listExistingSourceUrls();
+        const existingNorm = new Set(existing.map(normalizeUrl));
+        startItems = urls.map(url => {
+          if (existingNorm.has(normalizeUrl(url))) {
+            return { url, status: 'skipped' as ItemStatus, message: 'Schon importiert' };
+          }
+          return { url, status: 'pending' as ItemStatus };
+        });
+      } catch {
+        startItems = urls.map(url => ({ url, status: 'pending' as ItemStatus }));
+      }
+    }
     if (startItems.length === 0) return;
     setItems(startItems);
     persist(startItems);
@@ -124,15 +166,27 @@ export function BulkImport() {
 
       try {
         const url = startItems[i].url;
-        const result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
+        let result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
+
+        // Retry-on-Rate-Limit: wenn Groq 429 oder generic error, 1× wiederholen nach 20s
+        const isRateLimit = result.status === 'error' && /rate|429|too many|TPM|RPM/i.test(result.error ?? '');
+        if (isRateLimit && MAX_RETRIES > 0) {
+          updateItem(i, { status: 'running', message: `Rate-Limit — warte ${RETRY_DELAY_MS / 1000}s und versuche erneut…` });
+          await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+          if (cancelRef.current) break;
+          result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
+        }
 
         if (result.status !== 'ok' || !result.result?.rezept) {
-          updateItem(i, {
-            status: 'error',
-            message: result.status === 'extraction_failed'
-              ? 'Caption konnte nicht extrahiert werden'
-              : (result.error ?? 'Parser-Fehler'),
-          });
+          const msg = result.status === 'extraction_failed'
+            ? 'Caption konnte nicht extrahiert werden (Insta-Login-Wall?)'
+            : (result.error ?? 'Parser-Fehler');
+          updateItem(i, { status: 'error', message: msg });
+          // Wenn Rate-Limit oder Auth-Fehler erkannt → zusätzlich extra Pause
+          // damit nicht alle folgenden Items sofort kollabieren
+          if (/rate|429|TPM|auth|401|403/i.test(msg)) {
+            await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+          }
           continue;
         }
 
@@ -155,6 +209,7 @@ export function BulkImport() {
           ai_confidence: rezept.ai_confidence ?? null,
           ai_warnings: rezept.ai_warnings ?? [],
           is_favorite: false,
+          recipe_type: 'hauptgericht',
         });
 
         updateItem(i, { status: 'ok', recipeId: saved.id, recipeTitle: saved.titel });

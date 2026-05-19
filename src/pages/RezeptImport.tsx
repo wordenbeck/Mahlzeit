@@ -163,6 +163,7 @@ function UrlImport({ onSaved }: { onSaved: (id: string) => void }) {
         is_favorite: false,
         ai_confidence: parsed.ai_confidence,
         ai_warnings: parsed.ai_warnings,
+        recipe_type: parsed.recipe_type ?? 'hauptgericht',
       };
       const saved = await saveRecipe(input);
       onSaved(saved.id);
@@ -288,6 +289,7 @@ function ManualEntry({ onSaved }: { onSaved: (id: string) => void }) {
         is_favorite: false,
         ai_confidence: null,
         ai_warnings: [],
+        recipe_type: 'hauptgericht',
       };
       const saved = await saveRecipe(input);
       onSaved(saved.id);

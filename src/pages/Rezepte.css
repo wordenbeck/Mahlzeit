@@ -133,3 +133,49 @@
     gap: var(--space-2);
   }
 }
+
+.rezepte__type-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.rezepte__type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  transition: all var(--dur-fast) var(--ease-ios);
+}
+
+.rezepte__type-pill:hover { color: var(--accent); border-color: var(--accent-soft); }
+
+.rezepte__type-pill.is-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.rezepte__type-count {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-pill);
+  font-variant-numeric: tabular-nums;
+}
+
+.rezepte__type-pill.is-active .rezepte__type-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}

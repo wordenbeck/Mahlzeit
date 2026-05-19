@@ -21,13 +21,26 @@ export type RecipeListItem = Pick<
   | 'created_by'
   | 'created_at'
   | 'source'
+  | 'recipe_type'
 >;
+
+/** source_urls aller Recipes — für Dedup-Check beim Bulk-Import */
+export async function listExistingSourceUrls(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('recipes')
+    .select('source_url')
+    .not('source_url', 'is', null);
+  if (error) throw error;
+  return (data ?? [])
+    .map(r => (r as { source_url: string | null }).source_url)
+    .filter((u): u is string => !!u);
+}
 
 export async function listRecipes(): Promise<RecipeListItem[]> {
   const { data, error } = await supabase
     .from('recipes')
     .select(
-      'id, titel, beschreibung, portionen, zubereitungszeit_min, schwierigkeit, kategorie, tags, bild_url, is_favorite, created_by, created_at, source'
+      'id, titel, beschreibung, portionen, zubereitungszeit_min, schwierigkeit, kategorie, tags, bild_url, is_favorite, created_by, created_at, source, recipe_type'
     )
     .order('created_at', { ascending: false });
   if (error) throw error;
