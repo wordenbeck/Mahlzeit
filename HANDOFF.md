@@ -14,20 +14,15 @@ Tech: React + Vite + TS + Supabase + Vercel + Groq.
 
 ---
 
+## 🟢 Status Update — Sprint 13.5 (Fortschritt)
+
+✅ **Edge-Function deployed** — Thomas hat `supabase functions deploy import-recipe-from-url` ausgeführt. 500-Fehler-Fix ist live. Frontend kann jetzt echte Groq-Fehlertexte lesen.
+
+---
+
 ## 🔴 Sofort-Priorität für nächste Session
 
-### 1. Edge-Function neu deployen (Thomas!)
-
-Diese Session hat den **500-Fehler-Bug** gefixt. Edge-Function gibt jetzt 200 statt 500 zurück, damit der Body durchkommt + Retry-Logic greift. Plus: client liest den echten Fehlerbody bei FunctionsHttpError.
-
-```bash
-cd "/Users/thomaswordenbeck/Claude Code/CodingDojo/MealPlanner"
-supabase functions deploy import-recipe-from-url
-```
-
-→ Erst nach Deploy zeigt das Frontend die echten Groq-Fehler statt nur „non-2xx".
-
-### 2. Bulk-Import + Single-Test
+### 1. Bulk-Import + Single-Test
 Nach Deploy: Bulk-Test wieder probieren. Wenn's immer noch hängt:
 - Browser DevTools → Network → `import-recipe-from-url` Request → Response anschauen (jetzt mit echtem Fehlertext)
 - Supabase Dashboard → Edge Functions → Logs lesen
