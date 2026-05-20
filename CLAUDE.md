@@ -101,6 +101,39 @@ Wenn Code-Änderungen production-ready sind:
 MVP: manuelles Testen im Browser + auf iPad/iPhone via Vercel-Preview-URL.
 Später: Vitest für Logic, Playwright für E2E.
 
+## Session-Management & Token-Feedback-Loop
+
+Lange Sessions verlieren am Ende Kontext (Auto-Compact). Damit Wissen nicht verloren geht und der Workflow effizient bleibt, hält Claude folgende Routine:
+
+### Proaktive Checks
+- **Nach jeder größeren Feature-Welle** (Sprint-Ende) `HANDOFF.md` updaten: Stand + offene Themen + Pitfalls
+- **Wenn das Gefühl aufkommt** dass Context-Fenster eng wird (Anzeichen: User nutzt `/context` und zeigt >70%, oder die Session läuft seit vielen Iterationen): proaktiv vorschlagen „Zeit für `HANDOFF.md`-Update + `/clear`"
+- **Wenn User `/context` schickt mit >65%**: Vor weiterer Arbeit zuerst HANDOFF aktualisieren
+
+### HANDOFF-Update-Disziplin
+Beim Update IMMER:
+- Kompakter machen (alte erledigte Features kürzen, nur die wichtigsten Pitfalls behalten)
+- Neue offene Themen ergänzen (Blocker-erst)
+- Status der Sprint-Tabelle synchronisieren
+- „Erste Aktion für nächste Session" am Ende konkretisieren
+- NIE wichtige Decisions löschen — eher zu `PROJECT-SPEC.md` oder `DESIGN-BRIEF.md` verschieben
+
+### Wenn nahe am Token-Limit
+1. Vorschlagen: Aktuelle Aufgabe sauber zu Ende + committen + pushen
+2. HANDOFF.md aktualisieren (Sprint-Tabelle + Pitfalls + Sofort-Priorität)
+3. `/clear` machen
+4. Neue Session liest HANDOFF + CLAUDE + relevante Docs → arbeitet weiter
+
+### Was IMMER persistiert wird (nie aus dem Context verlieren)
+- Architecture Decisions → `PROJECT-SPEC.md`
+- Visual/Mood Decisions → `DESIGN-BRIEF.md`
+- Setup-Schritte → `SETUP.md`
+- Sprint-Backlog + offene Bugs → `HANDOFF.md`
+- Auto-Migration-Files → `supabase/migrations/`
+- Edge-Functions → `supabase/functions/`
+
+Dann ist `/clear` schmerzfrei — neue Session findet alles wieder im Repo.
+
 ## Dont's
 
 - Nicht ungefragt Premium-Features integrieren (Stripe, etc.)

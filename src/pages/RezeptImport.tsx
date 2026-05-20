@@ -7,7 +7,7 @@ import {
   RECIPE_PARSER_SYSTEM_PROMPT,
   formatRecipeFewShotExamples,
 } from '../lib/prompts/recipeParserPrompt';
-import { importRecipeFromUrl, saveRecipe, type SaveRecipeInput } from '../lib/recipes';
+import { importRecipeFromUrl, saveRecipe, listExistingSourceUrls, type SaveRecipeInput } from '../lib/recipes';
 import type { Recipe, RecipeSource } from '../lib/types/recipe';
 
 type Tab = 'url' | 'manual' | 'ai';
@@ -89,6 +89,7 @@ function UrlImport({ onSaved }: { onSaved: (id: string) => void }) {
   const [error, setError] = useState<string | null>(null);
   const [parsed, setParsed] = useState<NonNullable<Recipe> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [duplicateOf, setDuplicateOf] = useState<string | null>(null);
 
   const detectSource = (u: string): RecipeSource => {
     if (u.includes('instagram.com')) return 'instagram';
@@ -97,11 +98,34 @@ function UrlImport({ onSaved }: { onSaved: (id: string) => void }) {
     return 'url';
   };
 
+  const normalizeUrl = (u: string): string => {
+    try {
+      const parsed = new URL(u);
+      return `${parsed.origin}${parsed.pathname.replace(/\/$/, '')}`;
+    } catch {
+      return u.trim();
+    }
+  };
+
   const handleImport = async () => {
     setError(null);
     setParsed(null);
+    setDuplicateOf(null);
     setParsing(true);
     try {
+      // Dublette? — Check vor Edge-Function-Call
+      const norm = normalizeUrl(url.trim());
+      try {
+        const existing = await listExistingSourceUrls();
+        if (existing.some(u => normalizeUrl(u) === norm)) {
+          setDuplicateOf(norm);
+          setError('Dieses Rezept ist schon importiert.');
+          return;
+        }
+      } catch {
+        // Dedup-Lookup fehlgeschlagen → trotzdem fortfahren
+      }
+
       const result = await importRecipeFromUrl(
         url.trim(),
         RECIPE_PARSER_SYSTEM_PROMPT,
@@ -176,15 +200,29 @@ function UrlImport({ onSaved }: { onSaved: (id: string) => void }) {
 
   return (
     <div className="rimp__panel">
-      <label className="rimp__field">
-        <span>Insta-Reel-URL oder Rezept-Link</span>
-        <input
-          type="url"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-          placeholder="https://www.instagram.com/reel/…"
-        />
-      </label>
+      <form
+        className="rimp__field"
+        onSubmit={e => { e.preventDefault(); if (url.trim() && !parsing) handleImport(); }}
+      >
+        <label>
+          <span>Insta-Reel-URL oder Rezept-Link</span>
+          <input
+            type="url"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            placeholder="https://www.instagram.com/reel/…"
+            autoFocus
+          />
+        </label>
+        {/* unsichtbarer Submit damit Enter im Input das Form abschickt */}
+        <button type="submit" style={{ display: 'none' }} aria-hidden tabIndex={-1} />
+      </form>
+
+      {duplicateOf && (
+        <div className="rimp__warning">
+          ⚠️ Dieses Rezept ist schon in deiner Sammlung. <Link to="/rezepte">Zu Rezepten</Link>
+        </div>
+      )}
 
       {showCaptionFallback && (
         <label className="rimp__field">

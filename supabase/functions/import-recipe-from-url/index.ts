@@ -474,15 +474,13 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    // 200 statt 500 damit supabase-js den Body lesbar an den Client durchreicht.
+    // Frontend kann error-Feld auswerten + retry-on-rate-limit triggern.
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("import-recipe-from-url error:", msg);
     return new Response(
-      JSON.stringify({
-        status: "error",
-        error: error instanceof Error ? error.message : String(error),
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ status: "error", error: msg }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
