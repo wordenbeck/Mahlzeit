@@ -21,8 +21,8 @@ type Item = {
   recipeTitle?: string;
 };
 
-const DELAY_BETWEEN_REQUESTS_MS = 7000;   // Groq Free TPM-Limit — 7s konservativ
-const RETRY_DELAY_MS = 20000;             // Bei Fehler: 20s warten + 1× retry
+const DELAY_BETWEEN_REQUESTS_MS = 30000;  // Groq Free TPM-Limit: 12000 TPM, ~5300 Tokens/Request → ~30s safe
+const RETRY_DELAY_MS = 60000;             // Bei Rate-Limit: 60s Pause (full minute reset) + 1× retry
 const MAX_RETRIES = 1;
 
 const LS_KEY = (workspaceId: string) => `mahlzeit:bulk-import:${workspaceId}`;
