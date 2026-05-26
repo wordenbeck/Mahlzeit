@@ -101,38 +101,56 @@ Wenn Code-Änderungen production-ready sind:
 MVP: manuelles Testen im Browser + auf iPad/iPhone via Vercel-Preview-URL.
 Später: Vitest für Logic, Playwright für E2E.
 
-## Session-Management & Token-Feedback-Loop
+## Sprint-Chat-Modell (optimiert für große Projekte)
 
-Lange Sessions verlieren am Ende Kontext (Auto-Compact). Damit Wissen nicht verloren geht und der Workflow effizient bleibt, hält Claude folgende Routine:
+**Struktur:** Pro Sprint = neuer Chat + frischer Context. Innerhalb des Sprints: regelmäßige automatisierte Commits + HANDOFF-Updates + Clean-Exit mit `/clear`.
 
-### Proaktive Checks
-- **Nach jeder größeren Feature-Welle** (Sprint-Ende) `HANDOFF.md` updaten: Stand + offene Themen + Pitfalls
-- **Wenn das Gefühl aufkommt** dass Context-Fenster eng wird (Anzeichen: User nutzt `/context` und zeigt >70%, oder die Session läuft seit vielen Iterationen): proaktiv vorschlagen „Zeit für `HANDOFF.md`-Update + `/clear`"
-- **Wenn User `/context` schickt mit >65%**: Vor weiterer Arbeit zuerst HANDOFF aktualisieren
+### Sprint-Lifecycle
 
-### HANDOFF-Update-Disziplin
-Beim Update IMMER:
-- Kompakter machen (alte erledigte Features kürzen, nur die wichtigsten Pitfalls behalten)
-- Neue offene Themen ergänzen (Blocker-erst)
-- Status der Sprint-Tabelle synchronisieren
-- „Erste Aktion für nächste Session" am Ende konkretisieren
-- NIE wichtige Decisions löschen — eher zu `PROJECT-SPEC.md` oder `DESIGN-BRIEF.md` verschieben
+#### Phase 1: Development (innerhalb eines Chats)
+- **Zu Beginn:** HANDOFF.md lesen → Kontext verstehen
+- **Während Arbeit:** Jede fertige Feature/Bugfix → `git commit`
+- **Milestone-Checks:** Alle ~2-3h oder bei Context >70%:
+  - HANDOFF.md aktualisieren (Stand + Pitfalls + Next-Actions)
+  - `git push`
+  - Ggf. `/clear` für neuen Chat (falls Context-eng) — aber NO breaks: nur bei natürlichen Breakpoints (Commit+Test vergeben)
 
-### Wenn nahe am Token-Limit
-1. Vorschlagen: Aktuelle Aufgabe sauber zu Ende + committen + pushen
-2. HANDOFF.md aktualisieren (Sprint-Tabelle + Pitfalls + Sofort-Priorität)
-3. `/clear` machen
-4. Neue Session liest HANDOFF + CLAUDE + relevante Docs → arbeitet weiter
+#### Phase 2: Deployment & Testing
+- Feature auf Vercel live
+- Manual Testing + Bugs sammeln
+- Bei Bugs: Inline-Fixes im gleichen Chat, re-push
+
+#### Phase 3: Sprint-Ende (Acceptance + Optimization)
+Sobald: **Developed + Deployed + Tested + Akzeptiert** (oder Bugs fixed)
+
+**DANN (neuer Chat, neue Iteration):**
+1. `memory-consolidation` — MEMORY.md aufräumen (Duplikate, stale facts)
+2. `fewer-permission-prompts` — Permission-Allowlist für häufige Calls
+3. Docs-Struktur prüfen (zu viel Redundanz? Stale Docs?)
+4. Backlog-Refinement (vor dem nächsten Sprint)
+5. **NEUER SPRINT-CHAT** mit frischem Context
+
+### HANDOFF.md Template — was IMMER rein
+- **Status:** Aktueller Sprint + Phase (dev/testing/done)
+- **Sofort-Priorität:** Top 3 Blockers oder Next-Actions
+- **Bugs:** Aktuelle Fehler + Reproduzierungsschritte
+- **Offene Themen:** Was ist noch unklar?
+- **Pitfalls:** Was wir gelernt haben (Gotchas, Constraints)
+- **Optimization Feedback** (NEU!):
+  - Was lief gut? Was war lahm?
+  - Wo hat Claude zu viel nachgefragt?
+  - Code-Patterns die sich wiederholen?
+  - → Für nächsten Sprint besser machen
 
 ### Was IMMER persistiert wird (nie aus dem Context verlieren)
 - Architecture Decisions → `PROJECT-SPEC.md`
 - Visual/Mood Decisions → `DESIGN-BRIEF.md`
 - Setup-Schritte → `SETUP.md`
-- Sprint-Backlog + offene Bugs → `HANDOFF.md`
+- Sprint-Backlog + offene Bugs + Optimization-Feedback → `HANDOFF.md`
 - Auto-Migration-Files → `supabase/migrations/`
 - Edge-Functions → `supabase/functions/`
 
-Dann ist `/clear` schmerzfrei — neue Session findet alles wieder im Repo.
+Damit ist `/clear` schmerzfrei — neue Session findet alles wieder im Repo.
 
 ## Dont's
 

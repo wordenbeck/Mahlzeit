@@ -1,0 +1,60 @@
+{
+  "version": "0.1",
+  "projectName": "MealPlanner",
+  "description": "iPad-first PWA für Wochenplanung",
+  "model": "claude-opus-4-1-20250805",
+  "sprintBased": true,
+  "hooks": {
+    "beforeClear": {
+      "description": "Automatisch vor /clear: HANDOFF.md committen + pushen",
+      "action": "shell",
+      "commands": [
+        "git add HANDOFF.md",
+        "git commit -m 'chore: update HANDOFF before sprint-end clear' --allow-empty",
+        "git push"
+      ]
+    },
+    "contextWarning": {
+      "description": "Warnung wenn Context >75%",
+      "threshold": 75,
+      "message": "Context läuft voll! Sprint-Phase? Falls noch dev: HANDOFF-Update + committe + /clear für neuen Chat. Oder später nach Deployment.",
+      "action": "notify"
+    },
+    "sprintEnd": {
+      "description": "Nach Deployment + Testing: Optimization Feedback eintragen",
+      "manual": true,
+      "checklist": [
+        "Features deployed + live?",
+        "Getestet + akzeptiert?",
+        "Bugs fixed?",
+        "Dann: Optimization Feedback in HANDOFF.md eintragen",
+        "Dann: /consolidate-memory + fewer-permission-prompts",
+        "Dann: neuer Sprint-Chat mit frischem Context"
+      ]
+    }
+  },
+  "permissions": {
+    "allowlist": [
+      "bash:git add",
+      "bash:git commit",
+      "bash:git push",
+      "bash:git log --oneline",
+      "bash:git status",
+      "npm run dev",
+      "npm run build",
+      "supabase functions deploy"
+    ]
+  },
+  "files": {
+    "persistent": [
+      "PROJECT-SPEC.md",
+      "DESIGN-BRIEF.md",
+      "SETUP.md",
+      "HANDOFF.md",
+      "CLAUDE.md",
+      "COLLAB-PRINCIPLES.md",
+      "supabase/migrations/**",
+      "supabase/functions/**"
+    ]
+  }
+}

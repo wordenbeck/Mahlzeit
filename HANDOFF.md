@@ -106,18 +106,28 @@ Offen:
 
 ---
 
-## Erste Aktion für nächste Session
+---
 
-```
-User wird typisch sagen: "lies HANDOFF, dann <thema>"
-```
+## 🎯 Optimization Feedback (für nächsten Sprint)
+
+*Diese Section wird zwischen den Sprints gefüllt von Claude + Thomas.*
+
+- Was lief gut in diesem Sprint?
+- Wo war die Zusammenarbeit lahm?
+- Welche Patterns sollten wir nächstes Mal wiederholen?
+- Wo hat Claude zu viel/zu wenig nachgefragt?
+- Code-Insights — was sollte besser sein?
+
+(wird nach Bulk-Import gefüllt)
+
+---
+
+## Erste Aktion für nächste Session
 
 1. HANDOFF.md lesen ✓
 2. `git log --oneline -10` checken — wo stehen wir wirklich
-3. Wenn Edge-Function-Deploy noch nicht durch: Thomas zum Deploy auffordern
-4. Wenn Bulk-Import-Test noch ansteht: gemeinsam testen
-5. `mealplanner-spec/` durchgehen
-6. Sprint-Plan erstellen basierend auf gefundenen Anforderungen
+3. Priorität abhaken (Blocker zuerst)
+4. Lesen: Optimization Feedback aus letztem Sprint
 
 Don't be afraid to ask clarifying questions.
 
