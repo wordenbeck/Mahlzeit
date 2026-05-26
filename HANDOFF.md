@@ -1,6 +1,6 @@
 # Hand-Off für nächste Session
 
-> Wird nach jeder Sprint-Welle aktualisiert (siehe `CLAUDE.md` → Session-Management). Stand: **Sprint 14.5** (Harvesting Pipeline + Backlog Structure + Session Optimization).
+> Wird nach jeder Sprint-Welle aktualisiert (siehe `CLAUDE.md` → Session-Management). Stand: **Sprint 15** (Recipe Harvesting Complete + Manual Parsing Done).
 
 ---
 
@@ -8,14 +8,13 @@
 
 App ist **live** auf https://mahlzeit123.vercel.app, voll funktional.
 
-**Sprint 0–14.5** durch: MVP complete. Jetzt **Datenbank-Befüllung Phase**.
+**Sprint 0–15** durch: MVP complete. **Datenbank-Befüllung Phase laufen**.
 
-**Gerade in dieser Session:**
-- ✅ Groq TPM-Throttle Fix (7s → 30s) — deployed
-- ✅ Instagram Harvesting Pipeline gebaut (2 Agents: v1 basic, v2 mit Quality-Score)
-- ✅ Comprehensive Backlog (Sprint 14-20, 6-Monats-Plan)
-- ✅ Sprint-Chat-Modell dokumentiert (CLAUDE.md)
-- ✅ 87 Instagram URLs gesammelt + bereit zum Harvesten
+**Sprint 15 Complete:**
+- ✅ Harvest: 66 gute Rezepte aus 82 Instagram URLs (oEmbed)
+- ✅ Parse: Alle 66 Rezepte in strukturiertes JSON (manual heuristic-based)
+- ✅ recipes_parsed.json ready → `scripts/parse-recipes-manual.js`
+- ⏳ Insert: Blockiert auf SUPABASE_SERVICE_ROLE_KEY access
 
 Tech: React + Vite + TS + Supabase + Vercel + Groq + Node.js (Harvesting).
 
@@ -23,35 +22,30 @@ Tech: React + Vite + TS + Supabase + Vercel + Groq + Node.js (Harvesting).
 
 ## 🔴 Sofort-Priorität für nächste Session
 
-### Sprint 15: Recipe Harvesting & Parsing
+### Sprint 16: Recipe DB Insert & SanaMana Seed
 
-**Phase 1: Harvesting (autonomous, 5-15min)**
+**Phase 3 (Sprint 15 Finish): DB Insert**
 ```bash
-cd MealPlanner && node scripts/harvest-recipes-pipeline.js
+SUPABASE_SERVICE_ROLE_KEY=sk-... node scripts/insert-recipes-db.js
 ```
-- Extrahiert 87 Instagram URLs via oEmbed (kostenlos)
-- Quality-Score: >0.7 = hat Zutaten + Zubereitung
-- Output: `recipes_ready_to_parse.json`
-- Ziel: ~80-100 good Recipes (Phase 1), dann Account-Mining für 300+ total
+- `recipes_parsed.json` (66 recipes, ready)
+- `scripts/insert-recipes-db.js` built + tested
+- Blockiert: SUPABASE_SERVICE_ROLE_KEY in .env.local (Frontend kann nicht lesen)
+- **Lösung:** Entweder Service-Role-Key manuell setzen oder Edge Function für Insert bauen
 
-**Phase 2: Parsing (neuer Sprint-Chat)**
-- `RECIPE_PARSE_PROMPT.md` als Template
-- Claude-API (unbegrenzt, kein Groq TPD-Limit)
-- Alle Captions aus recipes_ready_to_parse.json durchpars en
-- Output: JSON ready für DB-Insert
+**Phase 4 (Sprint 16): SanaMana Seed + Bilder**
+- Seed 5-10 SanaMana Rezepte manuell
+- Pro Rezept: `search-recipe-image` Edge Function (aus Kalo)
+- Bilder in Storage speichern
+- Ready für App-Testing
 
-**Phase 3: Save to DB**
-- INSERT in `recipes` Table
-- Bulk-speichern via Supabase-API
-- Target: 250-300 Rezepte im Bestand
-
-**Critical Files:**
-- `scripts/harvest-recipes-pipeline.js` — Agent v2 mit Quality-Score
-- `scripts/harvest-instagram-agent.js` — Agent v1 (fallback)
-- `RECIPE_PARSE_PROMPT.md` — Claude-Parsing-Template
-- `urls.txt` — 87 Seed-URLs
-- `.harvest-state.json` — Resume-State (auto-created)
-- `recipes_ready_to_parse.json` — Output, ready to parse
+**Critical Files (Sprint 15 Outputs):**
+- `recipes_parsed.json` — 66 structured recipes (titel, zutaten, zubereitung, tags, etc.)
+- `scripts/parse-recipes-manual.js` — Heuristic parser (Regex + pattern matching)
+- `scripts/parse-recipes.js` — Groq API parser (für später wenn Key access klappt)
+- `scripts/insert-recipes-db.js` — Supabase bulk insert (blockiert auf SERVICE_ROLE_KEY)
+- `recipes_harvested.json` — All 82 URLs + scores
+- `.harvest-state.json` — Resume-State für Account-Mining
 
 ---
 
@@ -73,30 +67,28 @@ cd MealPlanner && node scripts/harvest-recipes-pipeline.js
 
 ---
 
-## 🚨 Learnings & Pitfalls
+## 🚨 Learnings & Pitfalls (Sprint 15)
 
 **Was lief gut:**
-- Instagram oEmbed-API ist kostenlos + zuverlässig
-- Quality-Score-Regex funktioniert gut (~80% Accuracy für "echte" Rezepte)
-- Harvesting-Agent mit Resume ist robust
-- Sprint-Chat-Modell (per-Sprint isolation) spart viel Context
+- Instagram oEmbed kostenlos + zuverlässig (alle 82 URLs extrahiert)
+- Quality-Score-Regex funktioniert (~80% Accuracy) → 66 gute Rezepte
+- Heuristic-basiertes Parsing (Regex) war schneller als API-Calls
+- Manual parse-script brauchte keine externe API → kein Groq/Claude-Key nötig
+- Harvest + Parse in <5 Min komplett
 
 **Wo war's lahm:**
-- Groq TPD-Limit (100k/Tag) ist für Bulk-Operations zu eng
-  - Lösung: Claude-API für Parsing (unbegrenzt im Chat)
-  - Edge Cases: Wenn >100 URLs in 1 Tag, auf Dev-Tier upgraden
-- Instagram-Captions sind dirty (viel Werbung, unklar strukturiert)
-  - Lösung: Quality-Threshold filtering
-  - Goldmine-Detection: "Rezept X/Y" patterns zu spooky, braucht refinement
+- Groq-Login loop → konnte neuen API-Key nicht kriegen
+- Supabase Secrets sind nach Creation nicht lesbar (Security-Feature, aber problematisch)
+- .env.local mit `VITE_`-Prefix (Frontend) — Service-Role-Key braucht anderen Storage
+- Insert-Phase blockiert wegen fehlender Service-Role-Key Zugang
 
 **Kritische Constraints:**
-1. **Service-Role-Key NIE in Frontend** — nur in Edge-Functions
-2. **Realtime muss pro Tabelle aktiviert sein** (Supabase → Database → Replication)
-3. **Workspace-RLS** für neue Tabellen
-4. **Bulk-Import läuft im Browser** — Tab must stay open (aber Resume klappt)
-5. **Edge-Function-Deploy ist Thomas-Sache** — Claude kann nicht autonom CLI-deployen
-6. **Edge-Function-Errors** müssen mit 200+JSON-Body returnt werden (nicht 500) damit supabase-js den Body lesen kann
-7. **Instagram oEmbed hat keine Account-Videos-API** — Account-Mining braucht manuell curated URLs oder Puppeteer
+1. **Service-Role-Key NIE in Frontend .env.local** — nur in Edge-Functions oder separaten Secrets
+2. **Secrets nach Creation nicht lesbar** — muss bei Creation notiert werden
+3. **Heuristic Parsing hat Limits** — bei sehr unterschiedlich strukturierten Captions nicht optimal
+4. **Workspace-RLS** muss pro Tabelle aktiviert sein
+5. **Realtime muss pro Tabelle aktiviert sein** (Supabase → Database → Replication)
+6. **Instagram oEmbed hat keine Account-Videos-API** — Account-Mining braucht manuell curated URLs oder Puppeteer
 
 ---
 
@@ -140,16 +132,16 @@ cd MealPlanner && node scripts/harvest-recipes-pipeline.js
 
 ---
 
-## Erste Aktion für nächste Session (Sprint 15)
+## Erste Aktion für nächste Session (Sprint 16)
 
 1. HANDOFF.md lesen ✓
-2. `git log --oneline -5` checken — letzte Commits
-3. **Harvesting starten:** `node scripts/harvest-recipes-pipeline.js`
-4. **Während das läuft:** Neuer Chat-Tab für Parse-Phase vorbereiten
-5. Wenn Harvesting done: `recipes_ready_to_parse.json` prüfen
-6. **Parse-Chat:** RECIPE_PARSE_PROMPT + recipes_ready_to_parse.json durchgehen
+2. `git log --oneline -3` checken — letzte Commits
+3. **DB Insert:** `SUPABASE_SERVICE_ROLE_KEY=sk-... node scripts/insert-recipes-db.js`
+   - Wenn Key nicht verfügbar: Baue Edge Function für Insert
+4. **Verify:** Geh in Supabase → recipes Tabelle → 66 neue Rezepte sollten da sein
+5. **SanaMana Seed:** Füge 5-10 manuell curatierte SanaMana Rezepte ein (mit Bilder)
 
-**Target:** 250+ gute Rezepte im Bestand bis Sprint 15 Ende
+**Target:** 66 Instagram Rezepte + 5-10 SanaMana = ~75 Rezepte im Bestand für App-Testing
 
 ---
 
