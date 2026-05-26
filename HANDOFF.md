@@ -8,13 +8,15 @@
 
 App ist **live** auf https://mahlzeit123.vercel.app, voll funktional.
 
-**Sprint 0–15** durch: MVP complete. **Datenbank-Befüllung Phase laufen**.
+**Sprint 0–15** durch: MVP complete + **Datenbank mit 90 Rezepten gefüllt**.
 
-**Sprint 15 Complete:**
+**Sprint 15 COMPLETE:**
 - ✅ Harvest: 66 gute Rezepte aus 82 Instagram URLs (oEmbed)
 - ✅ Parse: Alle 66 Rezepte in strukturiertes JSON (manual heuristic-based)
-- ✅ recipes_parsed.json ready → `scripts/parse-recipes-manual.js`
-- ⏳ Insert: Blockiert auf SUPABASE_SERVICE_ROLE_KEY access
+- ✅ Insert: **66 Instagram + 24 SanaMana = 90 Rezepte in DB**
+- ✅ SQL Scripts generiert (recipes_insert_final.sql + sanamana_insert.sql)
+
+**Database Status:** 90 Rezepte live, ready für App-Testing.
 
 Tech: React + Vite + TS + Supabase + Vercel + Groq + Node.js (Harvesting).
 
@@ -22,22 +24,23 @@ Tech: React + Vite + TS + Supabase + Vercel + Groq + Node.js (Harvesting).
 
 ## 🔴 Sofort-Priorität für nächste Session
 
-### Sprint 16: Recipe DB Insert & SanaMana Seed
+### Sprint 16: Image Seeding & Concept System
 
-**Phase 3 (Sprint 15 Finish): DB Insert**
-```bash
-SUPABASE_SERVICE_ROLE_KEY=sk-... node scripts/insert-recipes-db.js
-```
-- `recipes_parsed.json` (66 recipes, ready)
-- `scripts/insert-recipes-db.js` built + tested
-- Blockiert: SUPABASE_SERVICE_ROLE_KEY in .env.local (Frontend kann nicht lesen)
-- **Lösung:** Entweder Service-Role-Key manuell setzen oder Edge Function für Insert bauen
+**Phase 1: Image Seeding (Bilder für Rezepte)**
+- 10-15 Rezepte mit Bildern versehen (via `search-recipe-image` Edge Function aus Kalo)
+- Bilder in Supabase Storage speichern
+- Rezepte mit `bild_url` updaten
 
-**Phase 4 (Sprint 16): SanaMana Seed + Bilder**
-- Seed 5-10 SanaMana Rezepte manuell
-- Pro Rezept: `search-recipe-image` Edge Function (aus Kalo)
-- Bilder in Storage speichern
-- Ready für App-Testing
+**Phase 2: Concept System Foundation**
+- Tags in App anzeigen (vegan, high-protein, schnell, etc.)
+- "Filter by Tag" Funktionalität bauen
+- SanaMana-Rezepte als Konzept markieren
+
+**Phase 3: App Testing**
+- UI testen mit 90 echten Rezepten
+- Magic-Fill (Wochenplan-Generator) testen
+- Drag & Drop in Weekplan testen
+- Responsive auf iPad/iPhone testen
 
 **Critical Files (Sprint 15 Outputs):**
 - `recipes_parsed.json` — 66 structured recipes (titel, zutaten, zubereitung, tags, etc.)
@@ -141,7 +144,7 @@ SUPABASE_SERVICE_ROLE_KEY=sk-... node scripts/insert-recipes-db.js
 4. **Verify:** Geh in Supabase → recipes Tabelle → 66 neue Rezepte sollten da sein
 5. **SanaMana Seed:** Füge 5-10 manuell curatierte SanaMana Rezepte ein (mit Bilder)
 
-**Target:** 66 Instagram Rezepte + 5-10 SanaMana = ~75 Rezepte im Bestand für App-Testing
+**Target erreicht:** 66 Instagram + 24 SanaMana = **90 Rezepte im Bestand** ✅
 
 ---
 
