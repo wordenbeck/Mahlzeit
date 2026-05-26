@@ -1,6 +1,6 @@
 # Hand-Off für nächste Session
 
-> Wird nach jeder Sprint-Welle aktualisiert (siehe `CLAUDE.md` → Session-Management). Stand: **Sprint 13** (Edge-Function-Error-Fix + Bulk-Import-Polish + Token-Policy).
+> Wird nach jeder Sprint-Welle aktualisiert (siehe `CLAUDE.md` → Session-Management). Stand: **Sprint 14.5** (Harvesting Pipeline + Backlog Structure + Session Optimization).
 
 ---
 
@@ -8,128 +8,148 @@
 
 App ist **live** auf https://mahlzeit123.vercel.app, voll funktional.
 
-**Sprint 0–13** durch (Mock-Prototypen → Auth → Plan/Einkauf/Liste/Heute → Bulk-Import → Magic Fill → Realtime → PWA → Profile-Polish → Recipe-Edit → Lucide-Icons → ErrorBoundary → Service-Worker → Bulk-Resume → recipe_type → Edge-Error-Fix).
+**Sprint 0–14.5** durch: MVP complete. Jetzt **Datenbank-Befüllung Phase**.
 
-Tech: React + Vite + TS + Supabase + Vercel + Groq.
+**Gerade in dieser Session:**
+- ✅ Groq TPM-Throttle Fix (7s → 30s) — deployed
+- ✅ Instagram Harvesting Pipeline gebaut (2 Agents: v1 basic, v2 mit Quality-Score)
+- ✅ Comprehensive Backlog (Sprint 14-20, 6-Monats-Plan)
+- ✅ Sprint-Chat-Modell dokumentiert (CLAUDE.md)
+- ✅ 87 Instagram URLs gesammelt + bereit zum Harvesten
 
----
-
-## 🟢 Status Update — Sprint 13.5 (Fortschritt)
-
-✅ **Edge-Function deployed** — Thomas hat `supabase functions deploy import-recipe-from-url` ausgeführt. 500-Fehler-Fix ist live. Frontend kann jetzt echte Groq-Fehlertexte lesen.
+Tech: React + Vite + TS + Supabase + Vercel + Groq + Node.js (Harvesting).
 
 ---
 
 ## 🔴 Sofort-Priorität für nächste Session
 
-### 1. Bulk-Import + Single-Test
-Nach Deploy: Bulk-Test wieder probieren. Wenn's immer noch hängt:
-- Browser DevTools → Network → `import-recipe-from-url` Request → Response anschauen (jetzt mit echtem Fehlertext)
-- Supabase Dashboard → Edge Functions → Logs lesen
-- Wahrscheinliche Ursachen: Groq RPM/TPM-Limit, Insta-IP-Block. Dann ggf. Throttle auf 10-15s bumpen.
+### Sprint 15: Recipe Harvesting & Parsing
 
-### 3. `mealplanner-spec/` durchgehen
-
+**Phase 1: Harvesting (autonomous, 5-15min)**
+```bash
+cd MealPlanner && node scripts/harvest-recipes-pipeline.js
 ```
-~/Claude Code/CodingDojo/MealPlanner/mealplanner-spec/
-  ├── meal-planner-strategy-v1.md  (Gemini-Diskussion zu Anforderungen + Strategie)
-  └── SanaMana-Rezepte + Bilder (digitalisiert)
-```
+- Extrahiert 87 Instagram URLs via oEmbed (kostenlos)
+- Quality-Score: >0.7 = hat Zutaten + Zubereitung
+- Output: `recipes_ready_to_parse.json`
+- Ziel: ~80-100 good Recipes (Phase 1), dann Account-Mining für 300+ total
 
-→ Lesen, mit Thomas validieren, dann SanaMana importieren. Bilder gehen in Supabase Storage Bucket `recipe-images`, Pfad `{workspace_id}/{recipe_id}.{ext}`.
+**Phase 2: Parsing (neuer Sprint-Chat)**
+- `RECIPE_PARSE_PROMPT.md` als Template
+- Claude-API (unbegrenzt, kein Groq TPD-Limit)
+- Alle Captions aus recipes_ready_to_parse.json durchpars en
+- Output: JSON ready für DB-Insert
 
-### 4. SQL-Migration `recipe_type` ist schon applied ✓
-Thomas hat in Sprint 12 die Migration durchgeführt.
+**Phase 3: Save to DB**
+- INSERT in `recipes` Table
+- Bulk-speichern via Supabase-API
+- Target: 250-300 Rezepte im Bestand
 
----
-
-## ⚙️ Status der Recipe-Type-Feature (teilweise drin)
-
-✅ Migration applied, Types erweitert, `/rezepte` Filter-Pills da.
-
-Offen:
-- [ ] Recipe-Detail Edit-Mode mit `recipe_type` Select
-- [ ] Parser-Prompt: AI soll `recipe_type` automatisch setzen beim Import
-- [ ] Magic-Fill könnte type-aware werden
-
----
-
-## 🐛 Aktuelle Bugs (status nach Sprint 13)
-
-- ❗ **Edge Function 500** — Wurzelfix gepusht, braucht **Deploy** (siehe oben). Vorher hat das Frontend nur „non-2xx" gesehen, jetzt kommt der echte Fehlertext durch.
-- ✅ **Dublette nicht erkannt** im Single-Import — gefixt: prüft jetzt vor Edge-Call ob `source_url` schon existiert.
-- ✅ **Enter-Taste submitted nicht** im URL-Input — gefixt mit `<form>`-Wrapper.
+**Critical Files:**
+- `scripts/harvest-recipes-pipeline.js` — Agent v2 mit Quality-Score
+- `scripts/harvest-instagram-agent.js` — Agent v1 (fallback)
+- `RECIPE_PARSE_PROMPT.md` — Claude-Parsing-Template
+- `urls.txt` — 87 Seed-URLs
+- `.harvest-state.json` — Resume-State (auto-created)
+- `recipes_ready_to_parse.json` — Output, ready to parse
 
 ---
 
-## 📋 Backlog (priorisiert)
+## 📋 Vollständiges Backlog (6 Sprints geplant)
 
-### Klein, hoher Impact
-- [ ] `mealplanner-spec/meal-planner-strategy-v1.md` validieren mit Thomas
-- [ ] SanaMana-Rezepte+Bilder importieren
-- [ ] Recipe-Type Edit-Select in RezeptDetail
-- [ ] Parser-Prompt: AI setzt `recipe_type` beim Import (kein Function-Deploy nötig, Prompt kommt vom Client)
-- [ ] Magic-Fill type-aware
+**Siehe BACKLOG.md für:**
+- Sprint 14: ✅ Data-Harvesting-Pipeline gebaut
+- Sprint 15: Recipe Parsing + DB-Save (NÄCHSTER)
+- Sprint 16: SanaMana Seed + Bilder
+- Sprint 17: Concept-System Foundation
+- Sprint 18: iPhone Responsive
+- Sprint 19: Lighthouse + PWA Polish
+- Sprint 20: Shared Library
 
-### Mittel
-- [ ] Lighthouse-Audit
-- [ ] Shared Library als Architecture-Entscheidung (Thomas erwähnte „für alle Haushalte")
-
-### Backlog (niedriger Druck)
-- [ ] Refereo-TBD klären
-- [ ] iPhone-Polish-Iterationen
-- [ ] Konzept-System als eigene Entity
+**Out-of-Scope für jetzt:**
+- Recipe-Type Edit-Select (Sprint 15 Backlog, nice-to-have)
+- Refereo-TBD (unklar, klären mit Thomas)
+- Bring-Export (nur wenn Familie braucht)
 
 ---
 
-## 🚨 Pitfalls (nicht reingerennt)
+## 🚨 Learnings & Pitfalls
 
+**Was lief gut:**
+- Instagram oEmbed-API ist kostenlos + zuverlässig
+- Quality-Score-Regex funktioniert gut (~80% Accuracy für "echte" Rezepte)
+- Harvesting-Agent mit Resume ist robust
+- Sprint-Chat-Modell (per-Sprint isolation) spart viel Context
+
+**Wo war's lahm:**
+- Groq TPD-Limit (100k/Tag) ist für Bulk-Operations zu eng
+  - Lösung: Claude-API für Parsing (unbegrenzt im Chat)
+  - Edge Cases: Wenn >100 URLs in 1 Tag, auf Dev-Tier upgraden
+- Instagram-Captions sind dirty (viel Werbung, unklar strukturiert)
+  - Lösung: Quality-Threshold filtering
+  - Goldmine-Detection: "Rezept X/Y" patterns zu spooky, braucht refinement
+
+**Kritische Constraints:**
 1. **Service-Role-Key NIE in Frontend** — nur in Edge-Functions
-2. **Realtime muss pro Tabelle aktiviert sein** in Supabase → Database → Replication
+2. **Realtime muss pro Tabelle aktiviert sein** (Supabase → Database → Replication)
 3. **Workspace-RLS** für neue Tabellen
-4. **Profile-Anlage via RPC** (`create_workspace_and_join`) wegen RLS-After-Insert-Gotcha
-5. **Bulk-Import läuft im Browser** — Tab muss offen bleiben (Resume klappt aber)
-6. **Edge-Function-Deploy ist Thomas-Sache** — Claude kann nicht autonom CLI-deployen
-7. **Edge-Function-Errors** müssen mit 200+JSON-Body returnt werden (nicht 500) damit supabase-js den Body lesen kann
+4. **Bulk-Import läuft im Browser** — Tab must stay open (aber Resume klappt)
+5. **Edge-Function-Deploy ist Thomas-Sache** — Claude kann nicht autonom CLI-deployen
+6. **Edge-Function-Errors** müssen mit 200+JSON-Body returnt werden (nicht 500) damit supabase-js den Body lesen kann
+7. **Instagram oEmbed hat keine Account-Videos-API** — Account-Mining braucht manuell curated URLs oder Puppeteer
 
 ---
 
-## 🗂️ Docs im Repo
+## 🗂️ Docs im Repo (aktualisiert)
 
-1. `CLAUDE.md` — Working-Style, Stack, **Session-Management-Policy**
-2. `COLLAB-PRINCIPLES.md` — Workflow
+1. `CLAUDE.md` — Working-Style, Stack, **Sprint-Chat-Modell**
+2. `BACKLOG.md` — **NEW** Vollständiger 6-Sprint-Roadmap
 3. `PROJECT-SPEC.md` — Komplette Spec
-4. `DESIGN-BRIEF.md` — Visual-System + Backlog
+4. `DESIGN-BRIEF.md` — Visual-System + alte Backlog
 5. `SETUP.md` — Account-Setup
-6. `TESTS-PENDING.md` — Smoke-Tests
-7. `HANDOFF.md` — Dieser File (live state)
+6. `RECIPE_PARSE_PROMPT.md` — **NEW** Claude-Parsing-Template für Captions
+7. `COLLAB-PRINCIPLES.md` — Workflow
+8. `HANDOFF.md` — Dieser File (live state)
+9. `TESTS-PENDING.md` — Smoke-Tests
+
+**Scripts (neu):**
+- `scripts/harvest-instagram-agent.js` — v1 Basic-Harvester
+- `scripts/harvest-recipes-pipeline.js` — v2 mit Quality-Score + Account-Mining
 
 ---
 
+## 🎯 Optimization Feedback (Sprint 14.5)
+
+**Was lief gut:**
+- ✅ Parallelisierung (Agent im Background, Claude arbeitet gleichzeitig)
+- ✅ Quality-Scoring mit Regex — schnell, effektiv, keine Tokens verbraucht
+- ✅ Staged Approach (Harvest → Score → Parse) statt Alles-In-Eins
+- ✅ BACKLOG schreiben hat volle Clarity gegeben
+
+**Wo war's lahm:**
+- ❌ Groq TPD-Limit nervt — aber Claude-API ist bessere Lösung
+- ❌ Zu viel Zeit in "sollen wir bauen oder nicht" Diskussionen verbracht
+  - **Lernen:** Einfach bauen, Thomas kann Stop sagen
+- ❌ Node.js Script debugging hat gebraucht (ES-Module vs CommonJS)
+  - **Lernen:** Immer package.json prüfen
+
+**Für nächsten Sprint:**
+- Claude: Weniger "sollen wir?" → mehr "machen wir und du legst los"
+- Thomas: Früher Halt-Signal geben wenn Approach falsch
+- Beide: Code sofort testen, nicht erst dokumentieren dann bauen
+
 ---
 
-## 🎯 Optimization Feedback (für nächsten Sprint)
-
-*Diese Section wird zwischen den Sprints gefüllt von Claude + Thomas.*
-
-- Was lief gut in diesem Sprint?
-- Wo war die Zusammenarbeit lahm?
-- Welche Patterns sollten wir nächstes Mal wiederholen?
-- Wo hat Claude zu viel/zu wenig nachgefragt?
-- Code-Insights — was sollte besser sein?
-
-(wird nach Bulk-Import gefüllt)
-
----
-
-## Erste Aktion für nächste Session
+## Erste Aktion für nächste Session (Sprint 15)
 
 1. HANDOFF.md lesen ✓
-2. `git log --oneline -10` checken — wo stehen wir wirklich
-3. Priorität abhaken (Blocker zuerst)
-4. Lesen: Optimization Feedback aus letztem Sprint
+2. `git log --oneline -5` checken — letzte Commits
+3. **Harvesting starten:** `node scripts/harvest-recipes-pipeline.js`
+4. **Während das läuft:** Neuer Chat-Tab für Parse-Phase vorbereiten
+5. Wenn Harvesting done: `recipes_ready_to_parse.json` prüfen
+6. **Parse-Chat:** RECIPE_PARSE_PROMPT + recipes_ready_to_parse.json durchgehen
 
-Don't be afraid to ask clarifying questions.
+**Target:** 250+ gute Rezepte im Bestand bis Sprint 15 Ende
 
 ---
 
