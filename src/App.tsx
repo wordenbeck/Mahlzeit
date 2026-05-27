@@ -7,6 +7,7 @@ import { Heute } from './pages/Heute';
 import { Rezepte } from './pages/Rezepte';
 import { RezeptImport } from './pages/RezeptImport';
 import { RezeptDetail } from './pages/RezeptDetail';
+import { ImageSeedingPage } from './pages/ImageSeedingPage';
 import { Plan } from './pages/Plan';
 import { Einkauf } from './pages/Einkauf';
 import { Liste } from './pages/Liste';
@@ -54,6 +55,7 @@ export function App() {
           <Route path="/rezepte" element={<Rezepte />} />
           <Route path="/rezepte/import" element={<RezeptImport />} />
           <Route path="/rezepte/bulk" element={<BulkImport />} />
+          <Route path="/rezepte/image-seeding" element={<ImageSeedingPage />} />
           <Route path="/rezepte/:id" element={<RezeptDetail />} />
           <Route path="/profil" element={<Profile />} />
         </Route>
