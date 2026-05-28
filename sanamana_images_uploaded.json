@@ -1,0 +1,296 @@
+{
+  "uploadTime": "2026-05-28T08:22:26.372Z",
+  "workspace_id": "e7f25de4-4fce-4aba-b1ce-70f9fe20f47d",
+  "successCount": 0,
+  "failCount": 48,
+  "results": [
+    {
+      "recipeNum": "01",
+      "recipeName": "Zwiebelkuchen",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "02",
+      "recipeName": "Bunte Superfoods-Bowl",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "03",
+      "recipeName": "Kartoffelwürfel mit Pinienkernen und Avocado-Dip",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "04",
+      "recipeName": "Pikante Reispfanne",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "05",
+      "recipeName": "Sommerrollen mit Erdnussdip",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "06",
+      "recipeName": "Penne mit Linsen-Bolognese",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "07",
+      "recipeName": "Nudeln mit Grünkohl-Pesto",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "08",
+      "recipeName": "Nudeln mit Mangold in Sahnesoße",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "09",
+      "recipeName": "Herzhafte Maultaschen",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "10",
+      "recipeName": "Pellkartoffeln mit Sauerkraut und Seitan-Würstchen",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "11",
+      "recipeName": "Wraps mit Räuchertofu-Pilz-Füllung",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "12",
+      "recipeName": "Kartoffel-Spinat-Auflauf",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "13",
+      "recipeName": "Italienischer Nudelsalat mit Tomaten-Tofu",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "14",
+      "recipeName": "Pflanzliches Gulasch",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "15",
+      "recipeName": "Seitangeschnetzeltes",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "16",
+      "recipeName": "Buchweizen-Spinat-Pfanne",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "17",
+      "recipeName": "Falafel im Brot",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "18",
+      "recipeName": "Blumenkohl-Kichererbsen-Curry",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "19",
+      "recipeName": "Mediterraner Kichererbsen-Salat",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "20",
+      "recipeName": "Azukibohnen-Reis-Salat",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "21",
+      "recipeName": "Scharfer Gurkensalat mit Knoblauch",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "22",
+      "recipeName": "Blumenkohl-Curry-Suppe",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "23",
+      "recipeName": "Indische Linsen-Suppe mit Spinat",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "24",
+      "recipeName": "Waffeln mit heißen Beeren",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0128",
+      "recipeName": "Recipe IMG_0128",
+      "success": false,
+      "error": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON"
+    },
+    {
+      "recipeNum": "IMG_0129",
+      "recipeName": "Recipe IMG_0129",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0130",
+      "recipeName": "Recipe IMG_0130",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0131",
+      "recipeName": "Recipe IMG_0131",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0132",
+      "recipeName": "Recipe IMG_0132",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0133",
+      "recipeName": "Recipe IMG_0133",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0134",
+      "recipeName": "Recipe IMG_0134",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0135",
+      "recipeName": "Recipe IMG_0135",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0136",
+      "recipeName": "Recipe IMG_0136",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0137",
+      "recipeName": "Recipe IMG_0137",
+      "success": false,
+      "error": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON"
+    },
+    {
+      "recipeNum": "IMG_0138",
+      "recipeName": "Recipe IMG_0138",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0139",
+      "recipeName": "Recipe IMG_0139",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0140",
+      "recipeName": "Recipe IMG_0140",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0141",
+      "recipeName": "Recipe IMG_0141",
+      "success": false,
+      "error": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON"
+    },
+    {
+      "recipeNum": "IMG_0142",
+      "recipeName": "Recipe IMG_0142",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0143",
+      "recipeName": "Recipe IMG_0143",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0144",
+      "recipeName": "Recipe IMG_0144",
+      "success": false,
+      "error": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON"
+    },
+    {
+      "recipeNum": "IMG_0145",
+      "recipeName": "Recipe IMG_0145",
+      "success": false,
+      "error": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON"
+    },
+    {
+      "recipeNum": "IMG_0146",
+      "recipeName": "Recipe IMG_0146",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0147",
+      "recipeName": "Recipe IMG_0147",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0148",
+      "recipeName": "Recipe IMG_0148",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0149",
+      "recipeName": "Recipe IMG_0149",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0150",
+      "recipeName": "Recipe IMG_0150",
+      "success": false,
+      "error": "Unauthorized"
+    },
+    {
+      "recipeNum": "IMG_0151",
+      "recipeName": "Recipe IMG_0151",
+      "success": false,
+      "error": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON"
+    }
+  ]
+}
