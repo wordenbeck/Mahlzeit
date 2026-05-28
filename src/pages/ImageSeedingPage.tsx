@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { listRecipes, updateRecipe } from '../lib/recipes';
-import { supabase } from '../lib/supabase';
+import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import { ImageSelectorModal } from '../components/ImageSelectorModal';
 import { SchwierigkeitBadge } from '../components/SchwierigkeitBadge';
-import type { Recipe, Schwierigkeit } from '../lib/types/recipe';
+import type { Schwierigkeit } from '../lib/types/recipe';
 import './ImageSeedingPage.css';
 
 export function ImageSeedingPage() {
   const navigate = useNavigate();
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeListItem | null>(null);
   const [seedCount, setSeedCount] = useState(0);
 
   // Lade Rezepte beim Mount
@@ -31,22 +30,8 @@ export function ImageSeedingPage() {
       .catch(e => console.error('Fehler beim Laden:', e))
       .finally(() => { if (!cancelled) setLoading(false); });
 
-    // Realtime subscription
-    const sub = supabase
-      .from('recipes')
-      .on('*', (payload) => {
-        if (!cancelled) {
-          listRecipes().then(rs => {
-            setRecipes(rs);
-            setSeedCount(rs.filter(r => r.bild_url).length);
-          });
-        }
-      })
-      .subscribe();
-
     return () => {
       cancelled = true;
-      sub.unsubscribe();
     };
   }, []);
 
@@ -54,7 +39,7 @@ export function ImageSeedingPage() {
   const unseededRecipes = recipes.filter(r => !r.bild_url);
   const total = recipes.length;
 
-  const handleImageSelected = (url: string) => {
+  const handleImageSelected = () => {
     // Modal schließen und Recipe-List updaten via Realtime
     setSelectedRecipe(null);
   };
