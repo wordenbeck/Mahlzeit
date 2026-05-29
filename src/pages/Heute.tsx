@@ -105,33 +105,57 @@ export function Heute() {
                 </div>
               </div>
             ) : (
-              <ul className="heute__slots">
-                {todaySlots.map(slot => {
-                  const recipe = slot.recipe_id ? recipesById[slot.recipe_id] : null;
+              <>
+                {/* First recipe: HERO */}
+                {todaySlots[0] && (() => {
+                  const recipe = todaySlots[0].recipe_id ? recipesById[todaySlots[0].recipe_id] : null;
                   if (!recipe) return null;
                   return (
-                    <li key={slot.id} className="heute__slot">
-                      <Link to={`/rezepte/${recipe.id}`} className="heute__slot-link">
-                        <div
-                          className="heute__slot-thumb"
-                          style={recipe.bild_url ? { background: `url(${recipe.bild_url}) center/cover` } : undefined}
-                        >
-                          {!recipe.bild_url && <span>🍽</span>}
-                        </div>
-                        <div className="heute__slot-body">
-                          <span className="heute__slot-title">{recipe.titel}</span>
-                          {recipe.zubereitungszeit_min != null && (
-                            <span className="heute__slot-meta">
-                              <Clock size={11} strokeWidth={1.75} /> {recipe.zubereitungszeit_min} Min
-                            </span>
-                          )}
-                        </div>
-                        <ArrowRight size={16} strokeWidth={2} className="heute__slot-arrow" />
-                      </Link>
-                    </li>
+                    <Link to={`/rezepte/${recipe.id}`} className="heute__hero-recipe">
+                      <div
+                        className="heute__hero-image"
+                        style={recipe.bild_url ? { background: `url(${recipe.bild_url}) center/cover` } : undefined}
+                      >
+                        {!recipe.bild_url && <span className="heute__hero-placeholder">🍽</span>}
+                      </div>
+                      <div className="heute__hero-body">
+                        <h3 className="heute__hero-title">{recipe.titel}</h3>
+                        {recipe.zubereitungszeit_min != null && (
+                          <p className="heute__hero-meta">
+                            <Clock size={16} strokeWidth={1.75} /> {recipe.zubereitungszeit_min} Minuten
+                          </p>
+                        )}
+                        <button className="heute__cta">Jetzt kochen <ArrowRight size={16} strokeWidth={2} /></button>
+                      </div>
+                    </Link>
                   );
-                })}
-              </ul>
+                })()}
+
+                {/* Rest: smaller list */}
+                {todaySlots.length > 1 && (
+                  <div className="heute__rest">
+                    <p className="heute__rest-label">Noch mehr heute:</p>
+                    <ul className="heute__slots">
+                      {todaySlots.slice(1).map(slot => {
+                        const recipe = slot.recipe_id ? recipesById[slot.recipe_id] : null;
+                        if (!recipe) return null;
+                        return (
+                          <li key={slot.id} className="heute__slot">
+                            <Link to={`/rezepte/${recipe.id}`} className="heute__slot-link">
+                              <div className="heute__slot-title">{recipe.titel}</div>
+                              {recipe.zubereitungszeit_min != null && (
+                                <span className="heute__slot-meta">
+                                  <Clock size={11} strokeWidth={1.75} /> {recipe.zubereitungszeit_min} Min
+                                </span>
+                              )}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </>
             )}
           </section>
 
