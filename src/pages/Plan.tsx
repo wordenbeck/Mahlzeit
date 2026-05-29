@@ -303,7 +303,7 @@ export function Plan() {
             </div>
           )}
 
-          <div className="plan__list">
+          <div className="plan__grid">
             {filtered.map(r => (
               <RecipeDraggable key={r.id} recipe={r} onClick={() => setModalId(r.id)} />
             ))}
