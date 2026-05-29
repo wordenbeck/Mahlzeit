@@ -2,6 +2,14 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AppMenu } from './components/AppMenu';
 import { useAuth } from './lib/auth';
 
+// Smart Entry Point: Mo-Fr → Heute | Sa-So → Plan
+function getSmartEntryPoint(): string {
+  const today = new Date();
+  const day = today.getDay(); // 0 = So, 1 = Mo, ..., 6 = Sa
+  const isWeekday = day >= 1 && day <= 5; // Mo-Fr
+  return isWeekday ? '/' : '/plan';
+}
+
 // Schützt App-Routes: ohne Profile → /onboarding
 export function AppShell() {
   const auth = useAuth();
@@ -22,6 +30,14 @@ export function AppShell() {
 
   if (!auth.profile) {
     return <Navigate to="/onboarding" replace />;
+  }
+
+  // Smart redirect: wenn User auf / kommt, leite basierend auf Wochentag weiter
+  if (location.pathname === '/') {
+    const target = getSmartEntryPoint();
+    if (target !== '/') {
+      return <Navigate to={target} replace />;
+    }
   }
 
   return (
