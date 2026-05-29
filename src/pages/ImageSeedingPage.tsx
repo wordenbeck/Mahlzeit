@@ -11,6 +11,7 @@ export function ImageSeedingPage() {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeListItem | null>(null);
   const [seedCount, setSeedCount] = useState(0);
 
@@ -19,16 +20,25 @@ export function ImageSeedingPage() {
     let cancelled = false;
     setLoading(true);
 
-    listRecipes()
-      .then(rs => {
+    (async () => {
+      try {
+        setError(null);
+        const rs = await listRecipes();
         if (!cancelled) {
-          setRecipes(rs);
-          // Zähle Rezepte mit Bildern
-          setSeedCount(rs.filter(r => r.bild_url).length);
+          setRecipes(rs || []);
+          setSeedCount((rs || []).filter(r => r.bild_url).length);
         }
-      })
-      .catch(e => console.error('Fehler beim Laden:', e))
-      .finally(() => { if (!cancelled) setLoading(false); });
+      } catch (e) {
+        console.error('Fehler beim Laden:', e);
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Fehler beim Laden der Rezepte');
+          setRecipes([]);
+          setSeedCount(0);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -48,6 +58,20 @@ export function ImageSeedingPage() {
     return (
       <div className="seeding-page">
         <div className="seeding-page__loading">Lade Rezepte…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="seeding-page">
+        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--danger)' }}>
+          <h2>Fehler beim Laden</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '20px', padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'var(--accent)', color: 'white', cursor: 'pointer' }}>
+            Erneut versuchen
+          </button>
+        </div>
       </div>
     );
   }
