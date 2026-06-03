@@ -31,20 +31,17 @@ Automated testing, building, and deployment on every push/PR.
 
 ---
 
-### 2. `deploy-preview.yml` - Vercel Preview Deployment
+### 2. `deploy-preview.yml` - Direct Production Deployment
 
-**Runs on:** `push` to main/develop, `pull_request` to main
+**Runs on:** `push` to main only
 
 **Steps:**
-- ✅ Test first (must pass!)
+- ✅ Test first (MUST PASS!)
 - ✅ Build project
-- ✅ Deploy to Vercel
-- ✅ Add GitHub comment with preview URL
+- ✅ Deploy directly to production
 
-**Preview URLs:**
-- **PRs:** `https://mealplanner-pr-{NUMBER}.vercel.app`
-- **main:** `https://mahlzeit.vercel.app` (production)
-- **develop:** `https://mahlzeit-develop.vercel.app` (staging)
+**Production URL:**
+- **main → Production:** `https://mahlzeit.vercel.app`
 
 **Secrets Required:**
 ```
@@ -60,56 +57,58 @@ GITHUB_TOKEN          - Auto-generated, no config needed
 
 ## Setup Instructions
 
-### 1. Generate Vercel Token
-
-```bash
-# Go to https://vercel.com/account/tokens
-# Create new token, copy it
-```
-
-### 2. Add GitHub Secrets
+### 1. GitHub Secrets
 
 ```bash
 # In GitHub repo: Settings → Secrets and variables → Actions
+# Add these:
 
-VERCEL_TOKEN=<paste_token>
-VERCEL_ORG_ID=<your_org_id>
-VERCEL_PROJECT_ID=<your_project_id>
-VITE_SUPABASE_URL=<from_.env.local>
-VITE_SUPABASE_ANON_KEY=<from_.env.local>
+VERCEL_TOKEN           (from https://vercel.com/account/tokens)
+VERCEL_ORG_ID          (from Vercel project)
+VERCEL_PROJECT_ID      (from Vercel project)
+VITE_SUPABASE_URL      (from .env.local)
+VITE_SUPABASE_ANON_KEY (from .env.local)
 ```
 
-### 3. Verify Workflows
+### 2. Push Code
 
 ```bash
-# Check Actions tab in GitHub repo
-# Should see workflows triggered on next push
+git push origin main
+# Workflows auto-trigger!
+```
+
+### 3. Watch Deployment
+
+```
+GitHub → Actions tab → See "Test → Deploy Production" running
+Vercel → Deployments → See new deploy happening
+After 2-3 min: App live at https://mahlzeit.vercel.app ✅
 ```
 
 ---
 
 ## Expected Behavior
 
-### On Every Push to main/develop:
+### On Every Push to main:
 
 ```
 1. GitHub Actions triggers
 2. Tests run (Node 18 + 20)
 3. Build verified
-4. Deploy to Vercel preview
-5. GitHub comment added with URL
-6. Production deploy (if main branch)
+4. ✅ If all pass → Deploy directly to production!
+5. App live at https://mahlzeit.vercel.app
+6. Done! 🚀
 ```
 
-### On Every PR:
+### If Tests Fail:
 
 ```
-1. GitHub Actions triggers
-2. Tests run (Node 18 + 20)
-3. Build verified
-4. Deploy to preview URL
-5. Comment added to PR with link
-6. "All checks passed" ✅
+1. Tests fail
+2. Build stops
+3. NO deployment happens
+4. Fix locally
+5. Push again
+6. Retry automatic
 ```
 
 ### If Tests Fail:
@@ -233,13 +232,17 @@ npm run lint
 ### Deployment Flow:
 
 ```
-Feature branch → PR → Tests pass → Vercel preview
-                              ↓
-                        Review URL
-                              ↓
-                        Merge to main
-                              ↓
-                        Production deploy
+Code locally
+    ↓
+git push main
+    ↓
+Tests run automatically ✅
+    ↓
+Build verified ✅
+    ↓
+Deploy to production ✅
+    ↓
+Live at https://mahlzeit.vercel.app ✅
 ```
 
 ---
