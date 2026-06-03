@@ -6,7 +6,12 @@ import {
 import './RezeptDetail.css';
 import { SchwierigkeitBadge } from '../components/SchwierigkeitBadge';
 import { ZutatIcon } from '../components/ZutatIcon';
+import { RecipeRating } from '../components/RecipeRating';
+import { CookedButton } from '../components/CookedButton';
+import { RecipeNotes } from '../components/RecipeNotes';
+import { RecipeTypeSelector } from '../components/RecipeTypeSelector';
 import { getRecipe, deleteRecipe, toggleFavorite, updateRecipe } from '../lib/recipes';
+import { supabase } from '../lib/supabase';
 import type { Recipe, Schwierigkeit, Zutat } from '../lib/types/recipe';
 
 export function RezeptDetail() {
@@ -15,19 +20,43 @@ export function RezeptDetail() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('');
+  const [workspaceId, setWorkspaceId] = useState<string>('');
 
   // Edit-Mode state
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Recipe | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Load recipe + user/workspace info
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+
+    // Get user + workspace
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && !cancelled) setUserId(user.id);
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('workspace_id')
+          .eq('id', user?.id ?? '')
+          .single();
+
+        if (profile && !cancelled) setWorkspaceId((profile as any).workspace_id);
+      } catch (e) {
+        console.error('Failed to load user info:', e);
+      }
+    })();
+
+    // Get recipe
     getRecipe(id)
       .then(r => { if (!cancelled) setRecipe(r); })
       .catch(e => { if (!cancelled) setError(e instanceof Error ? e.message : 'Fehler beim Laden'); })
       .finally(() => { if (!cancelled) setLoading(false); });
+
     return () => { cancelled = true; };
   }, [id]);
 
@@ -311,6 +340,33 @@ export function RezeptDetail() {
             </ul>
           )}
         </section>
+
+        {/* Sprint 15: Cooking Features */}
+        {recipe && userId && workspaceId && (
+          <section style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+              {/* Gekocht markieren */}
+              <div>
+                <CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
+              </div>
+
+              {/* Sterne-Rating */}
+              <div>
+                <RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
+              </div>
+
+              {/* Recipe-Type */}
+              <div>
+                <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
+              </div>
+            </div>
+
+            {/* Notizen (volle Breite) */}
+            <div>
+              <RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} />
+            </div>
+          </section>
+        )}
 
         <section className="rdet__zubereitung">
           <h2>Zubereitung</h2>
