@@ -1,6 +1,7 @@
 /**
  * parse-recipe-caption — Groq-powered Instagram caption parsing
  * Takes Instagram caption, returns structured recipe data via Groq LLM
+ * Now with intelligent ingredient quantity + unit extraction
  */
 
 interface ParseRequest {
@@ -8,33 +9,57 @@ interface ParseRequest {
   recipeName?: string;
 }
 
+interface Zutat {
+  name: string;
+  menge: number | null;
+  einheit: string | null;
+  hinweis: string | null;
+}
+
 interface ParsedRecipe {
   titel: string;
-  zutaten: string[];
+  zutaten: Zutat[];
   zubereitung: string[];
 }
 
 const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
-const systemPrompt = `Du bist ein Rezept-Parser. Extrahiere aus einer Instagram-Caption folgende Informationen:
+const systemPrompt = `Du bist ein Rezept-Parser spezialisiert auf Zutatenlisten. Extrahiere aus einer Instagram-Caption:
 1. Rezept-Titel (kurz und prägnant)
-2. Liste der Zutaten (jede als einzelner String mit Menge und Einheit)
-3. Anleitung als Schritte (jeder als einzelner String)
+2. Zutaten mit Menge, Einheit und Name SEPARAT
+3. Zubereitung als nummerierte Schritte
+
+WICHTIG: Zutaten müssen als Objekte mit name/menge/einheit sein, NICHT als Strings!
 
 Antworte IMMER als valides JSON, keine anderen Worte:
 {
   "titel": "Rezept Name",
-  "zutaten": ["Zutat 1", "Zutat 2", ...],
+  "zutaten": [
+    {"name": "Nudeln", "menge": 400, "einheit": "g"},
+    {"name": "Wasser", "menge": 2, "einheit": "Liter"},
+    {"name": "Olivenöl", "menge": 2, "einheit": "EL"},
+    {"name": "Salz", "menge": null, "einheit": null},
+    {"name": "Pfeffer", "menge": "nach Geschmack", "einheit": null}
+  ],
   "zubereitung": ["Schritt 1", "Schritt 2", ...]
 }
 
 Regeln:
-- Zutaten: Mengen + Einheit + Name zusammen (z.B. "400g Nudeln")
-- Zubereitung: Nummerierung entfernen (z.B. "1. Wasser erhitzen" → "Wasser erhitzen")
-- Wenn etwas unklar ist: beste Vermutung, nicht leer lassen
+- menge: Zahl wenn parsebar (z.B. 400, 2, 1.5), sonst null
+- einheit: "g", "kg", "ml", "l", "EL", "TL", "Prise", "Pck", etc. oder null
+- name: Nur der Zutatename, OHNE Menge/Einheit
+- Bei ungefähren Mengen (z.B. "nach Geschmack"): menge=null, einheit=null
 - Deutsch bevorzugt
-- Array darf nicht leer sein
+- Listen dürfen nicht leer sein
+- Zubereitung: Nummerierung entfernen (z.B. "1. Wasser erhitzen" → "Wasser erhitzen")
+
+EXAMPLES:
+"400g Nudeln" → {name: "Nudeln", menge: 400, einheit: "g"}
+"2 EL Olivenöl" → {name: "Olivenöl", menge: 2, einheit: "EL"}
+"1 Zwiebel, gehackt" → {name: "Zwiebel gehackt", menge: 1, einheit: null}
+"Salz und Pfeffer nach Geschmack" → {name: "Salz und Pfeffer", menge: null, einheit: null}
+"250ml Wasser" → {name: "Wasser", menge: 250, einheit: "ml"}
 `;
 
 async function parseWithGroq(caption: string, recipeName?: string): Promise<ParsedRecipe> {
@@ -97,8 +122,26 @@ Bitte extrahiere Titel, Zutaten und Zubereitung.`;
       throw new Error('Invalid response structure');
     }
 
-    console.log('[parse-recipe-caption] Success:', { titel: parsed.titel, zutatenCount: parsed.zutaten.length, zubereitungCount: parsed.zubereitung.length });
-    return parsed;
+    // Validate and sanitize zutaten objects
+    const sanitizedZutaten = parsed.zutaten.map((z) => ({
+      name: typeof z.name === 'string' ? z.name.trim() : '',
+      menge: typeof z.menge === 'number' ? z.menge : null,
+      einheit: typeof z.einheit === 'string' ? z.einheit.trim() : null,
+      hinweis: null,
+    })).filter(z => z.name.length > 0);
+
+    if (sanitizedZutaten.length === 0) {
+      throw new Error('No valid ingredients extracted');
+    }
+
+    const result: ParsedRecipe = {
+      titel: parsed.titel,
+      zutaten: sanitizedZutaten,
+      zubereitung: parsed.zubereitung.filter(z => typeof z === 'string' && z.trim().length > 0),
+    };
+
+    console.log('[parse-recipe-caption] Success:', { titel: result.titel, zutatenCount: result.zutaten.length, zubereitungCount: result.zubereitung.length });
+    return result;
   } catch (error) {
     console.error('[parse-recipe-caption] Groq error:', error);
     throw error;

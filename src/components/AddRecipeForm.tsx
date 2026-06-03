@@ -2,16 +2,18 @@
  * AddRecipeForm — Neues Rezept hinzufügen
  * Verwendet für Web Share Target + manuelles Erstellen
  * Auto-saves draft to SessionStorage
+ * Supports both string-based and structured ingredient input
  */
 
 import { useState, useEffect } from 'react';
 import type { Schwierigkeit } from '../lib/types/recipe';
 import { insertRecipe } from '../lib/recipes';
+import { StructuredIngredientForm, type Zutat } from './StructuredIngredientForm';
 import './AddRecipeForm.css';
 
 interface AddRecipeFormProps {
   initialTitel?: string;
-  initialZutaten?: string;
+  initialZutaten?: string | Zutat[];
   initialZubereitung?: string;
   onSuccess?: (recipeId: string) => void;
   onCancel?: () => void;
@@ -19,19 +21,29 @@ interface AddRecipeFormProps {
 
 export function AddRecipeForm({
   initialTitel = '',
-  initialZutaten = '',
+  initialZutaten = [],
   initialZubereitung = '',
   onSuccess,
   onCancel,
 }: AddRecipeFormProps) {
+  // Normalize initialZutaten to array
+  const normalizedZutaten = Array.isArray(initialZutaten)
+    ? initialZutaten
+    : typeof initialZutaten === 'string' && initialZutaten.trim()
+      ? initialZutaten.split('\n').map(z => ({ name: z.trim(), menge: null, einheit: null, hinweis: null }))
+      : [];
+
   // Try to restore from SessionStorage on mount
   const [titel, setTitel] = useState(() => {
     const saved = sessionStorage.getItem('recipe-draft-titel');
     return saved || initialTitel;
   });
-  const [zutaten, setZutaten] = useState(() => {
-    const saved = sessionStorage.getItem('recipe-draft-zutaten');
-    return saved || initialZutaten;
+  const [zutaten, setZutaten] = useState<Zutat[]>(() => {
+    const saved = sessionStorage.getItem('recipe-draft-zutaten-json');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return normalizedZutaten;
   });
   const [zubereitung, setZubereitung] = useState(() => {
     const saved = sessionStorage.getItem('recipe-draft-zubereitung');
@@ -51,7 +63,7 @@ export function AddRecipeForm({
   // Auto-save to SessionStorage whenever form data changes
   useEffect(() => {
     sessionStorage.setItem('recipe-draft-titel', titel);
-    sessionStorage.setItem('recipe-draft-zutaten', zutaten);
+    sessionStorage.setItem('recipe-draft-zutaten-json', JSON.stringify(zutaten));
     sessionStorage.setItem('recipe-draft-zubereitung', zubereitung);
     sessionStorage.setItem('recipe-draft-zeit', zeit);
     sessionStorage.setItem('recipe-draft-schwierigkeit', schwierigkeit);
@@ -75,24 +87,20 @@ export function AddRecipeForm({
       // Validierung
       if (!titel.trim()) throw new Error('❌ Titel ist erforderlich');
       if (titel.trim().length < 3) throw new Error('❌ Titel mindestens 3 Zeichen');
-      if (!zutaten.trim()) throw new Error('❌ Zutaten sind erforderlich');
+      if (zutaten.length === 0) throw new Error('❌ Zutaten sind erforderlich');
       if (!zubereitung.trim()) throw new Error('❌ Zubereitung ist erforderlich');
 
-      // Parse Zutaten (zeilenweise)
-      const zutatenLines = zutaten
-        .split('\n')
-        .map((z) => z.trim())
-        .filter((z) => z);
-
-      if (zutatenLines.length === 0) {
-        throw new Error('❌ Mindestens eine Zutat erforderlich');
+      // Validate zutaten have names
+      const validZutaten = zutaten.filter(z => z.name && z.name.trim());
+      if (validZutaten.length === 0) {
+        throw new Error('❌ Mindestens eine Zutat mit Name erforderlich');
       }
 
-      const zutatenJson = zutatenLines.map((name) => ({
-        name,
-        menge: null,
-        einheit: null,
-        hinweis: null,
+      const zutatenJson = validZutaten.map((z) => ({
+        name: z.name.trim(),
+        menge: z.menge,
+        einheit: z.einheit,
+        hinweis: z.hinweis,
       }));
 
       // Parse Zubereitung (zeilenweise, entferne Nummern)
@@ -130,7 +138,7 @@ export function AddRecipeForm({
 
       // Clear SessionStorage draft after successful save
       sessionStorage.removeItem('recipe-draft-titel');
-      sessionStorage.removeItem('recipe-draft-zutaten');
+      sessionStorage.removeItem('recipe-draft-zutaten-json');
       sessionStorage.removeItem('recipe-draft-zubereitung');
       sessionStorage.removeItem('recipe-draft-zeit');
       sessionStorage.removeItem('recipe-draft-schwierigkeit');
@@ -148,12 +156,12 @@ export function AddRecipeForm({
   const clearDraft = () => {
     if (confirm('Entwurf wirklich löschen?')) {
       sessionStorage.removeItem('recipe-draft-titel');
-      sessionStorage.removeItem('recipe-draft-zutaten');
+      sessionStorage.removeItem('recipe-draft-zutaten-json');
       sessionStorage.removeItem('recipe-draft-zubereitung');
       sessionStorage.removeItem('recipe-draft-zeit');
       sessionStorage.removeItem('recipe-draft-schwierigkeit');
       setTitel('');
-      setZutaten('');
+      setZutaten([]);
       setZubereitung('');
       setZeit('');
       setSchwierigkeit('mittel');
@@ -199,19 +207,11 @@ export function AddRecipeForm({
         />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="zutaten">Zutaten (zeilenweise) *</label>
-        <textarea
-          id="zutaten"
-          value={zutaten}
-          onChange={(e) => setZutaten(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={`400g Nudeln\n200g Hackmasse\n1 Zwiebel\n...`}
-          rows={5}
-          disabled={loading}
-          title="Cmd/Ctrl+Enter zum Speichern"
-        />
-      </div>
+      <StructuredIngredientForm
+        initialZutaten={zutaten}
+        onChange={setZutaten}
+        disabled={loading}
+      />
 
       <div className="form-group">
         <label htmlFor="zubereitung">Zubereitung (zeilenweise) *</label>

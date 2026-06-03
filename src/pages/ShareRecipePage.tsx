@@ -15,9 +15,16 @@ interface SharedData {
   timestamp: number;
 }
 
+interface ParsedZutat {
+  name: string;
+  menge: number | null;
+  einheit: string | null;
+  hinweis: string | null;
+}
+
 interface ParsedRecipe {
   titel: string;
-  zutaten: string[];
+  zutaten: ParsedZutat[];
   zubereitung: string[];
 }
 
@@ -28,7 +35,7 @@ export function ShareRecipePage() {
   const [sharedData, setSharedData] = useState<SharedData | null>(null);
   const [loadingStage, setLoadingStage] = useState<LoadingStage | null>('fetching');
   const [caption, setCaption] = useState('');
-  const [parsed, setParsed] = useState({ titel: '', zutaten: '', zubereitung: '' });
+  const [parsed, setParsed] = useState<ParsedRecipe>({ titel: '', zutaten: [], zubereitung: [] });
   const [parseError, setParseError] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -129,11 +136,8 @@ export function ShareRecipePage() {
 
       if (data) {
         console.log('[ShareRecipePage] Groq parse success:', data);
-        setParsed({
-          titel: data.titel,
-          zutaten: data.zutaten.join('\n'),
-          zubereitung: data.zubereitung.join('\n'),
-        });
+        // Data already has structured zutaten as objects
+        setParsed(data);
         setLoadingStage('ready');
       }
     } catch (err) {
@@ -149,8 +153,8 @@ export function ShareRecipePage() {
     // FALLBACK: Einfaches Regex-Parsing falls Groq fehlschlägt
     console.log('[ShareRecipePage] Using regex fallback parser');
     let titel = suggestedTitel.split('\n')[0].slice(0, 100) || 'Neues Rezept';
-    let zutaten = '';
-    let zubereitung = '';
+    const zutatenList: ParsedZutat[] = [];
+    const zubereitungList: string[] = [];
 
     const lines = caption.split('\n');
     let mode = 'pre';
@@ -170,16 +174,34 @@ export function ShareRecipePage() {
       if (!trimmed) continue;
 
       if (mode === 'zutaten' && /^[-•*]/.test(line)) {
-        zutaten += trimmed.replace(/^[-•*]\s*/, '') + '\n';
+        const zutatenText = trimmed.replace(/^[-•*]\s*/, '');
+        // Try to parse quantity + unit
+        const match = zutatenText.match(/^([\d.]+)\s*([a-zA-Z]+)?\s+(.+)$/);
+        if (match) {
+          zutatenList.push({
+            name: match[3],
+            menge: parseFloat(match[1]),
+            einheit: match[2] || null,
+            hinweis: null,
+          });
+        } else {
+          // Fallback: Just use as name
+          zutatenList.push({
+            name: zutatenText,
+            menge: null,
+            einheit: null,
+            hinweis: null,
+          });
+        }
       } else if (mode === 'zubereitung' && trimmed) {
-        zubereitung += trimmed.replace(/^\d+[\.\)]\s*/, '') + '\n';
+        zubereitungList.push(trimmed.replace(/^\d+[\.\)]\s*/, ''));
       }
     }
 
     setParsed({
       titel,
-      zutaten: zutaten.trim(),
-      zubereitung: zubereitung.trim(),
+      zutaten: zutatenList.length > 0 ? zutatenList : [{ name: '', menge: null, einheit: null, hinweis: null }],
+      zubereitung: zubereitungList.length > 0 ? zubereitungList : [''],
     });
     setLoadingStage('ready');
   };
@@ -330,7 +352,7 @@ export function ShareRecipePage() {
       <AddRecipeForm
         initialTitel={parsed.titel}
         initialZutaten={parsed.zutaten}
-        initialZubereitung={parsed.zubereitung}
+        initialZubereitung={parsed.zubereitung.join('\n')}
         onSuccess={(recipeId) => {
           // Cleanup IndexedDB nach erfolgreicher Speicherung
           (async () => {
