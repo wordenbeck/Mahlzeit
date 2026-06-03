@@ -208,9 +208,12 @@ export function ShareRecipePage() {
           <strong>🔗 Quelle:</strong> {sharedData.url}
         </p>
         {caption && (
-          <p style={{ margin: '1rem 0 0 0', fontSize: '12px', color: '#666', maxHeight: '120px', overflow: 'auto', background: '#fff', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd' }}>
-            <strong>📝 Caption-Vorschau:</strong> {caption.slice(0, 200)}{caption.length > 200 ? '...' : ''}
-          </p>
+          <div style={{ margin: '1rem 0 0 0', fontSize: '12px', color: '#666', maxHeight: '150px', overflow: 'auto', background: '#fff', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd' }}>
+            <strong style={{ display: 'block', marginBottom: '0.5rem' }}>📝 Caption-Vorschau:</strong>
+            <pre style={{ margin: 0, fontFamily: 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '11px', color: '#666' }}>
+              {caption.slice(0, 300)}{caption.length > 300 ? '\n...' : ''}
+            </pre>
+          </div>
         )}
       </div>
 
@@ -218,25 +221,46 @@ export function ShareRecipePage() {
         <div style={{ marginBottom: '1rem', padding: '1rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '13px', color: '#856404' }}>
           <strong>⚠️ Hinweis:</strong> {parseError}
           {!manualMode && (
-            <button
-              onClick={() => {
-                setManualMode(true);
-                setParseError(null);
-              }}
-              style={{
-                marginLeft: '1rem',
-                padding: '0.5rem 1rem',
-                background: '#ffc107',
-                color: '#333',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: '600',
-              }}
-            >
-              Manuell bearbeiten
-            </button>
+            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={async () => {
+                  setParseError(null);
+                  if (caption) {
+                    await parseWithGroq(caption, sharedData?.title || sharedData?.text);
+                  }
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#ffc107',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                }}
+              >
+                🔄 Nochmal versuchen
+              </button>
+              <button
+                onClick={() => {
+                  setManualMode(true);
+                  setParseError(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#f0f0f0',
+                  color: '#333',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                }}
+              >
+                ✏️ Manuell bearbeiten
+              </button>
+            </div>
           )}
         </div>
       )}

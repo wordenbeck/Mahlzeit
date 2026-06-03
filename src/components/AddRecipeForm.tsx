@@ -31,6 +31,15 @@ export function AddRecipeForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Keyboard shortcut: Ctrl/Cmd + Enter to save
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      const form = (e.target as HTMLTextAreaElement).closest('form');
+      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -121,9 +130,11 @@ export function AddRecipeForm({
           id="zutaten"
           value={zutaten}
           onChange={(e) => setZutaten(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={`400g Nudeln\n200g Hackmasse\n1 Zwiebel\n...`}
           rows={5}
           disabled={loading}
+          title="Cmd/Ctrl+Enter zum Speichern"
         />
       </div>
 
@@ -133,9 +144,11 @@ export function AddRecipeForm({
           id="zubereitung"
           value={zubereitung}
           onChange={(e) => setZubereitung(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={`Wasser erhitzen\nNudeln hinzufügen\nSoße rühren\n...`}
           rows={5}
           disabled={loading}
+          title="Cmd/Ctrl+Enter zum Speichern"
         />
       </div>
 
