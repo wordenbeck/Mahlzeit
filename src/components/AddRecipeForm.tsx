@@ -1,9 +1,10 @@
 /**
  * AddRecipeForm — Neues Rezept hinzufügen
  * Verwendet für Web Share Target + manuelles Erstellen
+ * Auto-saves draft to SessionStorage
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Schwierigkeit } from '../lib/types/recipe';
 import { insertRecipe } from '../lib/recipes';
 import './AddRecipeForm.css';
@@ -23,13 +24,38 @@ export function AddRecipeForm({
   onSuccess,
   onCancel,
 }: AddRecipeFormProps) {
-  const [titel, setTitel] = useState(initialTitel);
-  const [zutaten, setZutaten] = useState(initialZutaten);
-  const [zubereitung, setZubereitung] = useState(initialZubereitung);
-  const [zeit, setZeit] = useState('');
-  const [schwierigkeit, setSchwierigkeit] = useState<Schwierigkeit>('mittel');
+  // Try to restore from SessionStorage on mount
+  const [titel, setTitel] = useState(() => {
+    const saved = sessionStorage.getItem('recipe-draft-titel');
+    return saved || initialTitel;
+  });
+  const [zutaten, setZutaten] = useState(() => {
+    const saved = sessionStorage.getItem('recipe-draft-zutaten');
+    return saved || initialZutaten;
+  });
+  const [zubereitung, setZubereitung] = useState(() => {
+    const saved = sessionStorage.getItem('recipe-draft-zubereitung');
+    return saved || initialZubereitung;
+  });
+  const [zeit, setZeit] = useState(() => {
+    const saved = sessionStorage.getItem('recipe-draft-zeit');
+    return saved || '';
+  });
+  const [schwierigkeit, setSchwierigkeit] = useState<Schwierigkeit>(() => {
+    const saved = sessionStorage.getItem('recipe-draft-schwierigkeit');
+    return (saved as Schwierigkeit) || 'mittel';
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-save to SessionStorage whenever form data changes
+  useEffect(() => {
+    sessionStorage.setItem('recipe-draft-titel', titel);
+    sessionStorage.setItem('recipe-draft-zutaten', zutaten);
+    sessionStorage.setItem('recipe-draft-zubereitung', zubereitung);
+    sessionStorage.setItem('recipe-draft-zeit', zeit);
+    sessionStorage.setItem('recipe-draft-schwierigkeit', schwierigkeit);
+  }, [titel, zutaten, zubereitung, zeit, schwierigkeit]);
 
   // Keyboard shortcut: Ctrl/Cmd + Enter to save
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -101,6 +127,13 @@ export function AddRecipeForm({
         schwierigkeit,
         source: 'instagram',
       });
+
+      // Clear SessionStorage draft after successful save
+      sessionStorage.removeItem('recipe-draft-titel');
+      sessionStorage.removeItem('recipe-draft-zutaten');
+      sessionStorage.removeItem('recipe-draft-zubereitung');
+      sessionStorage.removeItem('recipe-draft-zeit');
+      sessionStorage.removeItem('recipe-draft-schwierigkeit');
 
       onSuccess?.(recipeId);
     } catch (err) {
