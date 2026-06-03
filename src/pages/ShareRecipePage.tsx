@@ -29,6 +29,7 @@ export function ShareRecipePage() {
   const [parsed, setParsed] = useState({ titel: '', zutaten: '', zubereitung: '' });
   const [parseError, setParseError] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -58,7 +59,7 @@ export function ShareRecipePage() {
         const latest = allData[allData.length - 1];
         setSharedData(latest);
 
-        // 2. Fetch Instagram Caption
+        // 2. Fetch Instagram Caption + Thumbnail
         if (latest.url?.includes('instagram.com')) {
           try {
             const igRes = await fetch(latest.url, {
@@ -67,17 +68,30 @@ export function ShareRecipePage() {
               },
             });
             const html = await igRes.text();
-            const ogMatch = html.match(/<meta property="og:description" content="([^"]*)"/);
-            if (ogMatch) {
-              const fullCaption = decodeHTMLEntities(ogMatch[1]);
-              setCaption(fullCaption);
 
-              // 3. Parse mit Groq LLM
+            // Extract caption (og:description)
+            const ogDescMatch = html.match(/<meta property="og:description" content="([^"]*)"/);
+            if (ogDescMatch) {
+              const fullCaption = decodeHTMLEntities(ogDescMatch[1]);
+              setCaption(fullCaption);
+            }
+
+            // Extract thumbnail (og:image)
+            const ogImageMatch = html.match(/<meta property="og:image" content="([^"]*)"/);
+            if (ogImageMatch) {
+              setThumbnailUrl(decodeHTMLEntities(ogImageMatch[1]));
+            }
+
+            // 3. Parse mit Groq LLM (falls Caption vorhanden)
+            if (ogDescMatch) {
+              const fullCaption = decodeHTMLEntities(ogDescMatch[1]);
               await parseWithGroq(fullCaption, latest.title || latest.text);
+            } else {
+              setParseError('Caption konnte nicht ausgelesen werden. Bitte manuell bearbeiten.');
             }
           } catch (e) {
             console.error('Failed to fetch Instagram caption:', e);
-            setParseError('Fehler beim Abrufen der Instagram-Caption');
+            setParseError('Fehler beim Abrufen der Instagram-Seite');
           }
         }
       } catch (e) {
@@ -207,6 +221,17 @@ export function ShareRecipePage() {
         <p style={{ margin: '0.5rem 0', fontSize: '12px', color: '#555', wordBreak: 'break-all' }}>
           <strong>🔗 Quelle:</strong> {sharedData.url}
         </p>
+
+        {thumbnailUrl && (
+          <div style={{ margin: '1rem 0', borderRadius: '6px', overflow: 'hidden', maxHeight: '200px', background: '#fff' }}>
+            <img
+              src={thumbnailUrl}
+              alt="Instagram Reel Thumbnail"
+              style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'cover' }}
+            />
+          </div>
+        )}
+
         {caption && (
           <div style={{ margin: '1rem 0 0 0', fontSize: '12px', color: '#666', maxHeight: '150px', overflow: 'auto', background: '#fff', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd' }}>
             <strong style={{ display: 'block', marginBottom: '0.5rem' }}>📝 Caption-Vorschau:</strong>
