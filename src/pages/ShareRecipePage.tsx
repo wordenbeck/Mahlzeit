@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { AddRecipeForm } from '../components/AddRecipeForm';
 import { ImageSelectionModal, type SearchResult } from '../components/ImageSelectionModal';
+import { getErrorInfo, formatErrorDisplay, type AppError } from '../lib/errors';
 
 interface SharedData {
   title: string;
@@ -37,7 +38,7 @@ export function ShareRecipePage() {
   const [loadingStage, setLoadingStage] = useState<LoadingStage | null>('fetching');
   const [caption, setCaption] = useState('');
   const [parsed, setParsed] = useState<ParsedRecipe>({ titel: '', zutaten: [], zubereitung: [] });
-  const [parseError, setParseError] = useState<string | null>(null);
+  const [parseError, setParseError] = useState<AppError | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [recipeImageUrl, setRecipeImageUrl] = useState<string | null>(null);
@@ -82,6 +83,17 @@ export function ShareRecipePage() {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
               },
             });
+
+            if (!igRes.ok) {
+              if (igRes.status === 404) {
+                setParseError(getErrorInfo('ERR_INSTAGRAM_PRIVATE', 'Reel not found (404)'));
+              } else {
+                setParseError(getErrorInfo('ERR_INSTAGRAM_BLOCKED', `HTTP ${igRes.status}`));
+              }
+              setLoadingStage(null);
+              return;
+            }
+
             const html = await igRes.text();
 
             // Extract caption (og:description)
@@ -100,13 +112,20 @@ export function ShareRecipePage() {
             // 3. Parse mit Groq LLM (falls Caption vorhanden)
             if (ogDescMatch) {
               const fullCaption = decodeHTMLEntities(ogDescMatch[1]);
+              if (fullCaption.trim().length < 20) {
+                setParseError(getErrorInfo('ERR_CAPTION_EMPTY', fullCaption));
+                setLoadingStage(null);
+                return;
+              }
               await parseWithGroq(fullCaption, latest.title || latest.text);
             } else {
-              setParseError('Caption konnte nicht ausgelesen werden. Bitte manuell bearbeiten.');
+              setParseError(getErrorInfo('ERR_CAPTION_EMPTY', 'No og:description found'));
+              setLoadingStage(null);
             }
           } catch (e) {
             console.error('Failed to fetch Instagram caption:', e);
-            setParseError('Fehler beim Abrufen der Instagram-Seite');
+            setParseError(getErrorInfo('ERR_NETWORK', String(e)));
+            setLoadingStage(null);
           }
         }
       } catch (e) {
@@ -186,7 +205,13 @@ export function ShareRecipePage() {
 
       if (error) {
         console.error('[ShareRecipePage] Groq parse error:', error);
-        setParseError('LLM-Parsing fehlgeschlagen, verwende Fallback...');
+        let errorCode: any = 'ERR_GROQ_FAILED';
+        if (String(error).includes('timeout')) {
+          errorCode = 'ERR_GROQ_TIMEOUT';
+        } else if (String(error).includes('rate')) {
+          errorCode = 'ERR_GROQ_RATELIMIT';
+        }
+        setParseError(getErrorInfo(errorCode, String(error)));
         // Fallback zu simpler Regex
         parseCaption(caption, suggestedTitel);
         return;
@@ -204,7 +229,7 @@ export function ShareRecipePage() {
       }
     } catch (err) {
       console.error('[ShareRecipePage] Parse error:', err);
-      setParseError('Parsing-Fehler, verwende Fallback...');
+      setParseError(getErrorInfo('ERR_PARSE_FAILED', String(err)));
       // Fallback zu Regex
       parseCaption(caption, suggestedTitel);
       setLoadingStage('ready');
@@ -382,53 +407,96 @@ export function ShareRecipePage() {
         )}
       </div>
 
-      {parseError && (
-        <div style={{ marginBottom: '1rem', padding: '1rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '13px', color: '#856404' }}>
-          <strong>⚠️ Hinweis:</strong> {parseError}
-          {!manualMode && (
-            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-              <button
-                onClick={async () => {
-                  setParseError(null);
-                  if (caption) {
-                    await parseWithGroq(caption, sharedData?.title || sharedData?.text);
-                  }
-                }}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: '#ffc107',
-                  color: '#333',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                }}
-              >
-                🔄 Nochmal versuchen
-              </button>
-              <button
-                onClick={() => {
-                  setManualMode(true);
-                  setParseError(null);
-                }}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: '#f0f0f0',
-                  color: '#333',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                }}
-              >
-                ✏️ Manuell bearbeiten
-              </button>
+      {parseError && (() => {
+        const display = formatErrorDisplay(parseError);
+        return (
+          <div
+            style={{
+              marginBottom: '1rem',
+              padding: '1rem',
+              background: parseError.code.includes('ERR_') ? '#fff3cd' : '#fff3cd',
+              border: '1px solid #ffc107',
+              borderRadius: '6px',
+              fontSize: '13px',
+              color: '#856404',
+            }}
+          >
+            <div style={{ marginBottom: '0.75rem' }}>
+              <strong>{display.icon} {parseError.code}:</strong> {parseError.message}
             </div>
-          )}
-        </div>
-      )}
+            {!manualMode && (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {parseError.action === 'RETRY' && (
+                  <button
+                    onClick={async () => {
+                      setParseError(null);
+                      if (caption) {
+                        await parseWithGroq(caption, sharedData?.title || sharedData?.text);
+                      }
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: '#ffc107',
+                      color: '#333',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    🔄 Nochmal versuchen
+                  </button>
+                )}
+                {(parseError.action === 'MANUAL_EDIT' || parseError.action === 'RETRY') && (
+                  <button
+                    onClick={() => {
+                      setManualMode(true);
+                      setParseError(null);
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: '#e3f2fd',
+                      color: '#1565c0',
+                      border: '1px solid #2196f3',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    ✏️ Manuell bearbeiten
+                  </button>
+                )}
+                {(parseError.action === 'SKIP' || parseError.action === 'RETRY') && (
+                  <button
+                    onClick={() => {
+                      setParseError(null);
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: '#f0f0f0',
+                      color: '#333',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    ➡️ Überspringen
+                  </button>
+                )}
+              </div>
+            )}
+            {parseError.details && (
+              <p style={{ margin: '0.75rem 0 0 0', fontSize: '11px', color: '#666', fontFamily: 'monospace' }}>
+                Debug: {parseError.details.slice(0, 100)}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       <AddRecipeForm
         initialTitel={parsed.titel}
