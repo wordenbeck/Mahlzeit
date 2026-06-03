@@ -122,13 +122,56 @@ Bitte extrahiere Titel, Zutaten und Zubereitung.`;
       throw new Error('Invalid response structure');
     }
 
-    // Validate and sanitize zutaten objects
-    const sanitizedZutaten = parsed.zutaten.map((z) => ({
-      name: typeof z.name === 'string' ? z.name.trim() : '',
-      menge: typeof z.menge === 'number' ? z.menge : null,
-      einheit: typeof z.einheit === 'string' ? z.einheit.trim() : null,
-      hinweis: null,
-    })).filter(z => z.name.length > 0);
+    // Validate and sanitize zutaten objects with post-processing
+    const sanitizedZutaten = parsed.zutaten
+      .map((z) => {
+        let name = typeof z.name === 'string' ? z.name.trim() : '';
+        let menge = typeof z.menge === 'number' ? z.menge : null;
+        let einheit = typeof z.einheit === 'string' ? z.einheit.trim() : null;
+
+        // 1. Validate menge (no negatives, reasonable max)
+        if (menge !== null) {
+          if (menge < 0) menge = null; // Remove negative quantities
+          if (menge > 10000) menge = null; // Remove unreasonable quantities
+        }
+
+        // 2. Clean up name: remove cooking adjectives (gehackt, fein, gerieben, etc)
+        name = name
+          .replace(/,\s*(gehackt|fein|grob|ganz|klein|gross|geraspelt|gerieben|zerkleinert|zerstoßen|gepellt|geschält|gesäuert)/gi, '')
+          .replace(/\s+(gehackt|fein|grob|ganz|klein|gross|geraspelt|gerieben|zerkleinert|zerstoßen|gepellt|geschält|gesäuert)$/i, '')
+          .trim();
+
+        // 3. Better parse menge + einheit if somehow wrong
+        if ((menge === null || !einheit) && name) {
+          const match = name.match(/^([\d.,]+)\s+([a-zA-Z]+)\s+(.+)$/);
+          if (match) {
+            menge = parseFloat(match[1].replace(',', '.'));
+            einheit = match[2];
+            name = match[3];
+          }
+        }
+
+        // 4. Split "oder" alternatives into separate items (if multiple)
+        const orParts = name.split(/\s+oder\s+/i);
+        if (orParts.length > 1) {
+          // Return multiple items for "oder" alternatives
+          return orParts.map(part => ({
+            name: part.trim(),
+            menge,
+            einheit,
+            hinweis: null,
+          }));
+        }
+
+        return [{
+          name,
+          menge,
+          einheit,
+          hinweis: null,
+        }];
+      })
+      .flat()
+      .filter(z => z.name.length > 0);
 
     if (sanitizedZutaten.length === 0) {
       throw new Error('No valid ingredients extracted');
