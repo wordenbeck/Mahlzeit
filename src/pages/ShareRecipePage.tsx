@@ -39,6 +39,8 @@ export function ShareRecipePage() {
   const [parseError, setParseError] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [recipeImageUrl, setRecipeImageUrl] = useState<string | null>(null);
+  const [imageSearching, setImageSearching] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -112,6 +114,34 @@ export function ShareRecipePage() {
     })();
   }, [navigate]);
 
+  const searchRecipeImage = async (recipeName: string) => {
+    try {
+      setImageSearching(true);
+      console.log('[ShareRecipePage] Searching for recipe image:', recipeName);
+
+      const { data, error } = await supabase.functions.invoke('search-recipe-image', {
+        body: { query: recipeName },
+      });
+
+      if (error) {
+        console.error('[ShareRecipePage] Image search error:', error);
+        return;
+      }
+
+      if (data?.results && data.results.length > 0) {
+        // Take first result (best match)
+        const bestMatch = data.results[0];
+        const imageUrl = bestMatch.url;
+        console.log('[ShareRecipePage] Found image:', imageUrl);
+        setRecipeImageUrl(imageUrl);
+      }
+    } catch (err) {
+      console.error('[ShareRecipePage] Image search failed:', err);
+    } finally {
+      setImageSearching(false);
+    }
+  };
+
   const parseWithGroq = async (caption: string, suggestedTitel: string) => {
     try {
       setParseError(null);
@@ -138,6 +168,10 @@ export function ShareRecipePage() {
         console.log('[ShareRecipePage] Groq parse success:', data);
         // Data already has structured zutaten as objects
         setParsed(data);
+
+        // Search for recipe image in background
+        await searchRecipeImage(data.titel);
+
         setLoadingStage('ready');
       }
     } catch (err) {
@@ -198,11 +232,18 @@ export function ShareRecipePage() {
       }
     }
 
-    setParsed({
+    const parsedData = {
       titel,
       zutaten: zutatenList.length > 0 ? zutatenList : [{ name: '', menge: null, einheit: null, hinweis: null }],
       zubereitung: zubereitungList.length > 0 ? zubereitungList : [''],
-    });
+    };
+    setParsed(parsedData);
+
+    // Search for recipe image in background
+    if (titel && titel !== 'Neues Rezept') {
+      searchRecipeImage(titel);
+    }
+
     setLoadingStage('ready');
   };
 
@@ -353,6 +394,7 @@ export function ShareRecipePage() {
         initialTitel={parsed.titel}
         initialZutaten={parsed.zutaten}
         initialZubereitung={parsed.zubereitung.join('\n')}
+        initialBildUrl={recipeImageUrl}
         onSuccess={(recipeId) => {
           // Cleanup IndexedDB nach erfolgreicher Speicherung
           (async () => {

@@ -15,6 +15,7 @@ interface AddRecipeFormProps {
   initialTitel?: string;
   initialZutaten?: string | Zutat[];
   initialZubereitung?: string;
+  initialBildUrl?: string | null;
   onSuccess?: (recipeId: string) => void;
   onCancel?: () => void;
 }
@@ -23,6 +24,7 @@ export function AddRecipeForm({
   initialTitel = '',
   initialZutaten = [],
   initialZubereitung = '',
+  initialBildUrl = null,
   onSuccess,
   onCancel,
 }: AddRecipeFormProps) {
@@ -59,6 +61,7 @@ export function AddRecipeForm({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bildUrl, setBildUrl] = useState(initialBildUrl || '');
 
   // Auto-save to SessionStorage whenever form data changes
   useEffect(() => {
@@ -134,6 +137,7 @@ export function AddRecipeForm({
         zubereitungszeit_min: zubereitungszeit,
         schwierigkeit,
         source: 'instagram',
+        bild_url: bildUrl || null,
       });
 
       // Clear SessionStorage draft after successful save
@@ -212,6 +216,43 @@ export function AddRecipeForm({
         onChange={setZutaten}
         disabled={loading}
       />
+
+      {bildUrl && (
+        <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#e3f2fd', borderRadius: '8px' }}>
+          <img
+            src={bildUrl}
+            alt="Rezept-Bild"
+            style={{
+              width: '100%',
+              maxHeight: '200px',
+              objectFit: 'cover',
+              borderRadius: '6px',
+              marginBottom: '0.5rem',
+            }}
+            onError={() => setBildUrl('')}
+          />
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '11px', color: '#666', wordBreak: 'break-all' }}>
+            🖼️ {bildUrl.slice(0, 60)}...
+          </p>
+          <button
+            type="button"
+            onClick={() => setBildUrl('')}
+            disabled={loading}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.4rem 0.8rem',
+              background: '#ffebee',
+              color: '#c33',
+              border: '1px solid #ffcdd2',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px',
+            }}
+          >
+            ✕ Bild entfernen
+          </button>
+        </div>
+      )}
 
       <div className="form-group">
         <label htmlFor="zubereitung">Zubereitung (zeilenweise) *</label>
