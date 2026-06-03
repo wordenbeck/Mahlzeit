@@ -1,10 +1,11 @@
 /**
  * /share Route — Web Share Target Handler
- * Liest geteilte Instagram-Links, parst Caption, öffnet Rezept-Form
+ * Liest geteilte Instagram-Links, fetcht Caption, parst mit Groq LLM, öffnet Rezept-Form
  */
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { AddRecipeForm } from '../components/AddRecipeForm';
 
 interface SharedData {
@@ -14,12 +15,20 @@ interface SharedData {
   timestamp: number;
 }
 
+interface ParsedRecipe {
+  titel: string;
+  zutaten: string[];
+  zubereitung: string[];
+}
+
 export function ShareRecipePage() {
   const navigate = useNavigate();
   const [sharedData, setSharedData] = useState<SharedData | null>(null);
   const [loading, setLoading] = useState(true);
   const [caption, setCaption] = useState('');
   const [parsed, setParsed] = useState({ titel: '', zutaten: '', zubereitung: '' });
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [manualMode, setManualMode] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -62,11 +71,13 @@ export function ShareRecipePage() {
             if (ogMatch) {
               const fullCaption = decodeHTMLEntities(ogMatch[1]);
               setCaption(fullCaption);
-              // 3. Einfaches Parsing
-              parseCaption(fullCaption, latest.title || latest.text);
+
+              // 3. Parse mit Groq LLM
+              await parseWithGroq(fullCaption, latest.title || latest.text);
             }
           } catch (e) {
             console.error('Failed to fetch Instagram caption:', e);
+            setParseError('Fehler beim Abrufen der Instagram-Caption');
           }
         }
       } catch (e) {
@@ -78,8 +89,46 @@ export function ShareRecipePage() {
     })();
   }, [navigate]);
 
+  const parseWithGroq = async (caption: string, suggestedTitel: string) => {
+    try {
+      setParseError(null);
+      console.log('[ShareRecipePage] Calling parse-recipe-caption Edge Function...');
+
+      // Call Groq via Edge Function
+      const { data, error } = await supabase.functions.invoke('parse-recipe-caption', {
+        body: {
+          caption,
+          recipeName: suggestedTitel,
+        },
+      });
+
+      if (error) {
+        console.error('[ShareRecipePage] Groq parse error:', error);
+        setParseError('LLM-Parsing fehlgeschlagen, verwende Fallback...');
+        // Fallback zu simpler Regex
+        parseCaption(caption, suggestedTitel);
+        return;
+      }
+
+      if (data) {
+        console.log('[ShareRecipePage] Groq parse success:', data);
+        setParsed({
+          titel: data.titel,
+          zutaten: data.zutaten.join('\n'),
+          zubereitung: data.zubereitung.join('\n'),
+        });
+      }
+    } catch (err) {
+      console.error('[ShareRecipePage] Parse error:', err);
+      setParseError('Parsing-Fehler, verwende Fallback...');
+      // Fallback zu Regex
+      parseCaption(caption, suggestedTitel);
+    }
+  };
+
   const parseCaption = (caption: string, suggestedTitel: string) => {
-    // Sehr einfaches Parsing: Trennung nach "Zutaten" / "Zubereitung" Keywords
+    // FALLBACK: Einfaches Regex-Parsing falls Groq fehlschlägt
+    console.log('[ShareRecipePage] Using regex fallback parser');
     let titel = suggestedTitel.split('\n')[0].slice(0, 100) || 'Neues Rezept';
     let zutaten = '';
     let zubereitung = '';
@@ -117,8 +166,10 @@ export function ShareRecipePage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <p>📱 Instagram wird gelesen...</p>
+      <div style={{ padding: '4rem 2rem', textAlign: 'center', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ fontSize: '48px', marginBottom: '1rem', animation: 'spin 2s linear infinite' }}>⟳</div>
+        <h2 style={{ color: '#333', marginBottom: '0.5rem' }}>Instagram wird gelesen...</h2>
+        <p style={{ color: '#666', fontSize: '14px' }}>Caption wird mit KI analysiert</p>
       </div>
     );
   }
@@ -133,19 +184,62 @@ export function ShareRecipePage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>📸 Instagram-Rezept hinzufügen</h1>
+    <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', minHeight: '100vh', background: '#fff' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <button
+          onClick={() => navigate('/rezepte')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#006c49',
+            fontSize: '16px',
+            cursor: 'pointer',
+            padding: '0.5rem 0',
+            marginBottom: '1rem',
+          }}
+        >
+          ← Zurück zu Rezepten
+        </button>
+        <h1 style={{ margin: '0.5rem 0 0 0', fontSize: '28px' }}>📸 Instagram-Rezept hinzufügen</h1>
+      </div>
 
-      <div style={{ marginBottom: '2rem', padding: '1rem', background: '#fafafa', borderRadius: '8px' }}>
-        <p style={{ margin: '0.5rem 0', fontSize: '12px', color: '#666' }}>
-          <strong>Quelle:</strong> {sharedData.url}
+      <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f0f8f5', border: '1px solid #c8e6c9', borderRadius: '8px' }}>
+        <p style={{ margin: '0.5rem 0', fontSize: '12px', color: '#555', wordBreak: 'break-all' }}>
+          <strong>🔗 Quelle:</strong> {sharedData.url}
         </p>
         {caption && (
-          <p style={{ margin: '0.5rem 0', fontSize: '12px', color: '#666', maxHeight: '100px', overflow: 'hidden' }}>
-            <strong>Caption Preview:</strong> {caption.slice(0, 150)}...
+          <p style={{ margin: '1rem 0 0 0', fontSize: '12px', color: '#666', maxHeight: '120px', overflow: 'auto', background: '#fff', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd' }}>
+            <strong>📝 Caption-Vorschau:</strong> {caption.slice(0, 200)}{caption.length > 200 ? '...' : ''}
           </p>
         )}
       </div>
+
+      {parseError && (
+        <div style={{ marginBottom: '1rem', padding: '1rem', background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', fontSize: '13px', color: '#856404' }}>
+          <strong>⚠️ Hinweis:</strong> {parseError}
+          {!manualMode && (
+            <button
+              onClick={() => {
+                setManualMode(true);
+                setParseError(null);
+              }}
+              style={{
+                marginLeft: '1rem',
+                padding: '0.5rem 1rem',
+                background: '#ffc107',
+                color: '#333',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '600',
+              }}
+            >
+              Manuell bearbeiten
+            </button>
+          )}
+        </div>
+      )}
 
       <AddRecipeForm
         initialTitel={parsed.titel}

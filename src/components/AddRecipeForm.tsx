@@ -38,15 +38,21 @@ export function AddRecipeForm({
 
     try {
       // Validierung
-      if (!titel.trim()) throw new Error('Titel ist erforderlich');
-      if (!zutaten.trim()) throw new Error('Zutaten sind erforderlich');
-      if (!zubereitung.trim()) throw new Error('Zubereitung ist erforderlich');
+      if (!titel.trim()) throw new Error('❌ Titel ist erforderlich');
+      if (titel.trim().length < 3) throw new Error('❌ Titel mindestens 3 Zeichen');
+      if (!zutaten.trim()) throw new Error('❌ Zutaten sind erforderlich');
+      if (!zubereitung.trim()) throw new Error('❌ Zubereitung ist erforderlich');
 
       // Parse Zutaten (zeilenweise)
       const zutatenLines = zutaten
         .split('\n')
         .map((z) => z.trim())
         .filter((z) => z);
+
+      if (zutatenLines.length === 0) {
+        throw new Error('❌ Mindestens eine Zutat erforderlich');
+      }
+
       const zutatenJson = zutatenLines.map((name) => ({
         name,
         menge: null,
@@ -60,14 +66,31 @@ export function AddRecipeForm({
         .map((z) => z.trim().replace(/^\d+[\.\)]\s*/, ''))
         .filter((z) => z);
 
+      if (zubereitungLines.length === 0) {
+        throw new Error('❌ Mindestens ein Zubereitungsschritt erforderlich');
+      }
+
+      // Validiere Zubereitungszeit
+      let zubereitungszeit = null;
+      if (zeit) {
+        const zeitNum = parseInt(zeit);
+        if (zeitNum < 0) {
+          throw new Error('❌ Zubereitungszeit darf nicht negativ sein');
+        }
+        if (zeitNum > 1440) {
+          throw new Error('❌ Zubereitungszeit darf max. 24h sein');
+        }
+        zubereitungszeit = zeitNum;
+      }
+
       // Speichern
       const recipeId = await insertRecipe({
         titel: titel.trim(),
         zutaten: zutatenJson,
         zubereitung: zubereitungLines,
-        zubereitungszeit_min: zeit ? parseInt(zeit) : null,
+        zubereitungszeit_min: zubereitungszeit,
         schwierigkeit,
-        source: 'manual',
+        source: 'instagram',
       });
 
       onSuccess?.(recipeId);
@@ -145,7 +168,11 @@ export function AddRecipeForm({
         </div>
       </div>
 
-      {error && <div className="form-error">{error}</div>}
+      {error && (
+        <div className="form-error">
+          {error}
+        </div>
+      )}
 
       <div className="form-actions">
         <button
@@ -154,10 +181,17 @@ export function AddRecipeForm({
           disabled={loading}
           className="btn-secondary"
         >
-          Abbrechen
+          {loading ? '⏳' : '←'} Abbrechen
         </button>
         <button type="submit" disabled={loading} className="btn-primary">
-          {loading ? '⏳ Speichert...' : '✅ Speichern'}
+          {loading ? (
+            <>
+              <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⟳</span>
+              {' Speichert...'}
+            </>
+          ) : (
+            '✅ Speichern'
+          )}
         </button>
       </div>
     </form>
