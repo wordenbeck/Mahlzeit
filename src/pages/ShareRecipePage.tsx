@@ -246,8 +246,32 @@ export function ShareRecipePage() {
         initialZutaten={parsed.zutaten}
         initialZubereitung={parsed.zubereitung}
         onSuccess={(recipeId) => {
-          // Rezept gespeichert → Success Screen mit Auto-Redirect
-          navigate(`/share/success?recipeId=${recipeId}&name=${encodeURIComponent(parsed.titel || 'Rezept')}`);
+          // Cleanup IndexedDB nach erfolgreicher Speicherung
+          (async () => {
+            try {
+              const db = await new Promise<IDBDatabase>((resolve, reject) => {
+                const req = indexedDB.open('MealPlannerDB', 2);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+              });
+
+              const tx = db.transaction('shared-recipes', 'readwrite');
+              const store = tx.objectStore('shared-recipes');
+              await new Promise<void>((resolve, reject) => {
+                const req = store.clear();
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+              });
+
+              db.close();
+              console.log('[ShareRecipePage] Cleaned up shared data from IndexedDB');
+            } catch (err) {
+              console.warn('[ShareRecipePage] Failed to cleanup IndexedDB:', err);
+            }
+
+            // Rezept gespeichert → Success Screen mit Auto-Redirect
+            navigate(`/share/success?recipeId=${recipeId}&name=${encodeURIComponent(parsed.titel || 'Rezept')}`);
+          })();
         }}
         onCancel={() => navigate('/rezepte')}
       />
