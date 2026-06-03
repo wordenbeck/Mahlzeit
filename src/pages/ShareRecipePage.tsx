@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { AddRecipeForm } from '../components/AddRecipeForm';
+import { ImageSelectionModal, type SearchResult } from '../components/ImageSelectionModal';
 
 interface SharedData {
   title: string;
@@ -41,6 +42,9 @@ export function ShareRecipePage() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [recipeImageUrl, setRecipeImageUrl] = useState<string | null>(null);
   const [imageSearching, setImageSearching] = useState(false);
+  const [imageSearchResults, setImageSearchResults] = useState<SearchResult[] | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageModalRecipeName, setImageModalRecipeName] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -125,20 +129,44 @@ export function ShareRecipePage() {
 
       if (error) {
         console.error('[ShareRecipePage] Image search error:', error);
+        setImageSearching(false);
         return;
       }
 
       if (data?.results && data.results.length > 0) {
-        // Take first result (best match)
-        const bestMatch = data.results[0];
-        const imageUrl = bestMatch.url;
-        console.log('[ShareRecipePage] Found image:', imageUrl);
-        setRecipeImageUrl(imageUrl);
+        console.log('[ShareRecipePage] Found', data.results.length, 'images');
+        // Show modal for user to pick image (not auto-save!)
+        setImageSearchResults(data.results);
+        setImageModalRecipeName(recipeName);
+        setShowImageModal(true);
       }
     } catch (err) {
       console.error('[ShareRecipePage] Image search failed:', err);
     } finally {
       setImageSearching(false);
+    }
+  };
+
+  const handleImageSelected = (imageUrl: string) => {
+    console.log('[ShareRecipePage] Image selected:', imageUrl);
+    setRecipeImageUrl(imageUrl);
+    setShowImageModal(false);
+    setImageSearchResults(null);
+  };
+
+  const handleImageSkipped = () => {
+    console.log('[ShareRecipePage] Image skipped');
+    setShowImageModal(false);
+    setImageSearchResults(null);
+  };
+
+  const handleImageRetry = () => {
+    console.log('[ShareRecipePage] Image retry');
+    // Retry search with same recipe name
+    if (imageModalRecipeName) {
+      setShowImageModal(false);
+      setImageSearchResults(null);
+      searchRecipeImage(imageModalRecipeName);
     }
   };
 
@@ -299,6 +327,18 @@ export function ShareRecipePage() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', minHeight: '100vh', background: '#fff' }}>
+      {/* Image Selection Modal */}
+      {showImageModal && imageSearchResults && (
+        <ImageSelectionModal
+          results={imageSearchResults}
+          recipeName={imageModalRecipeName}
+          onSelect={handleImageSelected}
+          onSkip={handleImageSkipped}
+          onRetry={handleImageRetry}
+          loading={imageSearching}
+        />
+      )}
+
       <div style={{ marginBottom: '2rem' }}>
         <button
           onClick={() => navigate('/rezepte')}
