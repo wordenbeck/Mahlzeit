@@ -21,10 +21,12 @@ interface ParsedRecipe {
   zubereitung: string[];
 }
 
+type LoadingStage = 'fetching' | 'parsing' | 'ready';
+
 export function ShareRecipePage() {
   const navigate = useNavigate();
   const [sharedData, setSharedData] = useState<SharedData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingStage, setLoadingStage] = useState<LoadingStage | null>('fetching');
   const [caption, setCaption] = useState('');
   const [parsed, setParsed] = useState({ titel: '', zutaten: '', zubereitung: '' });
   const [parseError, setParseError] = useState<string | null>(null);
@@ -98,7 +100,7 @@ export function ShareRecipePage() {
         console.error('Failed to read shared data:', e);
         navigate('/rezepte');
       } finally {
-        setLoading(false);
+        setLoadingStage(null);
       }
     })();
   }, [navigate]);
@@ -106,6 +108,7 @@ export function ShareRecipePage() {
   const parseWithGroq = async (caption: string, suggestedTitel: string) => {
     try {
       setParseError(null);
+      setLoadingStage('parsing');
       console.log('[ShareRecipePage] Calling parse-recipe-caption Edge Function...');
 
       // Call Groq via Edge Function
@@ -131,12 +134,14 @@ export function ShareRecipePage() {
           zutaten: data.zutaten.join('\n'),
           zubereitung: data.zubereitung.join('\n'),
         });
+        setLoadingStage('ready');
       }
     } catch (err) {
       console.error('[ShareRecipePage] Parse error:', err);
       setParseError('Parsing-Fehler, verwende Fallback...');
       // Fallback zu Regex
       parseCaption(caption, suggestedTitel);
+      setLoadingStage('ready');
     }
   };
 
@@ -176,14 +181,46 @@ export function ShareRecipePage() {
       zutaten: zutaten.trim(),
       zubereitung: zubereitung.trim(),
     });
+    setLoadingStage('ready');
   };
 
-  if (loading) {
+  if (loadingStage) {
+    const messages = {
+      fetching: { icon: '📱', title: 'Instagram wird gelesen...', subtitle: 'Caption wird abrufen' },
+      parsing: { icon: '🤖', title: 'KI analysiert Rezept...', subtitle: 'Groq LLM parst Caption' },
+    };
+    const msg = messages[loadingStage];
+
     return (
       <div style={{ padding: '4rem 2rem', textAlign: 'center', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '1rem', animation: 'spin 2s linear infinite' }}>⟳</div>
-        <h2 style={{ color: '#333', marginBottom: '0.5rem' }}>Instagram wird gelesen...</h2>
-        <p style={{ color: '#666', fontSize: '14px' }}>Caption wird mit KI analysiert</p>
+        <div style={{ fontSize: '48px', marginBottom: '1rem', animation: 'pulse 1.5s ease-in-out infinite' }}>
+          {msg.icon}
+        </div>
+        <h2 style={{ color: '#333', marginBottom: '0.5rem' }}>{msg.title}</h2>
+        <p style={{ color: '#666', fontSize: '14px', marginBottom: '2rem' }}>{msg.subtitle}</p>
+
+        {/* Progress bar */}
+        <div style={{ width: '200px', height: '4px', background: '#e0e0e0', borderRadius: '2px', overflow: 'hidden' }}>
+          <div
+            style={{
+              height: '100%',
+              background: '#006c49',
+              animation: `progress ${loadingStage === 'fetching' ? '1.5' : '2'}s ease-in-out infinite`,
+            }}
+          />
+        </div>
+
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+          }
+          @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 80%; }
+            100% { width: 100%; }
+          }
+        `}</style>
       </div>
     );
   }
