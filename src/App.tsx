@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { Onboarding } from './pages/Onboarding';
 import { JoinByCode } from './pages/JoinByCode';
+import { ShareRecipePage } from './pages/ShareRecipePage';
 import { Heute } from './pages/Heute';
 import { Rezepte } from './pages/Rezepte';
 import { RezeptImport } from './pages/RezeptImport';
@@ -42,9 +43,10 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Onboarding + Join — KEINE App-Shell */}
+        {/* Onboarding + Join + Share — KEINE App-Shell */}
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/join/:code" element={<JoinByCode />} />
+        <Route path="/share" element={<ShareRecipePage />} />
 
         {/* App-Routes mit Shell + Auth-Guard */}
         <Route element={<AppShell />}>

@@ -56,6 +56,26 @@ Detail siehe `PROJECT-SPEC.md` → "Identity & Workspace".
 - ✅ Free-Tier-fähig bleiben (Supabase 500 MB, Vercel 100 GB Bandwidth, Groq 14k req/Tag)
 - ✅ PWA-tauglich → Service Worker, Manifest, iOS-Splash
 
+## DB-Schema Gotchas (`recipes` Tabelle) — WICHTIG bei Imports
+
+> Gelernt aus stundenlangem SQL-Debugging. **Vor jedem Insert ZUERST Schema checken**, nicht raten!
+
+- **`zutaten` ist `jsonb`** → Array von **Objekten**: `[{name, menge, einheit, hinweis}]` (nicht Strings!)
+- **`zubereitung` ist `jsonb`** → Array von **Strings**: `["Schritt 1", "Schritt 2"]` — **ohne** führende "1." Nummern (App nummeriert selbst)
+- **NOT NULL Pflichtfelder:** `workspace_id`, `created_by`, `source` (z.B. `'sanamana'`/`'instagram'`) — fehlen sie, schlägt der Insert fehl
+- **`schwierigkeit`** Werte: `'einfach'` | `'mittel'` | `'aufwendig'` (NICHT `'medium'`/englisch!)
+- Aktuelle Basis-IDs: `workspace_id = e7f25de4-4fce-4aba-b1ce-70f9fe20f47d`, `created_by = 39b427ea-645c-4845-89a6-1c5a591aba17`
+- Schema-Quelle: `supabase/migrations/20260508120000_initial_schema.sql`
+
+### Import-Workflow (so vermeiden wir SQL-Ping-Pong)
+
+1. **Schema lesen** (Migration ODER bestehende Zeile via REST API auslesen):
+   `curl "$URL/rest/v1/recipes?select=*&limit=1" -H "apikey: $ANON_KEY" -H "Authorization: Bearer $ANON_KEY"`
+2. SQL exakt nach echtem Format bauen (Spaltentypen + Pflichtfelder!)
+3. **Programmatisch validieren** (JSON.parse aller jsonb-Felder, Pflichtfelder zählen) BEVOR User kopiert
+4. SQL-Generator schreibt **direkt in Datei** (`fs.writeFileSync`), nie über stdout (sonst landet `2>&1` Log-Müll in der SQL)
+5. Ausführung: Supabase SQL Editor (umgeht RLS). Anon-Key-Insert via REST scheitert an RLS — nur zum **Lesen** nutzen.
+
 ## Was aus Kalo übernehmen
 
 Lokales Schwester-Projekt: `~/Claude Code/CodingDojo/Kalo`. Daraus extrahieren:
