@@ -143,8 +143,50 @@ export function AddRecipeForm({
     }
   };
 
+  const hasDraft = sessionStorage.getItem('recipe-draft-titel') !== null;
+
+  const clearDraft = () => {
+    if (confirm('Entwurf wirklich löschen?')) {
+      sessionStorage.removeItem('recipe-draft-titel');
+      sessionStorage.removeItem('recipe-draft-zutaten');
+      sessionStorage.removeItem('recipe-draft-zubereitung');
+      sessionStorage.removeItem('recipe-draft-zeit');
+      sessionStorage.removeItem('recipe-draft-schwierigkeit');
+      setTitel('');
+      setZutaten('');
+      setZubereitung('');
+      setZeit('');
+      setSchwierigkeit('mittel');
+      setError(null);
+    }
+  };
+
   return (
     <form className="add-recipe-form" onSubmit={handleSubmit}>
+      {hasDraft && (
+        <div style={{ marginBottom: '1rem', padding: '0.75rem', background: '#e3f2fd', border: '1px solid #2196f3', borderRadius: '6px', fontSize: '12px', color: '#1565c0' }}>
+          💾 Entwurf aus letzter Session wiederhergestellt
+          <button
+            type="button"
+            onClick={clearDraft}
+            disabled={loading}
+            style={{
+              marginLeft: '1rem',
+              padding: '0.4rem 0.8rem',
+              background: '#2196f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: '600',
+            }}
+          >
+            ✕ Löschen
+          </button>
+        </div>
+      )}
+
       <div className="form-group">
         <label htmlFor="titel">Titel *</label>
         <input
