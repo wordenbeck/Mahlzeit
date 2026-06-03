@@ -4,6 +4,7 @@ import { AppShell } from './AppShell';
 import { Onboarding } from './pages/Onboarding';
 import { JoinByCode } from './pages/JoinByCode';
 import { ShareRecipePage } from './pages/ShareRecipePage';
+import { ShareSuccessPage } from './pages/ShareSuccessPage';
 import { Heute } from './pages/Heute';
 import { Rezepte } from './pages/Rezepte';
 import { RezeptImport } from './pages/RezeptImport';
@@ -47,6 +48,7 @@ export function App() {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/join/:code" element={<JoinByCode />} />
         <Route path="/share" element={<ShareRecipePage />} />
+        <Route path="/share/success" element={<ShareSuccessPage />} />
 
         {/* App-Routes mit Shell + Auth-Guard */}
         <Route element={<AppShell />}>

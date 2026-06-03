@@ -246,8 +246,8 @@ export function ShareRecipePage() {
         initialZutaten={parsed.zutaten}
         initialZubereitung={parsed.zubereitung}
         onSuccess={(recipeId) => {
-          // Rezept gespeichert → zu Rezept-Details
-          navigate(`/rezepte?open=${recipeId}`);
+          // Rezept gespeichert → Success Screen mit Auto-Redirect
+          navigate(`/share/success?recipeId=${recipeId}&name=${encodeURIComponent(parsed.titel || 'Rezept')}`);
         }}
         onCancel={() => navigate('/rezepte')}
       />
