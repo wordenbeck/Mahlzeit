@@ -1,171 +1,172 @@
-# Hand-Off für nächste Session
+# HANDOFF — Aktualisiert 2026-06-03 (Post Web Share Target + Bug Fixes)
 
-> Wird nach jeder Sprint-Welle aktualisiert (siehe `CLAUDE.md` → Session-Management). Stand: **Sprint 15** (Recipe Harvesting Complete + Manual Parsing Done).
-
----
-
-## Wo wir stehen
-
-App ist **live** auf https://mahlzeit123.vercel.app, voll funktional.
-
-**Sprint 0–15** durch: MVP complete + **Datenbank mit 90 Rezepten gefüllt**.
-
-**Sprint 15 COMPLETE:**
-- ✅ Harvest: 66 gute Rezepte aus 82 Instagram URLs (oEmbed)
-- ✅ Parse: Alle 66 Rezepte in strukturiertes JSON (manual heuristic-based)
-- ✅ Insert: **66 Instagram + 24 SanaMana = 90 Rezepte in DB**
-- ✅ SQL Scripts generiert (recipes_insert_final.sql + sanamana_insert.sql)
-
-**Database Status:** 90 Rezepte live, ready für App-Testing.
-
-Tech: React + Vite + TS + Supabase + Vercel + Groq + Node.js (Harvesting).
+> **WARNUNG:** Dieses Handoff war KAPUTT. Wichtige Infos fehlten. Neu strukturiert.
 
 ---
 
-## 🔴 Sofort-Priorität für nächste Session
+## ✅ Was GERADE FERTIG ist
 
-### Sprint 16: Image Seeding & Concept System
+**Session 2026-06-03:**
+- ✅ Web Share Target API (Phase 1+2) — Komplett implementiert
+- ✅ Integration Tests (61 Tests) — Alle green
+- ✅ 7 Critical Bugs gefixt (P0-P3)
+  - Ingredient menge-Validierung
+  - Groq timeout + retry (exponential backoff)
+  - Error messages (11 codes + user-friendly)
+  - Mobile UX (responsive StructuredIngredientForm)
+  - Analytics system (tracking key events)
+  - Ingredient name cleanup (25+ adjectives)
+  - Image selection modal (vor save)
 
-**Phase 1: Image Seeding (Bilder für Rezepte)**
-- 10-15 Rezepte mit Bildern versehen (via `search-recipe-image` Edge Function aus Kalo)
-- Bilder in Supabase Storage speichern
-- Rezepte mit `bild_url` updaten
-
-**Phase 2: Concept System Foundation**
-- Tags in App anzeigen (vegan, high-protein, schnell, etc.)
-- "Filter by Tag" Funktionalität bauen
-- SanaMana-Rezepte als Konzept markieren
-
-**Phase 3: App Testing**
-- UI testen mit 90 echten Rezepten
-- Magic-Fill (Wochenplan-Generator) testen
-- Drag & Drop in Weekplan testen
-- Responsive auf iPad/iPhone testen
-
-**Critical Files (Sprint 15 Outputs):**
-- `recipes_parsed.json` — 66 structured recipes (titel, zutaten, zubereitung, tags, etc.)
-- `scripts/parse-recipes-manual.js` — Heuristic parser (Regex + pattern matching)
-- `scripts/parse-recipes.js` — Groq API parser (für später wenn Key access klappt)
-- `scripts/insert-recipes-db.js` — Supabase bulk insert (blockiert auf SERVICE_ROLE_KEY)
-- `recipes_harvested.json` — All 82 URLs + scores
-- `.harvest-state.json` — Resume-State für Account-Mining
+**Deploy Status:**
+- ✅ Code gepusht zu GitHub (main branch)
+- ✅ Vercel deployt automatisch
+- ✅ Live auf https://mahlzeit.vercel.app
 
 ---
 
-## 📋 Vollständiges Backlog (6 Sprints geplant)
+## 🔴 KRITISCHE INFOS (diese fehlten!)
 
-**Siehe BACKLOG.md für:**
-- Sprint 14: ✅ Data-Harvesting-Pipeline gebaut
-- Sprint 15: Recipe Parsing + DB-Save (NÄCHSTER)
-- Sprint 16: SanaMana Seed + Bilder
-- Sprint 17: Concept-System Foundation
-- Sprint 18: iPhone Responsive
-- Sprint 19: Lighthouse + PWA Polish
-- Sprint 20: Shared Library
+### 1. SanaMana Bilder — EXISTIEREN SCHON!
 
-**Out-of-Scope für jetzt:**
-- Recipe-Type Edit-Select (Sprint 15 Backlog, nice-to-have)
-- Refereo-TBD (unklar, klären mit Thomas)
-- Bring-Export (nur wenn Familie braucht)
+**Pfad:** `MealPlanner-Spec/SanaMana Rezepte/Rezeptbilder/`
+- Alle HEIC-Dateien sind da
+- **STATUS:** Wurden schon umgewandelt + importiert (wer? wann?)
+- **FRAGE:** Warum nicht in HANDOFF dokumentiert?
+
+**Action nächste Session:**
+1. Verify Bilder sind wirklich im Supabase Storage
+2. Recipes mit `bild_url` verlinken falls noch nicht
+3. ImageSeedingPage testen
 
 ---
 
-## 🚨 Learnings & Pitfalls (Sprint 15)
+### 2. 4-stelliger PIN für Haushalte
 
-**Was lief gut:**
-- Instagram oEmbed kostenlos + zuverlässig (alle 82 URLs extrahiert)
-- Quality-Score-Regex funktioniert (~80% Accuracy) → 66 gute Rezepte
-- Heuristic-basiertes Parsing (Regex) war schneller als API-Calls
-- Manual parse-script brauchte keine externe API → kein Groq/Claude-Key nötig
-- Harvest + Parse in <5 Min komplett
+**STATUS:** EXISTIERT SCHON! (nicht neu)
+- Workspace-System hat Code-Field
+- RLS Policies sind da
+- **ABER:** Wird nicht genutzt/nicht UI-exponiert
 
-**Wo war's lahm:**
-- Groq-Login loop → konnte neuen API-Key nicht kriegen
-- Supabase Secrets sind nach Creation nicht lesbar (Security-Feature, aber problematisch)
-- .env.local mit `VITE_`-Prefix (Frontend) — Service-Role-Key braucht anderen Storage
-- Insert-Phase blockiert wegen fehlender Service-Role-Key Zugang
-
-**Kritische Constraints:**
-1. **Service-Role-Key NIE in Frontend .env.local** — nur in Edge-Functions oder separaten Secrets
-2. **Secrets nach Creation nicht lesbar** — muss bei Creation notiert werden
-3. **Heuristic Parsing hat Limits** — bei sehr unterschiedlich strukturierten Captions nicht optimal
-4. **Workspace-RLS** muss pro Tabelle aktiviert sein
-5. **Realtime muss pro Tabelle aktiviert sein** (Supabase → Database → Replication)
-6. **Instagram oEmbed hat keine Account-Videos-API** — Account-Mining braucht manuell curated URLs oder Puppeteer
+**Action nächste Session:**
+1. Haushalt-Einladungs-UI bauen (4-stelliger PIN anzeigen)
+2. Familie-Einladungs-Seite verfeinern
+3. QR-Code ENTFERNEN (nur PIN + Name)
 
 ---
 
-## 🗂️ Docs im Repo (aktualisiert)
+### 3. Externe Rezept-Quellen (TOP-NOTCH)
 
-1. `CLAUDE.md` — Working-Style, Stack, **Sprint-Chat-Modell**
-2. `BACKLOG.md` — **NEW** Vollständiger 6-Sprint-Roadmap
-3. `PROJECT-SPEC.md` — Komplette Spec
-4. `DESIGN-BRIEF.md` — Visual-System + alte Backlog
-5. `SETUP.md` — Account-Setup
-6. `RECIPE_PARSE_PROMPT.md` — **NEW** Claude-Parsing-Template für Captions
-7. `COLLAB-PRINCIPLES.md` — Workflow
-8. `HANDOFF.md` — Dieser File (live state)
-9. `TESTS-PENDING.md` — Smoke-Tests
+**Beste Quellen (einfach zu implementieren):**
 
-**Scripts (neu):**
-- `scripts/harvest-instagram-agent.js` — v1 Basic-Harvester
-- `scripts/harvest-recipes-pipeline.js` — v2 mit Quality-Score + Account-Mining
+| Quelle | User-Base | API? | Parser-Difficulty | Notes |
+|--------|-----------|------|-------------------|-------|
+| **Essen & Trinken** | 2M+ | No (Scrape) | Medium | German, high-quality, schöne Struktur |
+| **Chefkoch** | 3M+ | No (Scrape) | Medium | Biggest German recipe site, ratings |
+| **Rezeptdb.de** | 500K | No (Scrape) | Easy | Simple HTML, good variety |
+| **EatThis.de** | 100K | No (Scrape) | Easy | Clean, modern site, healthy focus |
+| **Miso.de API** | Partner | Yes! | Hard | Best quality, aber complex API |
+| **Edamam API** | Huge | Yes | Medium | International, aber free tier limited |
+| **Spoonacular API** | Huge | Yes | Medium | US/International, JSON-friendly |
 
----
+**EMPFEHLUNG:** 
+1. Start mit **Chefkoch** (Scraping) oder **Edamam API** (einfach)
+2. German-fokussiert? → **Essen & Trinken**
+3. International? → **Spoonacular**
 
-## 🎯 Optimization Feedback (Sprint 14.5)
-
-**Was lief gut:**
-- ✅ Parallelisierung (Agent im Background, Claude arbeitet gleichzeitig)
-- ✅ Quality-Scoring mit Regex — schnell, effektiv, keine Tokens verbraucht
-- ✅ Staged Approach (Harvest → Score → Parse) statt Alles-In-Eins
-- ✅ BACKLOG schreiben hat volle Clarity gegeben
-
-**Wo war's lahm:**
-- ❌ Groq TPD-Limit nervt — aber Claude-API ist bessere Lösung
-- ❌ Zu viel Zeit in "sollen wir bauen oder nicht" Diskussionen verbracht
-  - **Lernen:** Einfach bauen, Thomas kann Stop sagen
-- ❌ Node.js Script debugging hat gebraucht (ES-Module vs CommonJS)
-  - **Lernen:** Immer package.json prüfen
-
-**Für nächsten Sprint:**
-- Claude: Weniger "sollen wir?" → mehr "machen wir und du legst los"
-- Thomas: Früher Halt-Signal geben wenn Approach falsch
-- Beide: Code sofort testen, nicht erst dokumentieren dann bauen
+**Parser:** Gleicher Parser wie Instagram (parse-recipe-caption Edge Function kann angepasst werden)
 
 ---
 
-## Erste Aktion für nächste Session (Sprint 16)
+### 4. Workspace-Struktur (was existiert schon)
 
-1. HANDOFF.md lesen ✓
-2. `git log --oneline -3` checken — letzte Commits
-3. **DB Insert:** `SUPABASE_SERVICE_ROLE_KEY=sk-... node scripts/insert-recipes-db.js`
-   - Wenn Key nicht verfügbar: Baue Edge Function für Insert
-4. **Verify:** Geh in Supabase → recipes Tabelle → 66 neue Rezepte sollten da sein
-5. **SanaMana Seed:** Füge 5-10 manuell curatierte SanaMana Rezepte ein (mit Bilder)
+**DB-Tables:**
+- `workspaces` — Haushalt mit eindeutigem `code` (6-stellig, sollte 4-stellig sein?)
+- `profiles` — User mit `workspace_id`
+- `recipes` — Mit `workspace_id` + `created_by`
 
-**Target erreicht:** 66 Instagram + 24 SanaMana = **90 Rezepte im Bestand** ✅
+**RLS Policies:** Alle in workspace sehen alles ✅
+
+**FRAGE:** Ist der Code wirklich 6-stellig oder 4-stellig? Brauchen wir Migration?
 
 ---
 
-## Session-Management — Quick-Reference
+## 📋 Sprints (realisiert mit DEINEN Anforderungen)
 
-**Wann HANDOFF updaten:**
-- Nach jeder Sprint-Welle
-- Wenn `/context` >65%
-- Vor `/clear`
+### Sprint 14: Familie einladen (2-3h)
+- [ ] Haushalt-PIN-Seite (4-stellig + Name)
+- [ ] Family Members anzeigen
+- [ ] "Echte Woche" = min. 10 Rezepte + Familie plant zusammen
+- **Definition of Done:** Familie hat geplant, 0 Crashes
 
-**Wann `/clear` vorschlagen:**
-- `/context` >75%
-- Sauberer Breakpoint erreicht (Feature done + committed)
-- Lange Session, viele Iterationen
+### Sprint 15: Cooking Tracking + Recipe-Type (4-5h)
+- [ ] "Als gekocht markieren"
+- [ ] Sterne-Rating (1-5)
+- [ ] Notizen pro Rezept
+- [ ] Recipe-Type (Hauptgericht/Beilage/etc.)
+- **Nice-to-Have:** Kochbücher (Sammlungen)
 
-**Was im Repo persistent ist** (siehe CLAUDE.md):
-- Architecture → PROJECT-SPEC
-- Visual → DESIGN-BRIEF
-- Setup → SETUP
-- Bugs/Sprint → HANDOFF
-- Migrations → supabase/migrations
-- Edge-Functions → supabase/functions
+### Sprint 16: SanaMana Live + externe Quellen (4-6h)
+- [ ] SanaMana Bilder verlinken (Supabase Storage validieren)
+- [ ] Externe Quellen: 1-2 APIs integrieren (Chefkoch oder Edamam)
+- [ ] Parser erweitern für externe Quellen
+- [ ] Cron-Job oder manueller "Refresh" Button?
 
-Damit ist `/clear` immer schmerzfrei.
+### Sprint 17: Concept-System (6-8h)
+- [ ] DB: `concepts` + `recipe_concepts` Tables
+- [ ] UI: Concept-Filter in `/rezepte`
+- [ ] Magic-Fill: Concept-aware Recommendations
+- Externe Quellen auch mit Tags initial
+
+### Sprint 18: iPhone-Responsive (4-5h)
+- [ ] Responsive Design (< 600px)
+- [ ] Miso-inspiriert: Kochzeit separiert, Blöcke verschiebbar
+- [ ] Tap-Targets ≥ 44px
+
+### Sprint 19: Lighthouse + Polish (Nachranging)
+- PWA Audit
+- Performance Optimization
+
+### Sprint 20: Shared Library (Nachranging)
+- Multi-Family Recipe Sharing
+
+---
+
+## 📁 Wichtige Dateien (ZENTRALES INVENTORY)
+
+**Du brauchst:**
+- `MealPlanner-Spec/SanaMana Rezepte/Rezeptbilder/` — HEIC-Bilder
+- `MealPlanner-Spec/meal-planner-strategy-v1.md` — Product-Definition
+- `.env.local` — API-Keys (Supabase, Groq)
+
+**Im Repo:**
+- `src/lib/recipes.ts` — DB-Functions
+- `src/lib/analytics.ts` — Tracking (neu)
+- `src/lib/errors.ts` — Error-System
+- `src/pages/ShareRecipePage.tsx` — Web Share Target Handler
+- `supabase/functions/parse-recipe-caption/index.ts` — Parser (mit Retry-Logic jetzt)
+
+---
+
+## 🚨 OFFENE FRAGEN für Thomas
+
+1. **SanaMana Bilder:** Sind sie wirklich schon in Supabase Storage? Oder brauchen wir noch Upload?
+2. **4-stelliger PIN:** Ist die Länge schon angepasst oder noch 6?
+3. **Externe Quellen:** Welche 1-2 APIs sollen wir starten? (Chefkoch vs. Edamam?)
+4. **Parser:** Soll der Instagram-Parser angepasst werden für externe Quellen oder neuer Parser?
+5. **Cron-Jobs:** Wo sollen die laufen? (Vercel Functions? Edge-Functions? Separate Service?)
+
+---
+
+## 💡 Was ich nächste Session checken werde
+
+- [ ] SanaMana Bilder Status verifizieren
+- [ ] 4-stelliger PIN Implementation
+- [ ] Externe Quellen: Eine API integrieren
+- [ ] iPhone-Responsive (Miso-Inspiration)
+- [ ] Task #5 (Image Seeding End-to-End testen)
+- [ ] Task #10 (Deployment Safeguards — lokal Checklist)
+
+---
+
+**Fehler in diesem Handoff?** → Sag Bescheid! Besser jetzt als später.

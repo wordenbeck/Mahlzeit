@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { AddRecipeForm } from '../components/AddRecipeForm';
 import { ImageSelectionModal, type SearchResult } from '../components/ImageSelectionModal';
 import { getErrorInfo, formatErrorDisplay, type AppError } from '../lib/errors';
+import { trackEvent, trackRecipeParsed, trackImageSelected, trackError } from '../lib/analytics';
 
 interface SharedData {
   title: string;
@@ -74,6 +75,7 @@ export function ShareRecipePage() {
 
         const latest = allData[allData.length - 1];
         setSharedData(latest);
+        trackEvent('instagram_recipe_shared', { url: latest.url?.split('/').slice(3, 5).join('/') });
 
         // 2. Fetch Instagram Caption + Thumbnail
         if (latest.url?.includes('instagram.com')) {
@@ -169,6 +171,15 @@ export function ShareRecipePage() {
   const handleImageSelected = (imageUrl: string) => {
     console.log('[ShareRecipePage] Image selected:', imageUrl);
     setRecipeImageUrl(imageUrl);
+
+    // Track image selection
+    if (imageSearchResults && imageSearchResults.length > 0) {
+      const selectedImg = imageSearchResults.find(r => r.url === imageUrl);
+      if (selectedImg) {
+        trackImageSelected(selectedImg.source);
+      }
+    }
+
     setShowImageModal(false);
     setImageSearchResults(null);
   };
@@ -205,13 +216,24 @@ export function ShareRecipePage() {
 
       if (error) {
         console.error('[ShareRecipePage] Groq parse error:', error);
+
+        // Map Edge Function error to AppError code
         let errorCode: any = 'ERR_GROQ_FAILED';
-        if (String(error).includes('timeout')) {
-          errorCode = 'ERR_GROQ_TIMEOUT';
-        } else if (String(error).includes('rate')) {
+        const errorStr = String(error);
+
+        // Check for specific error codes from Edge Function
+        if (errorStr.includes('GROQ_RATE_LIMIT') || errorStr.includes('429')) {
           errorCode = 'ERR_GROQ_RATELIMIT';
+        } else if (errorStr.includes('GROQ_SERVER_ERROR') || errorStr.includes('500')) {
+          errorCode = 'ERR_GROQ_SERVER_ERROR';
+        } else if (errorStr.includes('timeout') || errorStr.includes('AbortError')) {
+          errorCode = 'ERR_GROQ_TIMEOUT';
+        } else if (errorStr.includes('network') || errorStr.includes('Failed to fetch')) {
+          errorCode = 'ERR_NETWORK';
         }
-        setParseError(getErrorInfo(errorCode, String(error)));
+
+        setParseError(getErrorInfo(errorCode, errorStr));
+        trackError(errorCode, errorStr);
         // Fallback zu simpler Regex
         parseCaption(caption, suggestedTitel);
         return;
@@ -221,6 +243,9 @@ export function ShareRecipePage() {
         console.log('[ShareRecipePage] Groq parse success:', data);
         // Data already has structured zutaten as objects
         setParsed(data);
+
+        // Track successful parse
+        trackRecipeParsed('groq', data.zutaten.length, data.zubereitung.length);
 
         // Search for recipe image in background
         await searchRecipeImage(data.titel);
@@ -239,6 +264,7 @@ export function ShareRecipePage() {
   const parseCaption = (caption: string, suggestedTitel: string) => {
     // FALLBACK: Einfaches Regex-Parsing falls Groq fehlschlägt
     console.log('[ShareRecipePage] Using regex fallback parser');
+    trackRecipeParsed('fallback', 0, 0); // Will be updated after parsing
     let titel = suggestedTitel.split('\n')[0].slice(0, 100) || 'Neues Rezept';
     const zutatenList: ParsedZutat[] = [];
     const zubereitungList: string[] = [];

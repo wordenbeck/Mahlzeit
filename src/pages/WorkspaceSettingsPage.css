@@ -1,0 +1,85 @@
+/* WorkspaceSettingsPage */
+
+.workspace-settings {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.workspace-settings h1 {
+  margin-bottom: 2rem;
+  font-size: 28px;
+}
+
+.workspace-info {
+  background: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.workspace-pin {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.workspace-pin-display {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.2em;
+  color: #006c49;
+}
+
+.copy-btn {
+  padding: 8px 12px;
+  background: #006c49;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.copy-btn:hover {
+  background: #005540;
+}
+
+.copy-btn.copied {
+  background: #4caf50;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+}

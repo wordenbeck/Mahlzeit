@@ -8,6 +8,7 @@ export type ErrorCode =
   | 'ERR_CAPTION_EMPTY'
   | 'ERR_GROQ_TIMEOUT'
   | 'ERR_GROQ_RATELIMIT'
+  | 'ERR_GROQ_SERVER_ERROR'
   | 'ERR_GROQ_FAILED'
   | 'ERR_IMAGE_SEARCH_FAILED'
   | 'ERR_NETWORK'
@@ -47,6 +48,11 @@ export function getErrorInfo(code: ErrorCode, context?: string): AppError {
       message: '📊 Rate-Limit erreicht. Bitte warte kurz und versuche es erneut.',
       action: 'RETRY',
       icon: '📊',
+    },
+    ERR_GROQ_SERVER_ERROR: {
+      message: '🔧 Groq-Server antwortet nicht. Bitte versuche es in einer Minute erneut.',
+      action: 'RETRY',
+      icon: '🔧',
     },
     ERR_GROQ_FAILED: {
       message: '🤖 KI-Analyse fehlgeschlagen. Verwende vereinfachten Parser.',
@@ -102,6 +108,7 @@ export function formatErrorDisplay(error: AppError): {
     ERR_CAPTION_EMPTY: '📝',
     ERR_GROQ_TIMEOUT: '⏱️',
     ERR_GROQ_RATELIMIT: '📊',
+    ERR_GROQ_SERVER_ERROR: '🔧',
     ERR_GROQ_FAILED: '🤖',
     ERR_IMAGE_SEARCH_FAILED: '🖼️',
     ERR_NETWORK: '🌐',

@@ -116,6 +116,30 @@
 
 **Theme:** „Shared Recipe Library" — Möglichkeit dass eine Familie (workspace) zentrale Rezepte mit anderen Familien teilt (ohne dass jede kopieren muss)
 
+---
+
+## 🔵 Sprint 21+ — Externe Rezept-Quellen (BACKLOG — NICHT PRIORITÄR)
+
+**Priority:** LOW  
+**Status:** Für später, wenn App stabil läuft
+
+**API-Integration:**
+- [ ] Edamam Recipe API (Free Tier: 550 req/day)
+  - App-ID + App-Key von https://developer.edamam.com/
+  - JSON Parser für externe Rezepte
+  - Edge Function: `search-external-recipes`
+  
+- [ ] Eventuell später: Spoonacular (50 req/day free)
+
+**UI:**
+- [ ] Button in `/rezepte`: "Externe Rezepte suchen"
+- [ ] Search Modal für externe Rezepte
+- [ ] Import in App (mit Parser)
+
+**Besonderheit:** Edamam-Rezepte müssen auf Deutsch angepasst werden (Zutaten-Übersetzung?)
+
+**Cron-Jobs:** Später (erstmal manuell via Button)
+
 **Offene Fragen:**
 - Nur Read-Only teilen, oder auch Änderungen sync?
 - Über QR-Code + Code (wie Profile-Invite) oder Link-based?

@@ -3,13 +3,26 @@
  * Shows table-like form for menge/einheit/name per ingredient
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface Zutat {
   name: string;
   menge: number | null;
   einheit: string | null;
   hinweis: string | null;
+}
+
+// Hook für responsive Breakpoints
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return isMobile;
 }
 
 interface StructuredIngredientFormProps {
@@ -21,6 +34,7 @@ interface StructuredIngredientFormProps {
 export function StructuredIngredientForm({ initialZutaten, onChange, disabled }: StructuredIngredientFormProps) {
   const [zutaten, setZutaten] = useState<Zutat[]>(initialZutaten);
   const [showRawText, setShowRawText] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleChange = (index: number, field: keyof Zutat, value: any) => {
     const updated = [...zutaten];
@@ -134,12 +148,22 @@ export function StructuredIngredientForm({ initialZutaten, onChange, disabled }:
         </button>
       </div>
 
-      {/* Table-like structure */}
+      {/* Table-like structure — Responsive: Stack on Mobile, Grid on Desktop */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '400px', overflowY: 'auto' }}>
         {zutaten.map((zutat, idx) => (
           <div
             key={idx}
-            style={{
+            style={isMobile ? {
+              // Mobile: Stacked layout
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              background: '#fafafa',
+              borderRadius: '6px',
+              border: '1px solid #eee',
+            } : {
+              // Desktop: Grid layout
               display: 'grid',
               gridTemplateColumns: '60px 80px 1fr 30px',
               gap: '0.5rem',
@@ -151,11 +175,12 @@ export function StructuredIngredientForm({ initialZutaten, onChange, disabled }:
             }}
           >
             {/* Menge */}
+            {isMobile && <label style={{ fontSize: '11px', color: '#666', fontWeight: '600', marginBottom: '-0.25rem' }}>Menge</label>}
             <input
               type="number"
               value={zutat.menge ?? ''}
               onChange={(e) => handleChange(idx, 'menge', e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder="z.B. 400"
+              placeholder={isMobile ? '400' : 'z.B. 400'}
               disabled={disabled}
               style={{
                 padding: '8px',
@@ -166,12 +191,13 @@ export function StructuredIngredientForm({ initialZutaten, onChange, disabled }:
             />
 
             {/* Einheit */}
+            {isMobile && <label style={{ fontSize: '11px', color: '#666', fontWeight: '600', marginBottom: '-0.25rem' }}>Einheit</label>}
             <input
               type="text"
               list={`units-${idx}`}
               value={zutat.einheit ?? ''}
               onChange={(e) => handleChange(idx, 'einheit', e.target.value || null)}
-              placeholder="g, ml, EL"
+              placeholder={isMobile ? 'g, ml' : 'g, ml, EL'}
               disabled={disabled}
               style={{
                 padding: '8px',
@@ -185,6 +211,7 @@ export function StructuredIngredientForm({ initialZutaten, onChange, disabled }:
             </datalist>
 
             {/* Name */}
+            {isMobile && <label style={{ fontSize: '11px', color: '#666', fontWeight: '600', marginBottom: '-0.25rem' }}>Zutat</label>}
             <input
               type="text"
               value={zutat.name}
@@ -204,7 +231,16 @@ export function StructuredIngredientForm({ initialZutaten, onChange, disabled }:
               type="button"
               onClick={() => handleRemove(idx)}
               disabled={disabled || zutaten.length === 1}
-              style={{
+              style={isMobile ? {
+                padding: '8px 12px',
+                width: '100%',
+                background: '#ffebee',
+                border: '1px solid #ffcdd2',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '600',
+              } : {
                 padding: '6px',
                 background: '#ffebee',
                 border: '1px solid #ffcdd2',
@@ -213,7 +249,7 @@ export function StructuredIngredientForm({ initialZutaten, onChange, disabled }:
                 fontSize: '14px',
               }}
             >
-              ✕
+              {isMobile ? '🗑️ Löschen' : '✕'}
             </button>
           </div>
         ))}

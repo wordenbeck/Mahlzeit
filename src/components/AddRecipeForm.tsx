@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import type { Schwierigkeit } from '../lib/types/recipe';
 import { insertRecipe } from '../lib/recipes';
 import { StructuredIngredientForm, type Zutat } from './StructuredIngredientForm';
+import { trackEvent } from '../lib/analytics';
 import './AddRecipeForm.css';
 
 interface AddRecipeFormProps {
@@ -99,12 +100,24 @@ export function AddRecipeForm({
         throw new Error('❌ Mindestens eine Zutat mit Name erforderlich');
       }
 
-      const zutatenJson = validZutaten.map((z) => ({
-        name: z.name.trim(),
-        menge: z.menge,
-        einheit: z.einheit,
-        hinweis: z.hinweis,
-      }));
+      // Validate menge: no negatives, reasonable max
+      const zutatenJson = validZutaten.map((z) => {
+        let menge = z.menge;
+        if (menge !== null && typeof menge === 'number') {
+          if (menge < 0) {
+            throw new Error(`❌ Zutat "${z.name.trim()}" hat negative Menge`);
+          }
+          if (menge > 10000) {
+            throw new Error(`❌ Zutat "${z.name.trim()}" hat unrealistische Menge (>10000)`);
+          }
+        }
+        return {
+          name: z.name.trim(),
+          menge,
+          einheit: z.einheit,
+          hinweis: z.hinweis,
+        };
+      });
 
       // Parse Zubereitung (zeilenweise, entferne Nummern)
       const zubereitungLines = zubereitung
@@ -138,6 +151,15 @@ export function AddRecipeForm({
         schwierigkeit,
         source: 'instagram',
         bild_url: bildUrl || null,
+      });
+
+      // Track recipe save
+      trackEvent('recipe_saved', {
+        source: 'instagram',
+        zutatenCount: zutatenJson.length,
+        zubereitungCount: zubereitungLines.length,
+        hasBild: !!bildUrl,
+        schwierigkeit,
       });
 
       // Clear SessionStorage draft after successful save

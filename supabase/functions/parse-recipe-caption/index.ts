@@ -62,6 +62,67 @@ EXAMPLES:
 "250ml Wasser" → {name: "Wasser", menge: 250, einheit: "ml"}
 `;
 
+/**
+ * Retry with exponential backoff
+ * Max 3 attempts: 1s, 2s, 4s
+ */
+async function fetchWithRetry(url: string, options: RequestInit, maxAttempts = 3): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      // 15 second timeout per request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // Don't retry on 4xx errors (client errors) except 429
+      if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+        return response;
+      }
+
+      // Retry on 5xx (server errors) and 429 (rate limit)
+      if (response.ok || (response.status >= 500 || response.status === 429)) {
+        return response;
+      }
+
+      return response;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Check if timeout or network error
+      const isTimeout = lastError.name === 'AbortError' || lastError.message.includes('timeout');
+      const isNetwork = lastError.message.includes('Failed to fetch') || lastError.message.includes('network');
+
+      console.log(`[parse-recipe-caption] Attempt ${attempt}/${maxAttempts} failed:`, {
+        error: lastError.message,
+        isTimeout,
+        isNetwork,
+      });
+
+      // Only retry on timeout or network errors
+      if (!isTimeout && !isNetwork) {
+        throw lastError;
+      }
+
+      // Exponential backoff: 1s, 2s, 4s
+      if (attempt < maxAttempts) {
+        const delayMs = Math.pow(2, attempt - 1) * 1000;
+        console.log(`[parse-recipe-caption] Retrying in ${delayMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+
+  throw lastError || new Error('Max retries exceeded');
+}
+
 async function parseWithGroq(caption: string, recipeName?: string): Promise<ParsedRecipe> {
   try {
     const userPrompt = `Hier ist eine Instagram-Caption eines Rezepts${recipeName ? ` (${recipeName})` : ''}:
@@ -70,35 +131,46 @@ ${caption}
 
 Bitte extrahiere Titel, Zutaten und Zubereitung.`;
 
-    console.log('[parse-recipe-caption] Calling Groq LLM...');
+    console.log('[parse-recipe-caption] Calling Groq LLM with retry logic...');
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt,
-          },
-          {
-            role: 'user',
-            content: userPrompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 1024,
-      }),
-    });
+    const response = await fetchWithRetry(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt,
+            },
+            {
+              role: 'user',
+              content: userPrompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 1024,
+        }),
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('[parse-recipe-caption] Groq API error:', response.status, error);
-      throw new Error(`Groq API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('[parse-recipe-caption] Groq API error:', response.status, errorText);
+
+      // Distinguish error types for frontend
+      if (response.status === 429) {
+        throw Object.assign(new Error('Rate limit exceeded'), { code: 'GROQ_RATE_LIMIT' });
+      } else if (response.status >= 500) {
+        throw Object.assign(new Error('Groq server error'), { code: 'GROQ_SERVER_ERROR' });
+      } else {
+        throw Object.assign(new Error(`Groq API error: ${response.status}`), { code: 'GROQ_API_ERROR', status: response.status });
+      }
     }
 
     const data = await response.json();
@@ -135,10 +207,22 @@ Bitte extrahiere Titel, Zutaten und Zubereitung.`;
           if (menge > 10000) menge = null; // Remove unreasonable quantities
         }
 
-        // 2. Clean up name: remove cooking adjectives (gehackt, fein, gerieben, etc)
+        // 2. Clean up name: remove cooking adjectives
+        // Cooking adjectives to remove: gehackt, fein, grob, klein, gross, geraspelt, gerieben, etc.
+        const cookingAdjectives = [
+          'gehackt', 'fein', 'grob', 'ganz', 'klein', 'gross', 'großzügig',
+          'geraspelt', 'gerieben', 'zerkleinert', 'zerstoßen', 'gepellt',
+          'geschält', 'gesäuert', 'geschnitten', 'gehobelt', 'geraffelt',
+          'zart', 'gehüllt', 'entkernt', 'halbiert', 'haliert', 'viertelt',
+          'blanchiert', 'gehäuft', 'gewiegt', 'gewürfelt', 'gebreitet',
+        ];
+        const adjectivePattern = new RegExp(
+          `(,?\\s*(und\\s+)?)(${cookingAdjectives.join('|')})(?=\\s|,|$)`,
+          'gi'
+        );
         name = name
-          .replace(/,\s*(gehackt|fein|grob|ganz|klein|gross|geraspelt|gerieben|zerkleinert|zerstoßen|gepellt|geschält|gesäuert)/gi, '')
-          .replace(/\s+(gehackt|fein|grob|ganz|klein|gross|geraspelt|gerieben|zerkleinert|zerstoßen|gepellt|geschält|gesäuert)$/i, '')
+          .replace(adjectivePattern, '') // Remove adjectives with connectors
+          .replace(/[,\s]+$/, '') // Remove trailing commas and spaces
           .trim();
 
         // 3. Better parse menge + einheit if somehow wrong
