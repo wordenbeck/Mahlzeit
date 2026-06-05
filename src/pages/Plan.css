@@ -138,6 +138,14 @@
     text-align: left;
     font-size: var(--fs-body);
   }
+
+  /* K1: touch-action:none killt das Scrollen am iPhone (jeder Wisch startet
+     auf einer Karte → Browser versucht zu draggen statt zu scrollen).
+     Am Handy daher Scrollen erlauben; Drag&Drop bleibt für iPad/Desktop. */
+  .plan__recipe-wrap,
+  .plan__slot {
+    touch-action: auto;
+  }
 }
 
 .plan__days {
