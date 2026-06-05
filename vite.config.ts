@@ -11,6 +11,9 @@ export default defineConfig({
       manifest: false,        // wir nutzen das manuell gepflegte public/manifest.webmanifest
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Web-Share-Target-Handler in den generierten SW injizieren —
+        // EIN Service Worker für Caching/Update UND /share-POST.
+        importScripts: ['share-handler.js'],
         // Recipe-Bilder aus Supabase Storage: stale-while-revalidate cachen
         runtimeCaching: [
           {
