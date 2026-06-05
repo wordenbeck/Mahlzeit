@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan-Redesign — 3 Varianten</title>
+<style>
+  :root{
+    --accent:#006C49; --accent-soft:#ECFDF5; --bg:#FAF7F2;
+    --text-1:#1a2e23; --text-2:#5a6b62; --text-3:#9aa8a0;
+    --border:#e5e9e6; --grad:linear-gradient(135deg,#10b981,#006C49);
+    --card:linear-gradient(135deg,#FFFFFF,#F0FDF4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,system-ui,sans-serif;background:#e8ebe9;color:var(--text-1);padding:24px 12px;line-height:1.4}
+  h1{text-align:center;font-size:20px;margin-bottom:6px}
+  .sub{text-align:center;color:var(--text-2);font-size:13px;margin-bottom:24px}
+  .row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:340px;max-width:100%}
+  .vlabel{font-weight:700;color:var(--accent);font-size:15px;margin-bottom:4px;text-align:center}
+  .vdesc{font-size:12px;color:var(--text-2);text-align:center;margin-bottom:12px;min-height:48px}
+  .phone{width:340px;height:680px;background:var(--bg);border-radius:32px;border:8px solid #1a1a1a;overflow:hidden;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+  .status{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:12px;font-weight:600}
+  .scroll{height:calc(100% - 36px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .hdr{padding:14px 16px;background:linear-gradient(135deg,#FFF,var(--accent-soft));border-bottom:1px solid var(--accent-soft)}
+  .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+  .h1{font-size:19px;font-weight:700;margin-top:2px}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:var(--grad);color:#fff;border-radius:99px;font-size:12px;font-weight:600;border:none;margin-top:8px}
+  .card{background:var(--card);border:1px solid var(--accent-soft);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(6,78,59,.06);margin-bottom:10px}
+  .crow{display:flex;align-items:center;gap:10px;padding:10px}
+  .thumb{width:52px;height:52px;border-radius:10px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .ctitle{font-size:14px;font-weight:700;color:var(--accent);line-height:1.25}
+  .cmeta{font-size:11px;color:var(--text-2);margin-top:2px}
+
+  /* ---- Variant 1: Tag-Chip pro Rezept ---- */
+  .daychip{margin-left:auto;flex-shrink:0;padding:6px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px dashed var(--accent);color:var(--accent);background:#fff;display:flex;align-items:center;gap:4px}
+  .daychip.set{background:var(--accent);color:#fff;border-style:solid}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);padding:16px;transform:translateY(0);border-top:1px solid var(--border)}
+  .sheet h3{font-size:14px;margin-bottom:12px}
+  .daygrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .dayopt{padding:12px 4px;border-radius:12px;background:var(--accent-soft);text-align:center;font-size:12px;font-weight:600;color:var(--accent)}
+  .dayopt.active{background:var(--accent);color:#fff}
+
+  /* ---- Variant 2: Tag-Akkordeon ---- */
+  .dayhead{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2}
+  .dayhead.open{background:var(--accent-soft)}
+  .dayname{font-size:15px;font-weight:700;color:var(--accent)}
+  .daydate{font-size:11px;color:var(--text-3)}
+  .daycount{margin-left:auto;font-size:11px;color:var(--text-2);background:var(--accent-soft);padding:3px 9px;border-radius:99px}
+  .chev{margin-left:8px;color:var(--text-3);transition:transform .2s}
+  .chev.open{transform:rotate(90deg)}
+  .daybody{padding:10px 16px;background:rgba(236,253,245,.4)}
+  .addslot{width:100%;padding:11px;border:1px dashed var(--accent);border-radius:12px;color:var(--accent);font-size:12px;font-weight:600;background:transparent;display:flex;align-items:center;justify-content:center;gap:6px}
+
+  /* ---- Variant 3: Tab Woche/Rezepte ---- */
+  .tabs{display:flex;gap:6px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--border)}
+  .tab{flex:1;padding:9px;text-align:center;border-radius:99px;font-size:13px;font-weight:600;color:var(--text-2);background:var(--bg)}
+  .tab.active{background:var(--grad);color:#fff}
+  .miniweek{display:flex;gap:6px;padding:12px 16px;overflow-x:auto}
+  .wd{min-width:46px;padding:8px 6px;border-radius:12px;background:#fff;border:1px solid var(--border);text-align:center;flex-shrink:0}
+  .wd.active{background:var(--accent);border-color:var(--accent)}
+  .wd .wdn{font-size:13px;font-weight:700;color:var(--accent)}
+  .wd.active .wdn{color:#fff}
+  .wd .wdd{font-size:10px;color:var(--text-3)}
+  .wd.active .wdd{color:rgba(255,255,255,.8)}
+  .wd .dot{width:5px;height:5px;border-radius:99px;background:var(--accent);margin:4px auto 0}
+  .wd.active .dot{background:#fff}
+  .sech{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;padding:6px 16px 4px}
+  .addbtn{margin-left:auto;width:30px;height:30px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-size:18px;display:flex;align-items:center;justify-content:center;border:none;flex-shrink:0}
+</style>
+</head>
+<body>
+  <h1>📱 Plan-Seite — 3 Varianten</h1>
+  <div class="sub">Rezept → Wochentag-Zuordnung, iPhone-optimiert. Welche fühlt sich am besten an?</div>
+
+  <div class="row">
+
+    <!-- ============ VARIANTE 1 ============ -->
+    <div class="col">
+      <div class="vlabel">① Rezeptliste + Tag-Chip</div>
+      <div class="vdesc">Du scrollst Rezepte. Tippst auf den Tag-Chip rechts → Sheet von unten mit Wochentagen. Kein "oben/unten"-Split mehr.</div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>📶 🔋</span></div>
+        <div class="scroll">
+          <div class="hdr">
+            <div class="eyebrow">Kalenderwoche 23</div>
+            <div class="h1">Rezepte einplanen</div>
+            <button class="pill">🔍 Suchen…</button>
+          </div>
+          <div style="padding:12px">
+            <div class="card"><div class="crow">
+              <div class="thumb">🍔</div>
+              <div><div class="ctitle">Burger Buns</div><div class="cmeta">30 Min · mittel</div></div>
+              <div class="daychip set">Mi ✓</div>
+            </div></div>
+            <div class="card"><div class="crow">
+              <div class="thumb">🥗</div>
+              <div><div class="ctitle">Gurkensalat m. Knoblauch</div><div class="cmeta">10 Min · mittel</div></div>
+              <div class="daychip set">Di ✓</div>
+            </div></div>
+            <div class="card"><div class="crow">
+              <div class="thumb">🍲</div>
+              <div><div class="ctitle">Linsen-Suppe Spinat</div><div class="cmeta">30 Min · mittel</div></div>
+              <div class="daychip">+ Tag</div>
+            </div></div>
+            <div class="card"><div class="crow">
+              <div class="thumb">🍝</div>
+              <div><div class="ctitle">Penne Bolognese</div><div class="cmeta">35 Min · mittel</div></div>
+              <div class="daychip">+ Tag</div>
+            </div></div>
+          </div>
+        </div>
+        <div class="sheet">
+          <h3>„Linsen-Suppe" einplanen</h3>
+          <div class="daygrid">
+            <div class="dayopt">Mo<br>1.</div>
+            <div class="dayopt active">Di<br>2.</div>
+            <div class="dayopt">Mi<br>3.</div>
+            <div class="dayopt">Do<br>4.</div>
+            <div class="dayopt">Fr<br>5.</div>
+            <div class="dayopt">Sa<br>6.</div>
+            <div class="dayopt">So<br>7.</div>
+            <div class="dayopt" style="background:#fff;border:1px dashed var(--border);color:var(--text-3)">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VARIANTE 2 ============ -->
+    <div class="col">
+      <div class="vlabel">② Tag-Akkordeon</div>
+      <div class="vdesc">Jeder Tag ist aufklappbar. Tag antippen → klappt auf → "+ Rezept" füllt den Slot. Eine klare Liste von oben nach unten.</div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>📶 🔋</span></div>
+        <div class="scroll">
+          <div class="hdr">
+            <div class="eyebrow">Kalenderwoche 23</div>
+            <div class="h1">1.–7. Juni 2026</div>
+            <button class="pill">✨ Magic Fill</button>
+          </div>
+          <div class="dayhead"><span class="dayname">Mo</span><span class="daydate">1. Juni</span><span class="daycount">leer</span><span class="chev">›</span></div>
+          <div class="dayhead open"><span class="dayname">Di</span><span class="daydate">2. Juni</span><span class="daycount">1 Gericht</span><span class="chev open">›</span></div>
+          <div class="daybody">
+            <div class="card"><div class="crow"><div class="thumb">🥗</div><div><div class="ctitle">Gurkensalat m. Knoblauch</div><div class="cmeta">10 Min · mittel</div></div></div></div>
+            <button class="addslot">+ Rezept hinzufügen</button>
+          </div>
+          <div class="dayhead open"><span class="dayname">Mi</span><span class="daydate">3. Juni</span><span class="daycount">2 Gerichte</span><span class="chev open">›</span></div>
+          <div class="daybody">
+            <div class="card"><div class="crow"><div class="thumb">🍔</div><div><div class="ctitle">Burger Buns</div><div class="cmeta">30 Min</div></div></div></div>
+            <div class="card"><div class="crow"><div class="thumb">🍛</div><div><div class="ctitle">Seitangeschnetzeltes</div><div class="cmeta">45 Min</div></div></div></div>
+            <button class="addslot">+ Rezept hinzufügen</button>
+          </div>
+          <div class="dayhead"><span class="dayname">Do</span><span class="daydate">4. Juni</span><span class="daycount">1 Gericht</span><span class="chev">›</span></div>
+          <div class="dayhead"><span class="dayname">Fr</span><span class="daydate">5. Juni</span><span class="daycount">leer</span><span class="chev">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VARIANTE 3 ============ -->
+    <div class="col">
+      <div class="vlabel">③ Tabs + Tagesstreifen</div>
+      <div class="vdesc">Oben 2 Tabs: „Woche" / „Rezepte". Schmaler Tagesstreifen zum Wischen, darunter die Gerichte des gewählten Tags. Wie Miso/Recime.</div>
+      <div class="phone">
+        <div class="status"><span>09:41</span><span>📶 🔋</span></div>
+        <div class="scroll">
+          <div class="tabs"><div class="tab active">📅 Woche</div><div class="tab">🍳 Rezepte</div></div>
+          <div class="miniweek">
+            <div class="wd"><div class="wdn">Mo</div><div class="wdd">1.</div></div>
+            <div class="wd"><div class="wdn">Di</div><div class="wdd">2.</div><div class="dot"></div></div>
+            <div class="wd active"><div class="wdn">Mi</div><div class="wdd">3.</div><div class="dot"></div></div>
+            <div class="wd"><div class="wdn">Do</div><div class="wdd">4.</div><div class="dot"></div></div>
+            <div class="wd"><div class="wdn">Fr</div><div class="wdd">5.</div></div>
+            <div class="wd"><div class="wdn">Sa</div><div class="wdd">6.</div></div>
+          </div>
+          <div class="sech" style="display:flex;align-items:center">Mittwoch, 3. Juni <button class="addbtn">+</button></div>
+          <div style="padding:4px 16px 16px">
+            <div class="card"><div class="crow"><div class="thumb">🍔</div><div><div class="ctitle">Burger Buns</div><div class="cmeta">30 Min · mittel</div></div></div></div>
+            <div class="card"><div class="crow"><div class="thumb">🍛</div><div><div class="ctitle">Seitangeschnetzeltes</div><div class="cmeta">45 Min · mittel</div></div></div></div>
+            <div style="text-align:center;color:var(--text-3);font-size:12px;padding:14px">Tippe + um ein Rezept zu legen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

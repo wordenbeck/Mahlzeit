@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan — Deluxe (Variante 1, zusammengeführt)</title>
+<style>
+  :root{
+    --accent:#006C49; --accent-2:#10b981; --accent-soft:#ECFDF5; --bg:#FAF7F2;
+    --text-1:#16261d; --text-2:#5a6b62; --text-3:#9aa8a0;
+    --border:#e8ece9; --grad:linear-gradient(135deg,#13c08a,#006C49);
+    --card:#ffffff;
+    --shadow:0 1px 2px rgba(6,78,59,.04),0 6px 20px rgba(6,78,59,.07);
+    --shadow-lg:0 20px 60px rgba(6,78,59,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,system-ui,sans-serif;background:#e8ebe9;color:var(--text-1);padding:24px 12px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  h1{font-size:19px}.sub{color:#5a6b62;font-size:13px;margin-bottom:18px;text-align:center;max-width:380px}
+  .phone{width:380px;max-width:100%;height:800px;background:var(--bg);border-radius:38px;border:9px solid #111;overflow:hidden;position:relative;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+  .status{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600}
+  .scroll{height:calc(100% - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+  /* Header */
+  .hdr{padding:14px 18px 12px;background:linear-gradient(180deg,#FFFFFF,#FBFEFC)}
+  .greet{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700}
+  .weeknav{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+  .weeknav h2{font-size:21px;font-weight:800;letter-spacing:-.02em}
+  .nav{width:34px;height:34px;border-radius:99px;background:#fff;box-shadow:var(--shadow);border:none;color:var(--text-2);font-size:16px}
+
+  /* This-week strip (the plan, top) */
+  .weekstrip{display:flex;gap:7px;padding:12px 18px 14px;overflow-x:auto;background:linear-gradient(180deg,#FBFEFC,var(--bg))}
+  .weekstrip::-webkit-scrollbar{display:none}
+  .day{min-width:84px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:9px;flex-shrink:0;border:1px solid var(--border)}
+  .day.today{border:1.5px solid var(--accent-2);box-shadow:0 6px 18px rgba(16,185,129,.2)}
+  .day .dtop{display:flex;align-items:baseline;justify-content:space-between}
+  .day .dn{font-size:14px;font-weight:800;color:var(--accent)}
+  .day .dd{font-size:10px;color:var(--text-3);font-weight:600}
+  .day .meal{margin-top:7px;font-size:11px;line-height:1.3;background:var(--accent-soft);color:var(--text-1);border-radius:9px;padding:6px 7px;font-weight:600;display:flex;gap:5px;align-items:center}
+  .day .meal .mi{font-size:13px}
+  .day .empty{margin-top:7px;height:34px;border:1.5px dashed var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:18px;font-weight:300}
+  .day .meal.second{margin-top:5px}
+
+  /* Magic fill */
+  .magicrow{padding:2px 18px 12px;display:flex;gap:8px;background:var(--bg)}
+  .magic{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;background:var(--grad);color:#fff;border:none;border-radius:14px;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(6,78,59,.25)}
+
+  /* Divider into library */
+  .libhead{padding:6px 18px 10px;background:var(--bg);position:sticky;top:0;z-index:5}
+  .libtitle{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+  .search{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+  .search input{border:none;outline:none;font-size:15px;flex:1;background:transparent;color:var(--text-1)}
+  .search input::placeholder{color:var(--text-3)}
+  .chips{display:flex;gap:7px;overflow-x:auto;padding:10px 0 2px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0;padding:7px 13px;border-radius:99px;font-size:12px;font-weight:600;background:#fff;border:1px solid var(--border);color:var(--text-2)}
+  .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* Recipe library cards */
+  .lib{padding:4px 18px 24px;background:var(--bg)}
+  .rc{display:flex;gap:12px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:10px;margin-bottom:11px;align-items:center;border:1px solid var(--border)}
+  .rc .img{width:66px;height:66px;border-radius:13px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,#d9f5e8,#b8ecd5);display:flex;align-items:center;justify-content:center;font-size:26px}
+  .rc .body{flex:1;min-width:0}
+  .rc .t{font-size:15px;font-weight:700;color:var(--text-1);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rc .m{font-size:12px;color:var(--text-2);margin-top:3px;display:flex;gap:8px;align-items:center}
+  .rc .tags{margin-top:6px;display:flex;gap:5px}
+  .rc .tag{font-size:10px;font-weight:600;background:var(--accent-soft);color:var(--accent);padding:3px 8px;border-radius:99px}
+  .assign{width:42px;height:42px;border-radius:13px;background:var(--accent-soft);color:var(--accent);border:none;font-size:22px;font-weight:300;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .assign.done{background:var(--accent);color:#fff;font-size:14px;font-weight:700;flex-direction:column;gap:0;line-height:1}
+  .assign.done small{font-size:8px;opacity:.85;font-weight:600}
+
+  /* Bottom sheet */
+  .backdrop{position:absolute;inset:0;background:rgba(6,40,28,.45);backdrop-filter:blur(3px)}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;box-shadow:var(--shadow-lg);padding:8px 18px 24px}
+  .grab{width:38px;height:5px;border-radius:99px;background:#dfe5e1;margin:6px auto 14px}
+  .sheet .sh{display:flex;gap:11px;align-items:center;margin-bottom:16px}
+  .sheet .sh .img{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#d9f5e8,#b8ecd5);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .sheet .sh .t{font-size:16px;font-weight:800}
+  .sheet .sh .s{font-size:12px;color:var(--text-2)}
+  .sheetdays{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+  .sd{padding:13px 2px;border-radius:14px;background:var(--bg);text-align:center;border:1.5px solid transparent}
+  .sd .n{font-size:13px;font-weight:800;color:var(--accent)}
+  .sd .d{font-size:10px;color:var(--text-3);margin-top:2px}
+  .sd.active{background:var(--grad)}
+  .sd.active .n,.sd.active .d{color:#fff}
+  .sd.has{border-color:var(--accent-soft);background:var(--accent-soft)}
+  .mealtype{display:flex;gap:8px;margin-top:14px}
+  .mt{flex:1;padding:10px;border-radius:12px;background:var(--bg);text-align:center;font-size:12px;font-weight:700;color:var(--text-2);border:1.5px solid transparent}
+  .mt.active{background:var(--accent);color:#fff}
+  .confirm{width:100%;margin-top:16px;padding:15px;background:var(--grad);color:#fff;border:none;border-radius:15px;font-size:15px;font-weight:800;box-shadow:0 10px 26px rgba(6,78,59,.28)}
+</style>
+</head>
+<body>
+  <h1>✨ Plan — Deluxe</h1>
+  <div class="sub">Eine Seite: oben <b>deine Woche</b>, unten die <b>durchsuchbare Rezept-Bibliothek</b>. Stöbern → tippen → Tag wählen. Kein Doppel mehr.</div>
+
+  <div class="phone">
+    <div class="status"><span>09:41</span><span>􀙇 􀛨 􀺹</span></div>
+    <div class="scroll">
+
+      <!-- Header -->
+      <div class="hdr">
+        <div class="greet">Kalenderwoche 23 · Sonntag-Planung</div>
+        <div class="weeknav">
+          <button class="nav">‹</button>
+          <h2>1.–7. Juni</h2>
+          <button class="nav">›</button>
+        </div>
+      </div>
+
+      <!-- THE WEEK (plan lives here) -->
+      <div class="weekstrip">
+        <div class="day"><div class="dtop"><span class="dn">Mo</span><span class="dd">1.</span></div><div class="empty">+</div></div>
+        <div class="day"><div class="dtop"><span class="dn">Di</span><span class="dd">2.</span></div><div class="meal"><span class="mi">🥗</span>Gurkensalat</div></div>
+        <div class="day"><div class="dtop"><span class="dn">Mi</span><span class="dd">3.</span></div><div class="meal"><span class="mi">🍔</span>Burger Buns</div><div class="meal second"><span class="mi">🍛</span>Seitan…</div></div>
+        <div class="day"><div class="dtop"><span class="dn">Do</span><span class="dd">4.</span></div><div class="meal"><span class="mi">🍝</span>Penne Bol.</div></div>
+        <div class="day today"><div class="dtop"><span class="dn">Fr</span><span class="dd">5.</span></div><div class="empty">+</div></div>
+        <div class="day"><div class="dtop"><span class="dn">Sa</span><span class="dd">6.</span></div><div class="empty">+</div></div>
+        <div class="day"><div class="dtop"><span class="dn">So</span><span class="dd">7.</span></div><div class="empty">+</div></div>
+      </div>
+
+      <div class="magicrow">
+        <button class="magic">✨ Magic Fill — Rest der Woche</button>
+      </div>
+
+      <!-- LIBRARY (browse + assign) -->
+      <div class="libhead">
+        <div class="libtitle">🍳 Rezepte stöbern · 101</div>
+        <div class="search">🔍<input placeholder="Suchen — Titel, Tag, Zutat…"></div>
+        <div class="chips">
+          <div class="chip active">Alle</div>
+          <div class="chip">Schnell</div>
+          <div class="chip">Vegetarisch</div>
+          <div class="chip">High-Protein</div>
+          <div class="chip">Favoriten</div>
+        </div>
+      </div>
+
+      <div class="lib">
+        <div class="rc">
+          <div class="img">🍔</div>
+          <div class="body"><div class="t">Burger Buns</div><div class="m">⏱ 30 Min · 🍳 mittel</div><div class="tags"><span class="tag">gymfood</span><span class="tag">foodinspo</span></div></div>
+          <button class="assign done">Mi<small>geplant</small></button>
+        </div>
+        <div class="rc">
+          <div class="img">🥗</div>
+          <div class="body"><div class="t">Gurkensalat m. Knoblauch</div><div class="m">⏱ 10 Min · 🍳 mittel</div><div class="tags"><span class="tag">schnell</span></div></div>
+          <button class="assign done">Di<small>geplant</small></button>
+        </div>
+        <div class="rc">
+          <div class="img">🍲</div>
+          <div class="body"><div class="t">Indische Linsen-Suppe</div><div class="m">⏱ 30 Min · 🍳 mittel</div><div class="tags"><span class="tag">vegetarisch</span></div></div>
+          <button class="assign">+</button>
+        </div>
+        <div class="rc">
+          <div class="img">🍛</div>
+          <div class="body"><div class="t">Azukibohnen-Reis-Salat</div><div class="m">⏱ 15 Min · 🍳 mittel</div><div class="tags"><span class="tag">protein</span></div></div>
+          <button class="assign">+</button>
+        </div>
+        <div class="rc">
+          <div class="img">🧇</div>
+          <div class="body"><div class="t">Waffeln mit heißen Beeren</div><div class="m">⏱ 10 Min · 🍳 mittel</div><div class="tags"><span class="tag">dessert</span></div></div>
+          <button class="assign">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Sheet (tap +) -->
+    <div class="backdrop"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sh">
+        <div class="img">🍲</div>
+        <div><div class="t">Indische Linsen-Suppe</div><div class="s">An welchem Tag?</div></div>
+      </div>
+      <div class="sheetdays">
+        <div class="sd"><div class="n">Mo</div><div class="d">1.</div></div>
+        <div class="sd has"><div class="n">Di</div><div class="d">2.</div></div>
+        <div class="sd has"><div class="n">Mi</div><div class="d">3.</div></div>
+        <div class="sd"><div class="n">Do</div><div class="d">4.</div></div>
+        <div class="sd active"><div class="n">Fr</div><div class="d">5.</div></div>
+        <div class="sd"><div class="n">Sa</div><div class="d">6.</div></div>
+        <div class="sd"><div class="n">So</div><div class="d">7.</div></div>
+      </div>
+      <div class="mealtype">
+        <div class="mt">Mittag</div>
+        <div class="mt active">Abend</div>
+      </div>
+      <button class="confirm">Für Freitagabend einplanen</button>
+    </div>
+  </div>
+</body>
+</html>
