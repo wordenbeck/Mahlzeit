@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Detail — 3 Varianten</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--danger:#DC2626;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);--grec:linear-gradient(135deg,#FFE0B5,#F6C27A);
+    --r-md:12px;--r-card:16px;--r-pill:999px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:560px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}
+  .vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center}
+  .vd{font-size:12px;color:#5a6b62;text-align:center;margin:4px 0 12px;min-height:54px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:760px;overflow-y:auto}
+  .scr::-webkit-scrollbar{display:none}
+  .pad{padding:14px}
+  .back{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:10px;display:block}
+
+  .img{background:var(--grec);position:relative}
+  .acts{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+  .ib{width:32px;height:32px;border-radius:99px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);color:var(--text-1)}
+  .ib.on{background:var(--accent);color:#fff}
+  .badge{position:absolute;left:8px;bottom:8px;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;background:rgba(0,108,73,.92);color:#fff;font-size:12px;font-weight:700;backdrop-filter:blur(6px)}
+  h2{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+  .desc{font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.4}
+  .meta{display:flex;gap:10px;font-size:15px;font-weight:500;color:var(--text-1);margin-top:10px;flex-wrap:wrap;align-items:center}
+  .tpill{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700}
+
+  .panel{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);padding:14px;margin-top:14px}
+  .panel h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:10px}
+  .zut li{list-style:none;display:flex;gap:8px;font-size:13px;padding:3px 0}
+  .zut .m{color:var(--text-2);font-weight:600;min-width:60px}
+  .step{display:grid;grid-template-columns:24px 1fr;gap:10px;font-size:13px;line-height:1.45;margin-bottom:9px}
+  .num{width:22px;height:22px;border-radius:99px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .notes textarea{width:100%;min-height:54px;border:1px solid var(--border-strong);border-radius:10px;padding:9px;font:inherit;font-size:13px;margin-top:8px}
+  .notes label{font-size:12px;font-weight:700}
+  .del{display:flex;margin:14px auto 4px;padding:8px 16px;border-radius:99px;background:transparent;border:1px solid var(--border);color:var(--text-3);font-size:12px;font-weight:600;gap:6px;align-items:center}
+  .rate{display:inline-flex;align-items:center;gap:8px}
+  .stars{color:var(--accent);font-size:18px;letter-spacing:2px}
+  .cookbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--grad);color:#fff;font-size:13px;font-weight:700;border:none}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+</style></head>
+<body>
+  <h1>Rezept-Detail — 3 Varianten</h1>
+  <div class="sub">Echter Inhalt (Burger Buns). Alle auf dem Design-System. Unterschied liegt in Hero + wo Gekocht/Rating sitzen.</div>
+
+  <div class="row">
+
+    <!-- VARIANT A: Kompakt-Hero (Bild links, Aktionen drauf, Gekocht+Rating als Badge) -->
+    <div class="col">
+      <div class="vh">A · Kompakt-Hero</div>
+      <div class="vd">Bild links mit Aktions-Icons. Gekocht+Rating verschmolzen als Badge auf dem Bild. Maximaler Platz für Inhalt.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <span class="back">‹ zurück zu Rezepten</span>
+        <div style="display:flex;gap:12px">
+          <div class="img" style="width:130px;height:130px;border-radius:13px;flex-shrink:0">
+            <div class="acts" style="position:absolute;top:6px;right:6px;flex-direction:column;gap:5px">
+              <span class="ib">✏️</span><span class="ib on">★</span><span class="ib">↗</span>
+            </div>
+            <div class="badge" style="left:6px;bottom:6px;font-size:11px">✓ ★★★★</div>
+          </div>
+          <div>
+            <h2 style="font-size:19px">Burger Buns</h2>
+            <div class="desc">Proteinreiche Burger Buns mit Soja-Hack-Füllung</div>
+            <div class="meta" style="font-size:14px;gap:8px">⏱ 30 Min · 🍳 mittel · 6 P.</div>
+            <span class="tpill">Hauptgericht</span>
+          </div>
+        </div>
+        <div class="panel"><h3>Zutaten</h3><ul class="zut">
+          <li><span class="m">200 g</span>Magerquark</li><li><span class="m">160 g</span>Dinkelmehl</li>
+          <li><span class="m">1 Pck.</span>Backpulver</li><li><span class="m">180 g</span>Like Hack</li>
+          <li><span class="m">100 g</span>Reibekäse light</li><li><span class="m">30 g</span>Rote Zwiebel</li>
+        </ul></div>
+        <div class="panel"><h3>Zubereitung</h3>
+          <div class="step"><span class="num">1</span>Zutaten für den Teig ordentlich verkneten.</div>
+          <div class="step"><span class="num">2</span>Hack anbraten, Tomaten & Gurken kleinschneiden.</div>
+          <div class="step"><span class="num">3</span>Teig in 6 Kugeln aufteilen.</div>
+        </div>
+        <div class="panel notes"><label>📝 Notizen</label><textarea placeholder="Familie liebt es!"></textarea></div>
+        <button class="del">🗑 Rezept löschen</button>
+      </div></div></div>
+    </div>
+
+    <!-- VARIANT B: Banner-Hero (grosses Bild oben, editorial) -->
+    <div class="col">
+      <div class="vh">B · Banner-Hero</div>
+      <div class="vd">Grosses Bild oben (wie Recime/Miso). Aktionen + Gekocht/Rating als Overlays. Titel darunter. Appetitlich, bild-stark.</div>
+      <div class="phone"><div class="scr">
+        <div class="img" style="height:230px">
+          <span class="back" style="position:absolute;top:12px;left:12px;color:#fff;background:rgba(0,0,0,.35);padding:5px 10px;border-radius:99px;backdrop-filter:blur(4px)">‹ zurück</span>
+          <div class="acts"><span class="ib">✏️</span><span class="ib on">★</span><span class="ib">↗</span></div>
+          <div class="badge">✓ Gekocht · ★★★★</div>
+        </div>
+        <div class="pad">
+          <h2>Burger Buns</h2>
+          <div class="desc">Proteinreiche Burger Buns mit Soja-Hack-Füllung</div>
+          <div class="meta">⏱ 30 Min · 🍳 mittel · 6 Port.</div>
+          <span class="tpill">Hauptgericht</span>
+          <div class="panel"><h3>Zutaten</h3><ul class="zut">
+            <li><span class="m">200 g</span>Magerquark</li><li><span class="m">160 g</span>Dinkelmehl</li>
+            <li><span class="m">1 Pck.</span>Backpulver</li><li><span class="m">180 g</span>Like Hack</li>
+            <li><span class="m">30 g</span>Rote Zwiebel</li>
+          </ul></div>
+          <div class="panel"><h3>Zubereitung</h3>
+            <div class="step"><span class="num">1</span>Zutaten für den Teig ordentlich verkneten.</div>
+            <div class="step"><span class="num">2</span>Hack anbraten, Tomaten & Gurken kleinschneiden.</div>
+            <div class="step"><span class="num">3</span>Teig in 6 Kugeln aufteilen.</div>
+          </div>
+          <div class="panel notes"><label>📝 Notizen</label><textarea placeholder="Familie liebt es!"></textarea></div>
+          <button class="del">🗑 Rezept löschen</button>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- VARIANT C: Text-first (kleines Thumb, Inhalt sofort, Toolbar) -->
+    <div class="col">
+      <div class="vh">C · Inhalt-First</div>
+      <div class="vd">Kompakter Kopf (kleines Thumb + Titel), Gekocht/Rating als Toolbar-Zeile. Fokus voll auf Zutaten & Schritten — am wenigsten Bild.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <span class="back">‹ zurück zu Rezepten</span>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="img" style="width:56px;height:56px;border-radius:10px;flex-shrink:0"></div>
+          <div style="flex:1"><h2 style="font-size:18px">Burger Buns</h2>
+            <div class="meta" style="font-size:13px;margin-top:4px;gap:6px">⏱ 30 Min · mittel · 6 P.</div></div>
+        </div>
+        <div class="toolbar">
+          <button class="cookbtn">✓ Gekocht</button>
+          <span class="rate"><span class="stars">★★★★☆</span></span>
+          <span class="ib">✏️</span><span class="ib on">★</span><span class="ib">↗</span>
+        </div>
+        <span class="tpill">Hauptgericht</span>
+        <div class="panel"><h3>Zutaten</h3><ul class="zut">
+          <li><span class="m">200 g</span>Magerquark</li><li><span class="m">160 g</span>Dinkelmehl</li>
+          <li><span class="m">1 Pck.</span>Backpulver</li><li><span class="m">180 g</span>Like Hack</li>
+          <li><span class="m">100 g</span>Reibekäse light</li><li><span class="m">100 g</span>Tomaten</li>
+          <li><span class="m">30 g</span>Rote Zwiebel</li>
+        </ul></div>
+        <div class="panel"><h3>Zubereitung</h3>
+          <div class="step"><span class="num">1</span>Zutaten für den Teig ordentlich verkneten.</div>
+          <div class="step"><span class="num">2</span>Hack anbraten, Tomaten & Gurken kleinschneiden.</div>
+          <div class="step"><span class="num">3</span>Teig in 6 Kugeln aufteilen.</div>
+          <div class="step"><span class="num">4</span>Arbeitsfläche bemehlen, Kugeln ausrollen.</div>
+        </div>
+        <div class="panel notes"><label>📝 Notizen</label><textarea placeholder="Familie liebt es!"></textarea></div>
+        <button class="del">🗑 Rezept löschen</button>
+      </div></div></div>
+    </div>
+
+  </div>
+
+  <div style="max-width:560px;margin:20px auto 0;font-size:12px;color:#5a6b62;line-height:1.5">
+    <b style="color:var(--accent)">Gekocht-Interaktion (alle Varianten):</b> Tap auf das Koch-Element → kurzer Stern-Picker → danach erscheint „✓ ★★★★" kompakt (A/B: als Badge aufs Bild · C: in der Toolbar). Gekocht &amp; Rating sind ein Schritt.
+  </div>
+</body></html>
