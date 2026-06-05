@@ -119,8 +119,13 @@
   }
   .plan__date-nav h1 { font-size: 20px; }
   .plan__grid-area { padding: var(--space-3); }
+  .plan__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
   .plan__list { gap: var(--space-2); }
-  .plan__drag-preview { width: 280px; }
+  .plan__drag-preview { width: calc(100vw - 32px); }
+  .plan__magic { padding: 6px var(--space-3); font-size: 12px; }
 }
 
 .plan__days {
