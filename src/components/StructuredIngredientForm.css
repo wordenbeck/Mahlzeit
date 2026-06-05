@@ -1,0 +1,116 @@
+/* Zutaten-Editor — Tokens statt Inline-Styles, Responsive via CSS-Media-Query */
+.sif { margin-bottom: var(--space-5); }
+
+.sif__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.sif__label { font-weight: var(--fw-semibold); font-size: var(--fs-body); color: var(--text-1); }
+.sif__mode {
+  padding: 6px var(--space-3);
+  font-size: var(--fs-caption);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-2);
+  font-weight: var(--fw-medium);
+}
+.sif__mode:hover { color: var(--accent); border-color: var(--accent-soft); }
+
+.sif__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.sif__row {
+  display: grid;
+  grid-template-columns: 72px 90px 1fr 36px;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.sif__field-label { display: none; } /* nur am Handy sichtbar */
+
+.sif__input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong, #cdd6d0);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-caption);
+  background: var(--surface-1);
+  outline: none;
+}
+.sif__input:focus { border-color: var(--accent); }
+
+.sif__del {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--text-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+}
+.sif__del:hover:not(:disabled) { color: var(--danger); background: var(--surface-2); }
+.sif__del:disabled { opacity: 0.3; }
+
+.sif__add {
+  margin-top: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--space-4);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-md);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
+}
+.sif__add:hover:not(:disabled) { background: var(--accent); color: #fff; }
+
+.sif__raw {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong, #cdd6d0);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+  resize: vertical;
+}
+.sif__raw:focus { border-color: var(--accent); }
+
+@media (max-width: 600px) {
+  .sif__row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "menge einheit"
+      "name name"
+      "del del";
+    gap: var(--space-2);
+  }
+  .sif__field-label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    font-weight: var(--fw-semibold);
+    margin-bottom: 2px;
+  }
+  .sif__cell--menge { grid-area: menge; }
+  .sif__cell--einheit { grid-area: einheit; }
+  .sif__cell--name { grid-area: name; }
+  .sif__del { grid-area: del; width: 100%; }
+}
