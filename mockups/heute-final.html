@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heute — final (A+C)</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);--today:linear-gradient(135deg,#F0FDF4,#D1FADF);
+    --grec:linear-gradient(135deg,#D4E8D5,#9DBF9E);--grec2:linear-gradient(135deg,#FFE0B5,#F6C27A);--grec3:linear-gradient(135deg,#FCD4D4,#E8A4A4);
+    --r-card:16px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:560px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}.vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center;margin-bottom:12px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:780px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}
+  svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .pad{padding:16px}
+  .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+  .date{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px;margin-bottom:14px}
+
+  /* HERO mit Infos aufs Bild */
+  .hero{border-radius:var(--r-card);overflow:hidden;box-shadow:var(--sh);background:var(--surface-1);border:1px solid var(--border)}
+  .hero .img{height:200px;background:var(--grec);position:relative;display:flex;align-items:flex-end}
+  .htag{position:absolute;top:10px;left:10px;display:inline-flex;gap:6px}
+  .htag .lbl{background:rgba(255,255,255,.92);backdrop-filter:blur(6px);color:var(--accent);font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em}
+  .htag .typ{background:rgba(0,108,73,.92);backdrop-filter:blur(6px);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px}
+  /* meta chips unten auf dem Bild */
+  .hmeta{width:100%;padding:10px;display:flex;gap:6px;background:linear-gradient(to top,rgba(0,0,0,.5),transparent)}
+  .chip{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);color:var(--text-1);font-size:12px;font-weight:700;padding:5px 10px;border-radius:99px}
+  .chip svg{width:13px;height:13px;stroke:var(--accent)}
+  .chip.stars{color:#B8860B}
+  .hbody{padding:14px}
+  .hbody h2{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--accent)}
+  .alsotoday{font-size:12px;color:var(--text-3);margin-top:4px}
+  .cook{margin-top:12px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:12px;background:var(--grad);color:#fff;font-weight:800;font-size:15px;border:none}
+
+  /* empty hero */
+  .empty{padding:22px 16px;text-align:center}
+  .empty h2{font-size:18px;font-weight:800;margin-bottom:4px}
+  .empty p{font-size:13px;color:var(--text-2);margin-bottom:14px}
+  .thumbs{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+  .thumbs .t{width:64px;height:64px;border-radius:12px;flex-shrink:0}
+  .emptybtns{display:flex;gap:8px}
+  .emptybtns a{flex:1;padding:11px;border-radius:12px;font-weight:700;font-size:13px;text-decoration:none;text-align:center}
+  .pcta{background:var(--grad);color:#fff}.scta{background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)}
+
+  /* C tiles 2x2 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .gtile{padding:14px;border-radius:var(--r-card);background:var(--surface-1);border:1px solid var(--border);box-shadow:var(--sh);text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px;min-height:92px;justify-content:space-between}
+  .gtile svg{stroke:var(--accent)}.gtile strong{font-size:14px}.gtile span{font-size:11px;color:var(--text-3)}
+</style></head>
+<body>
+  <h1>Heute — finale Richtung (A-Hero mit Infos aufs Bild + C-Kacheln)</h1>
+  <div class="sub">Links: Tag mit Plan (Infos aufs Bild). Rechts: nichts geplant → Hero lädt zum Planen ein. Darunter immer die 2×2-Kacheln.</div>
+
+  <div class="row">
+
+    <!-- geplant -->
+    <div class="col">
+      <div class="vh">Zustand: geplant</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Guten Abend, Thomas</div>
+        <div class="date">Freitag, 5. Juni</div>
+
+        <div class="hero">
+          <div class="img" style="background:var(--grec)">
+            <div class="htag"><span class="lbl">Heute</span><span class="typ">Hauptgericht</span></div>
+            <div class="hmeta">
+              <span class="chip"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>45 Min</span>
+              <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5 2 7h10c0-2 2-4 2-7a7 7 0 0 0-7-7Z"/></svg>mittel</span>
+              <span class="chip stars">★★★★☆</span>
+            </div>
+          </div>
+          <div class="hbody">
+            <h2>Seitangeschnetzeltes</h2>
+            <div class="alsotoday">Auch heute geplant: Burger Buns</div>
+            <button class="cook">Jetzt kochen →</button>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <a class="gtile"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div><strong>Woche planen</strong><br><span>3 Tage offen</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="m3 6 2 13h14l2-13"/><path d="M3 6h18M8 6V4a4 4 0 0 1 8 0v2"/></svg><div><strong>Einkauf</strong><br><span>12 Zutaten</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><div><strong>Neues Rezept</strong><br><span>Insta / URL</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="M15 11h4a2 2 0 0 1 0 4h-1M3 11v6a2 2 0 0 0 2 2h9"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div><strong>Rezepte</strong><br><span>101 in Sammlung</span></div></a>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- leer -->
+    <div class="col">
+      <div class="vh">Zustand: nichts geplant</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Guten Abend, Thomas</div>
+        <div class="date">Freitag, 5. Juni</div>
+
+        <div class="hero">
+          <div class="empty">
+            <div class="htag" style="position:static;justify-content:center;margin-bottom:12px"><span class="typ" style="background:var(--accent-soft);color:var(--accent)">Heute · noch nichts geplant</span></div>
+            <h2>Was kochen wir heute?</h2>
+            <p>Noch nichts geplant. Stöber durch die Rezepte und leg die Woche.</p>
+            <div class="thumbs">
+              <div class="t" style="background:var(--grec)"></div>
+              <div class="t" style="background:var(--grec2)"></div>
+              <div class="t" style="background:var(--grec3)"></div>
+              <div class="t" style="background:var(--accent-soft);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800">+98</div>
+            </div>
+            <div class="emptybtns">
+              <a class="pcta">📅 Woche planen</a>
+              <a class="scta">🍳 Rezepte stöbern</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <a class="gtile"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div><strong>Woche planen</strong><br><span>Ganze Woche offen</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="m3 6 2 13h14l2-13"/><path d="M3 6h18M8 6V4a4 4 0 0 1 8 0v2"/></svg><div><strong>Einkauf</strong><br><span>leer</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><div><strong>Neues Rezept</strong><br><span>Insta / URL</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="M15 11h4a2 2 0 0 1 0 4h-1M3 11v6a2 2 0 0 0 2 2h9"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div><strong>Rezepte</strong><br><span>101 in Sammlung</span></div></a>
+        </div>
+      </div></div></div>
+    </div>
+
+  </div>
+</body></html>
