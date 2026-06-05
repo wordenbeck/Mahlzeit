@@ -46,23 +46,13 @@ export function RecipeTypeSelector({ recipeId, initialType = 'hauptgericht', onC
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      <label style={{ fontSize: '13px', fontWeight: '600', color: '#333' }}>
-        🏷️ Rezept-Typ
-      </label>
+    <div className="rcn">
+      <label className="rcn__label">🏷️ Rezept-Typ</label>
       <select
+        className="rcn__select"
         value={type}
         onChange={(e) => handleTypeChange(e.target.value as RecipeType)}
         disabled={saving}
-        style={{
-          padding: '8px 12px',
-          border: '1px solid #ddd',
-          borderRadius: '6px',
-          fontFamily: 'inherit',
-          fontSize: '14px',
-          cursor: 'pointer',
-          background: 'white',
-        }}
       >
         {RECIPE_TYPES.map((t) => (
           <option key={t.value} value={t.value}>

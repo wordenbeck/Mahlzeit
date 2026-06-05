@@ -268,6 +268,23 @@
 /* Innere Ad-hoc-Karten neutralisieren, damit kein Doppel-Rahmen entsteht */
 .rdet__panel .recipe-rating { background: transparent; border: none; padding: 0; gap: var(--space-2); }
 
+/* Einheitlicher Panel-Inhalt (Notizen, Typ-Auswahl …) */
+.rcn { display: flex; flex-direction: column; gap: var(--space-2); }
+.rcn__label { font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-1); }
+.rcn__textarea, .rcn__select {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border-strong, #cdd6d0);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: var(--fs-caption);
+  background: var(--surface-1);
+  outline: none;
+}
+.rcn__textarea { min-height: 84px; resize: vertical; }
+.rcn__textarea:focus, .rcn__select:focus { border-color: var(--accent); }
+.rcn__hint { font-size: 11px; color: var(--text-3); margin: 0; }
+
 @media (max-width: 700px) {
   .rdet__cooking-row { grid-template-columns: 1fr; }
 }
