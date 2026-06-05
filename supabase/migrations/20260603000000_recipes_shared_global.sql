@@ -12,6 +12,7 @@ UPDATE recipes SET workspace_id = NULL;
 --   - All global recipes (workspace_id IS NULL)
 --   - Recipes from their own workspace (workspace_id matches)
 DROP POLICY IF EXISTS "workspace members read" ON recipes;
+DROP POLICY IF EXISTS "workspace members read global and own" ON recipes;
 CREATE POLICY "workspace members read global and own" ON recipes FOR SELECT
   USING (
     workspace_id IS NULL  -- Global recipes
