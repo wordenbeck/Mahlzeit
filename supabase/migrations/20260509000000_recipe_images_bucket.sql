@@ -21,11 +21,13 @@ on conflict (id) do update set
 -- =====================================================================
 
 -- Lesen: jeder (Bucket ist public)
+drop policy if exists "recipe_images_public_read" on storage.objects;
 create policy "recipe_images_public_read"
   on storage.objects for select
   using (bucket_id = 'recipe-images');
 
 -- Schreiben: nur in eigenen Workspace-Ordner
+drop policy if exists "recipe_images_workspace_insert" on storage.objects;
 create policy "recipe_images_workspace_insert"
   on storage.objects for insert
   with check (
@@ -34,6 +36,7 @@ create policy "recipe_images_workspace_insert"
   );
 
 -- Updaten / Löschen: nur eigene Workspace-Files
+drop policy if exists "recipe_images_workspace_update" on storage.objects;
 create policy "recipe_images_workspace_update"
   on storage.objects for update
   using (
@@ -41,6 +44,7 @@ create policy "recipe_images_workspace_update"
     and (storage.foldername(name))[1] = current_workspace_id()::text
   );
 
+drop policy if exists "recipe_images_workspace_delete" on storage.objects;
 create policy "recipe_images_workspace_delete"
   on storage.objects for delete
   using (
