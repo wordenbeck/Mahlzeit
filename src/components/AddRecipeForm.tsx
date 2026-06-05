@@ -211,25 +211,10 @@ export function AddRecipeForm({
   return (
     <form className="add-recipe-form" onSubmit={handleSubmit}>
       {hasDraft && (
-        <div style={{ marginBottom: '1rem', padding: '0.75rem', background: '#e3f2fd', border: '1px solid #2196f3', borderRadius: '6px', fontSize: '12px', color: '#1565c0' }}>
-          💾 Entwurf aus letzter Session wiederhergestellt
-          <button
-            type="button"
-            onClick={clearDraft}
-            disabled={loading}
-            style={{
-              marginLeft: '1rem',
-              padding: '0.4rem 0.8rem',
-              background: '#2196f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              fontSize: '11px',
-              fontWeight: '600',
-            }}
-          >
-            ✕ Löschen
+        <div className="arf__draft">
+          <span>💾 Entwurf aus letzter Session wiederhergestellt</span>
+          <button type="button" className="arf__draft-clear" onClick={clearDraft} disabled={loading}>
+            Entwurf verwerfen
           </button>
         </div>
       )}
@@ -253,38 +238,10 @@ export function AddRecipeForm({
       />
 
       {bildUrl && (
-        <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#e3f2fd', borderRadius: '8px' }}>
-          <img
-            src={bildUrl}
-            alt="Rezept-Bild"
-            style={{
-              width: '100%',
-              maxHeight: '200px',
-              objectFit: 'cover',
-              borderRadius: '6px',
-              marginBottom: '0.5rem',
-            }}
-            onError={() => setBildUrl('')}
-          />
-          <p style={{ margin: '0.5rem 0 0 0', fontSize: '11px', color: '#666', wordBreak: 'break-all' }}>
-            🖼️ {bildUrl.slice(0, 60)}...
-          </p>
-          <button
-            type="button"
-            onClick={() => setBildUrl('')}
-            disabled={loading}
-            style={{
-              marginTop: '0.5rem',
-              padding: '0.4rem 0.8rem',
-              background: '#ffebee',
-              color: '#c33',
-              border: '1px solid #ffcdd2',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '12px',
-            }}
-          >
-            ✕ Bild entfernen
+        <div className="arf__image">
+          <img src={bildUrl} alt="Rezept-Bild" className="arf__image-preview" onError={() => setBildUrl('')} />
+          <button type="button" className="arf__image-remove" onClick={() => setBildUrl('')} disabled={loading}>
+            Bild entfernen
           </button>
         </div>
       )}
