@@ -39,7 +39,7 @@
 .rrc__fav {
   position: absolute;
   top: var(--space-2);
-  right: var(--space-2);
+  left: var(--space-2); /* links, damit es nicht mit dem +Badge (rechts) kollidiert */
   color: #fff;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
 }
