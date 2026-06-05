@@ -1,21 +1,17 @@
 .plan {
   min-height: calc(100vh - 64px);
   background: var(--bg);
-  display: flex;
-  flex-direction: column;
   width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
+  padding-bottom: var(--space-6);
 }
 
+/* ---------- Header ---------- */
 .plan__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4) var(--space-6);
+  padding: var(--space-4) var(--space-5) var(--space-3);
   background: linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%);
   border-bottom: 1px solid var(--accent-soft);
-  gap: var(--space-4);
 }
 
 .plan__week-eyebrow {
@@ -29,20 +25,22 @@
 .plan__date-nav {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
+  margin-top: 2px;
 }
 
 .plan__date-nav h1 {
-  font-size: var(--fs-h1);
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-1);
   white-space: nowrap;
 }
 
 .plan__nav-btn {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-pill);
   background: var(--surface-1);
   box-shadow: var(--shadow-card);
@@ -50,219 +48,82 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
-
 .plan__nav-btn:hover { color: var(--accent); }
 
-.plan__magic {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px var(--space-3);
-  background: var(--gradient-cta);
-  color: #fff;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-semibold);
-  box-shadow: var(--shadow-card);
-  transition: transform var(--dur-fast) var(--ease-ios);
-}
-
-.plan__magic:hover:not(:disabled) { transform: translateY(-1px); }
-.plan__magic:disabled { opacity: 0.6; cursor: wait; }
-
-.plan__magic-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(6, 78, 59, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 250;
-}
-
-.plan__magic-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 251;
-  padding: var(--space-6);
-  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
-  border: 1px solid var(--accent-soft);
-  border-radius: var(--radius-card);
-  box-shadow: 0 24px 80px rgba(6, 78, 59, 0.3);
-}
-
 .plan__error {
+  margin: var(--space-3) var(--space-5);
   padding: var(--space-3);
-  margin: var(--space-3) var(--space-6);
   background: rgba(220, 38, 38, 0.08);
   color: var(--danger);
   border-radius: var(--radius-md);
   font-size: var(--fs-caption);
 }
 
-.plan__split {
-  display: grid;
-  grid-template-columns: 25% 75%;
-  flex: 1;
-}
-
-@media (max-width: 900px) {
-  .plan__split { grid-template-columns: 1fr; }
-  .plan__days { border-right: 0; border-bottom: 1px solid var(--border); }
-}
-
-@media (max-width: 600px) {
-  .plan__header {
-    padding: var(--space-3);
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-  }
-  .plan__date-nav h1 { font-size: 20px; }
-  .plan__grid-area { padding: var(--space-3); }
-  .plan__grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
-  }
-  .plan__list { gap: var(--space-2); }
-  .plan__drag-preview { width: calc(100vw - 32px); }
-  .plan__magic { padding: 6px var(--space-3); font-size: 12px; }
-
-  /* Ensure recipe cards are readable on mobile */
-  .plan__recipe {
-    min-height: 200px;
-  }
-  .plan__recipe-title {
-    text-align: left;
-    font-size: var(--fs-body);
-  }
-
-  /* K1: touch-action:none killt das Scrollen am iPhone (jeder Wisch startet
-     auf einer Karte → Browser versucht zu draggen statt zu scrollen).
-     Am Handy daher Scrollen erlauben; Drag&Drop bleibt für iPad/Desktop. */
-  .plan__recipe-wrap,
-  .plan__slot {
-    touch-action: auto;
-  }
-}
-
-.plan__days {
-  background: var(--surface-1);
-  padding: var(--space-3) var(--space-4);
-  border-right: 1px solid var(--border);
+/* ---------- Wochenstreifen (DEINE Woche) ---------- */
+.plan__week {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow-y: auto;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
+.plan__week::-webkit-scrollbar { display: none; }
 
-.plan__day {
-  border-top: 1px solid var(--border);
-  padding: var(--space-2) 0 var(--space-3);
+.plan__daycard {
+  min-width: 150px;
+  flex-shrink: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
-
-.plan__day:first-of-type {
-  border-top: 0;
-  padding-top: 0;
+.plan__daycard.is-today {
+  border: 1.5px solid var(--accent);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18);
 }
 
-.plan__day-header {
+.plan__daycard-head {
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
 }
-
-.plan__day-short {
-  font-size: 17px;
-  font-weight: 700;
+.plan__daycard-name {
+  font-size: 16px;
+  font-weight: 800;
   color: var(--accent);
-  letter-spacing: -0.01em;
   text-transform: capitalize;
 }
+.plan__daycard-date { font-size: 11px; color: var(--text-3); font-weight: var(--fw-medium); }
 
-.plan__day-date {
-  font-size: var(--fs-caption);
-  color: var(--text-3);
-  font-weight: var(--fw-medium);
-}
+.plan__daycard-meals { display: flex; flex-direction: column; gap: 6px; }
 
-.plan__day-slots {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.plan__day-empty {
-  height: 32px;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-md);
-  font-size: 10px;
-  color: var(--text-3);
+.plan__meal {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.plan__day.is-drop-over .plan__day-empty {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.plan__day.is-drop-over {
-  background: rgba(16, 185, 129, 0.04);
-  border-radius: var(--radius-md);
-}
-
-.plan__recipe.is-dragging {
-  opacity: 0.4;
-}
-
-.plan__recipe--dragging {
-  cursor: grabbing;
-  transform: rotate(2deg);
-  box-shadow: 0 16px 32px rgba(6, 78, 59, 0.25);
-}
-
-.plan__slot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: 4px;
   background: var(--accent-soft);
   border-radius: var(--radius-md);
-  cursor: grab;
-  touch-action: none;
+  padding: 7px 8px;
 }
-
-.plan__slot:active { cursor: grabbing; }
-
-.plan__slot.is-dragging {
-  opacity: 0.4;
-}
-
-.plan__slot-link {
+.plan__meal-link {
   flex: 1;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
   text-decoration: none;
   color: inherit;
-  min-width: 0;
 }
-
-.plan__slot-meal {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-3);
-  font-weight: var(--fw-medium);
-}
-
-.plan__slot-title {
+.plan__meal-icon { font-size: 13px; flex-shrink: 0; }
+.plan__meal-title {
   font-size: var(--fs-caption);
   color: var(--text-1);
   font-weight: var(--fw-medium);
@@ -270,72 +131,80 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.plan__slot-del {
-  width: 24px;
-  height: 24px;
+.plan__meal-del {
+  width: 26px; height: 26px;
   border-radius: var(--radius-pill);
   color: var(--text-3);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.plan__meal-del:hover { color: var(--danger); background: var(--surface-1); }
+
+.plan__daycard-add {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease-ios);
-}
-
-.plan__slot:hover .plan__slot-del { opacity: 1; }
-.plan__slot-del:hover { color: var(--danger); background: var(--surface-1); }
-
-.plan__weekend-toggle {
-  margin-top: var(--space-3);
-  padding: var(--space-2);
-  font-size: 11px;
-  color: var(--text-3);
-  font-weight: var(--fw-medium);
+  gap: 4px;
+  padding: 8px;
+  border: 1px dashed var(--accent);
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-strong);
-}
-
-.plan__weekend-toggle:hover {
   color: var(--accent);
-  border-color: var(--accent);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  background: transparent;
 }
+.plan__daycard-add:hover:not(:disabled) { background: var(--accent-soft); }
+.plan__daycard-add:disabled { opacity: 0.4; border-style: solid; }
 
-/* --- Right: Recipe grid --- */
-
-.plan__grid-area {
-  padding: var(--space-4) var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  overflow-y: auto;
-}
-
-.plan__toolbar {
-  display: flex;
-  gap: var(--space-2);
+/* ---------- Magic Fill ---------- */
+.plan__magicrow { padding: 0 var(--space-5) var(--space-3); }
+.plan__magic {
+  display: inline-flex;
   align-items: center;
+  gap: 7px;
+  padding: 10px var(--space-4);
+  background: var(--gradient-cta);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  box-shadow: var(--shadow-card);
+}
+.plan__magic:disabled { opacity: 0.6; cursor: wait; }
+
+/* ---------- Bibliothek ---------- */
+.plan__libhead {
   position: sticky;
   top: 0;
-  background: var(--bg);
-  padding-bottom: var(--space-3);
   z-index: 5;
+  background: var(--bg);
+  padding: var(--space-3) var(--space-5) var(--space-2);
+  border-top: 1px solid var(--border);
 }
-
-.plan__search-wrap {
-  flex: 1;
-  position: relative;
-}
-
-.plan__search-icon {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
+.plan__lib-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-caption);
   color: var(--text-3);
-  pointer-events: none;
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--space-2);
+}
+.plan__lib-eyebrow--pending { color: var(--accent); }
+.plan__lib-cancel {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-2);
+  text-decoration: underline;
+  background: none;
+  border: none;
 }
 
+.plan__search-wrap { position: relative; }
+.plan__search-icon {
+  position: absolute; left: var(--space-3); top: 50%;
+  transform: translateY(-50%); color: var(--text-3); pointer-events: none;
+}
 .plan__search {
   width: 100%;
   padding: var(--space-3) var(--space-3) var(--space-3) calc(var(--space-3) + 24px);
@@ -345,242 +214,159 @@
   font-size: var(--fs-body);
   outline: none;
 }
+.plan__search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
-.plan__new {
+.plan__lib {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5) var(--space-6);
+}
+
+.plan__lib-item { position: relative; }
+.plan__lib-add {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  border: none;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--gradient-cta);
-  color: #fff;
-  border-radius: var(--radius-pill);
-  font-weight: var(--fw-semibold);
-  text-decoration: none;
-  font-size: var(--fs-body);
-}
-
-.plan__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-3);
-  padding-bottom: var(--space-6);
-}
-
-.plan__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding-bottom: var(--space-6);
-}
-
-.plan__recipe-wrap {
-  cursor: grab;
-  touch-action: none;
-}
-
-.plan__recipe-wrap.is-dragging {
-  opacity: 0.4;
-}
-
-.plan__recipe-wrap:active {
-  cursor: grabbing;
-}
-
-.plan__drag-preview {
-  width: 380px;
-  transform: rotate(2deg);
-  box-shadow: 0 16px 32px rgba(6, 78, 59, 0.25);
-  border-radius: var(--radius-card);
-  pointer-events: none;
-}
-
-.plan__recipe {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
-  border: 1px solid var(--accent-soft);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  text-align: left;
-  transition: transform var(--dur-fast) var(--ease-ios), box-shadow var(--dur-fast) var(--ease-ios);
-  box-shadow: var(--shadow-card);
-}
-
-.plan__recipe:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
-}
-
-.plan__recipe-thumb {
-  aspect-ratio: 4 / 3;
-  background: var(--accent-soft);
-  display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 36px;
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
 }
+.plan__lib-add:hover { background: var(--accent-2, #10b981); transform: translateY(-50%) scale(1.05); }
 
-.plan__recipe-body {
-  padding: var(--space-2) var(--space-3) var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.plan__recipe-title {
-  font-size: var(--fs-body);
-  font-weight: 700;
-  color: var(--accent);
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  text-align: left;
-}
-
-.plan__recipe-meta {
-  font-size: 11px;
-  color: var(--text-2);
-}
-
-.plan__loading,
-.plan__empty {
+.plan__loading, .plan__empty {
   padding: var(--space-5);
   text-align: center;
   color: var(--text-3);
 }
-
-.plan__empty .plan__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.plan__cta {
+  display: inline-flex; align-items: center; gap: 4px;
   margin-top: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--gradient-cta);
-  color: #fff;
-  border-radius: var(--radius-pill);
-  font-weight: var(--fw-semibold);
-  text-decoration: none;
+  color: #fff; border-radius: var(--radius-pill);
+  font-weight: var(--fw-semibold); text-decoration: none;
 }
 
-/* --- Add-to-day Modal --- */
-
-.plan__backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+/* ---------- Assign-Sheet ---------- */
+.plan__sheet-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(6, 40, 28, 0.45);
+  backdrop-filter: blur(3px);
   z-index: 200;
 }
-
-.plan__modal {
+.plan__sheet {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  left: 0; right: 0; bottom: 0;
+  z-index: 201;
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 40px rgba(6, 78, 59, 0.25);
+  padding: 10px var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom));
+  max-width: 560px;
+  margin: 0 auto;
+}
+.plan__sheet-grab {
+  width: 38px; height: 5px; border-radius: 99px;
+  background: #dfe5e1; margin: 0 auto var(--space-3);
+}
+.plan__sheet-close {
+  position: absolute; top: 12px; right: 14px;
+  width: 34px; height: 34px; border-radius: var(--radius-pill);
+  background: var(--surface-2); color: var(--text-2);
+  display: inline-flex; align-items: center; justify-content: center; border: none;
+}
+.plan__sheet-recipe { margin-bottom: var(--space-4); }
+.plan__sheet-eyebrow {
+  font-size: var(--fs-caption); text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--accent); font-weight: var(--fw-semibold);
+}
+.plan__sheet-recipe h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; margin-top: 2px; }
+
+.plan__sheet-label {
+  display: block;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3); font-weight: var(--fw-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.plan__sheet-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: var(--space-4);
+}
+.plan__sheet-day {
+  padding: 11px 2px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1.5px solid transparent;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.plan__sheet-day .n { font-size: 13px; font-weight: 800; color: var(--accent); text-transform: capitalize; }
+.plan__sheet-day .d { font-size: 10px; color: var(--text-3); }
+.plan__sheet-day.has { background: var(--accent-soft); }
+.plan__sheet-day.is-active { background: var(--gradient-cta); }
+.plan__sheet-day.is-active .n, .plan__sheet-day.is-active .d { color: #fff; }
+
+.plan__sheet-meals { display: flex; gap: 8px; margin-bottom: var(--space-4); }
+.plan__sheet-meal {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1.5px solid transparent;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: var(--text-2);
+}
+.plan__sheet-meal.is-active { background: var(--accent); color: #fff; }
+
+.plan__sheet-confirm {
+  width: 100%;
+  padding: 15px;
+  background: var(--gradient-cta);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 8px 22px rgba(6, 78, 59, 0.28);
+}
+.plan__sheet-confirm:disabled { opacity: 0.5; }
+
+/* ---------- Magic-Overlay ---------- */
+.plan__magic-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(6, 78, 59, 0.45);
+  backdrop-filter: blur(8px);
+  z-index: 250;
+}
+.plan__magic-overlay {
+  position: fixed; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: min(540px, calc(100vw - 32px));
-  max-height: 80vh;
-  overflow-y: auto;
+  z-index: 251;
+  padding: var(--space-6);
   background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
   border: 1px solid var(--accent-soft);
   border-radius: var(--radius-card);
-  box-shadow: 0 20px 60px rgba(6, 78, 59, 0.25);
-  z-index: 201;
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  box-shadow: 0 24px 80px rgba(6, 78, 59, 0.3);
 }
 
-.plan__modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.plan__modal-eyebrow {
-  font-size: var(--fs-caption);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--accent);
-  font-weight: var(--fw-semibold);
-}
-
-.plan__modal-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin-top: 2px;
-}
-
-.plan__modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  color: var(--text-2);
-}
-
-.plan__modal-lead {
-  font-size: var(--fs-caption);
-  color: var(--text-2);
-}
-
-.plan__day-picker {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.plan__day-pick-row {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: var(--space-3);
-  align-items: center;
-  padding: var(--space-2);
-  background: var(--surface-1);
-  border-radius: var(--radius-md);
-}
-
-.plan__day-pick-label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.plan__day-pick-label strong {
-  font-size: var(--fs-body);
-  font-weight: 700;
-  color: var(--accent);
-  text-transform: capitalize;
-}
-
-.plan__day-pick-label small {
-  font-size: 11px;
-  color: var(--text-3);
-}
-
-.plan__day-pick-meals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.plan__day-pick-btn {
-  padding: 4px var(--space-2);
-  background: var(--surface-2);
-  color: var(--text-2);
-  border-radius: var(--radius-pill);
-  font-size: 11px;
-  font-weight: var(--fw-medium);
-  transition: all var(--dur-fast) var(--ease-ios);
-}
-
-.plan__day-pick-btn:hover:not(:disabled) {
-  background: var(--accent);
-  color: #fff;
+/* ---------- Mobile ---------- */
+@media (max-width: 600px) {
+  .plan__header { padding: var(--space-3) var(--space-4) var(--space-2); }
+  .plan__date-nav h1 { font-size: 19px; }
+  .plan__week { padding: var(--space-3) var(--space-4); }
+  .plan__daycard { min-width: 140px; }
+  .plan__magicrow, .plan__libhead, .plan__lib { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .plan__lib { grid-template-columns: 1fr; }
 }
