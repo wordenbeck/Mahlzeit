@@ -1,14 +1,17 @@
+/* Vertikale Rezept-Karte: Bild oben, Infos darunter.
+   Hochkant spart am iPhone Platz (2 pro Reihe) und skaliert auf Desktop. */
 .rrc {
   display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3);
+  flex-direction: column;
   background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
   border: 1px solid var(--accent-soft);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   text-decoration: none;
   color: inherit;
+  overflow: hidden;
+  text-align: left;
+  width: 100%;
   transition: transform var(--dur-fast) var(--ease-ios), box-shadow var(--dur-fast) var(--ease-ios);
 }
 
@@ -19,9 +22,8 @@
 
 .rrc__image {
   position: relative;
-  width: 96px;
-  height: 96px;
-  border-radius: var(--radius-md);
+  width: 100%;
+  aspect-ratio: 4 / 3;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -38,26 +40,28 @@
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
-  color: var(--accent);
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  color: #fff;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
 }
 
 .rrc__body {
-  flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
+  padding: var(--space-3);
+  min-width: 0;
 }
 
 .rrc__title {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: -0.01em;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .rrc__meta {
@@ -69,20 +73,10 @@
   flex-wrap: wrap;
 }
 
-.rrc__meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
+.rrc__meta-item { display: inline-flex; align-items: center; gap: 4px; }
 .rrc__sep { color: var(--text-3); }
 
-.rrc__tags {
-  display: flex;
-  gap: var(--space-1);
-  flex-wrap: wrap;
-}
-
+.rrc__tags { display: flex; gap: var(--space-1); flex-wrap: wrap; }
 .rrc__tag {
   font-size: 11px;
   padding: 2px var(--space-2);
@@ -93,17 +87,8 @@
   text-transform: lowercase;
 }
 
-/* iPhone — kompaktere Card */
 @media (max-width: 600px) {
-  .rrc {
-    gap: var(--space-3);
-    padding: var(--space-2);
-  }
-  .rrc__image {
-    width: 72px;
-    height: 72px;
-  }
-  .rrc__title {
-    font-size: 15px;
-  }
+  .rrc__body { padding: var(--space-2); gap: 4px; }
+  .rrc__title { font-size: 14px; }
+  .rrc__tags { display: none; } /* am Handy Platz sparen */
 }

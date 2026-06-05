@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ChevronLeft, ChevronRight, Sparkles, Plus, Search, Trash2, X,
+  ChevronLeft, ChevronRight, Sparkles, Plus, Search, Trash2, X, Check,
 } from 'lucide-react';
 import './Plan.css';
 import { useAuth } from '../lib/auth';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import {
-  isoWeekNumber, isoWeekRangeLabel, isoWeekStart, dayLabelShort, dayDateLong,
+  isoWeekNumber, isoWeekRangeLabel, isoWeekStart, dayLabelShort,
   shiftWeek, isToday,
   getOrCreateWeekplan, addSlot, deleteSlot, magicFillWeek,
   type WeekplanWithSlots, type Slot,
@@ -176,27 +176,46 @@ export function Plan() {
         {DAYS.map(d => {
           const slots = slotsForDay(d);
           return (
-            <section key={d} className={`plan__daycard ${isToday(weekStart, d) ? 'is-today' : ''}`} role="listitem">
+            <section
+              key={d}
+              className={`plan__daycard ${isToday(weekStart, d) ? 'is-today' : ''} ${slots.length > 0 ? 'is-planned' : ''}`}
+              role="listitem"
+              onClick={() => recipes.length > 0 && startFromDay(d)}
+            >
               <header className="plan__daycard-head">
                 <span className="plan__daycard-name">{dayLabelShort(weekStart, d)}</span>
-                <span className="plan__daycard-date">{dayDateLong(weekStart, d)}</span>
+                <span className="plan__daycard-date">{dayNum(d)}.</span>
+                {/* Mobil: nur ein Punkt = verplant ja/nein */}
+                <span className="plan__daycard-dot" aria-hidden="true" />
               </header>
               <div className="plan__daycard-meals">
                 {slots.map(s => {
                   const r = recipeFor(s);
                   return (
                     <div key={s.id} className="plan__meal">
-                      <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__meal-link">
+                      <Link
+                        to={r ? `/rezepte/${r.id}` : '#'}
+                        className="plan__meal-link"
+                        onClick={e => e.stopPropagation()}
+                      >
                         <span className="plan__meal-icon">{mealIcon(s.meal_type)}</span>
                         <span className="plan__meal-title">{r?.titel ?? '—'}</span>
                       </Link>
-                      <button className="plan__meal-del" onClick={() => handleDeleteSlot(s)} aria-label="Entfernen">
+                      <button
+                        className="plan__meal-del"
+                        onClick={e => { e.stopPropagation(); handleDeleteSlot(s); }}
+                        aria-label="Entfernen"
+                      >
                         <Trash2 size={13} strokeWidth={1.75} />
                       </button>
                     </div>
                   );
                 })}
-                <button className="plan__daycard-add" onClick={() => startFromDay(d)} disabled={recipes.length === 0}>
+                <button
+                  className="plan__daycard-add"
+                  onClick={e => { e.stopPropagation(); startFromDay(d); }}
+                  disabled={recipes.length === 0}
+                >
                   <Plus size={14} strokeWidth={2.5} /> Rezept
                 </button>
               </div>
@@ -246,9 +265,6 @@ export function Plan() {
         {filtered.map(r => (
           <div key={r.id} className="plan__lib-item">
             <RealRecipeCard recipe={r} onClick={() => openAssign(r)} />
-            <button className="plan__lib-add" onClick={() => openAssign(r)} aria-label={`${r.titel} einplanen`}>
-              <Plus size={20} strokeWidth={2.5} />
-            </button>
           </div>
         ))}
       </div>
@@ -282,21 +298,8 @@ export function Plan() {
               })}
             </div>
 
-            <span className="plan__sheet-label">Mahlzeit</span>
-            <div className="plan__sheet-meals">
-              {MEALS.map(m => (
-                <button
-                  key={m.key}
-                  className={`plan__sheet-meal ${assign.meal === m.key ? 'is-active' : ''}`}
-                  onClick={() => setAssign({ ...assign, meal: m.key })}
-                >
-                  {m.icon} {m.label}
-                </button>
-              ))}
-            </div>
-
             <button className="plan__sheet-confirm" onClick={confirmAssign} disabled={!assign.recipe}>
-              Für {dayLabelShort(weekStart, assign.day)} ({MEALS.find(m => m.key === assign.meal)?.label}) einplanen
+              <Check size={18} strokeWidth={2.5} /> Für {dayLabelShort(weekStart, assign.day)}, {dayNum(assign.day)}. einplanen
             </button>
           </div>
         </>

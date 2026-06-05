@@ -102,6 +102,9 @@
   text-transform: capitalize;
 }
 .plan__daycard-date { font-size: 11px; color: var(--text-3); font-weight: var(--fw-medium); }
+.plan__daycard { cursor: pointer; }
+/* verplant-Punkt: nur am Handy sichtbar (siehe Media-Query) */
+.plan__daycard-dot { display: none; }
 
 .plan__daycard-meals { display: flex; flex-direction: column; gap: 6px; }
 
@@ -218,29 +221,31 @@
 
 .plan__lib {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--space-3);
   padding: var(--space-2) var(--space-5) var(--space-6);
 }
 
+/* Ganze Karte ist tippbar (öffnet Einplanen-Sheet). Das "+"-Badge oben rechts
+   auf dem Bild ist nur ein visueller Hinweis (klickt durch auf die Karte). */
 .plan__lib-item { position: relative; }
-.plan__lib-add {
+.plan__lib-item::after {
+  content: "+";
   position: absolute;
-  right: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--accent);
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 108, 73, 0.92);
   color: #fff;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.3);
 }
-.plan__lib-add:hover { background: var(--accent-2, #10b981); transform: translateY(-50%) scale(1.05); }
 
 .plan__loading, .plan__empty {
   padding: var(--space-5);
@@ -317,19 +322,6 @@
 .plan__sheet-day.is-active { background: var(--gradient-cta); }
 .plan__sheet-day.is-active .n, .plan__sheet-day.is-active .d { color: #fff; }
 
-.plan__sheet-meals { display: flex; gap: 8px; margin-bottom: var(--space-4); }
-.plan__sheet-meal {
-  flex: 1;
-  padding: 12px;
-  border-radius: var(--radius-md);
-  background: var(--bg);
-  border: 1.5px solid transparent;
-  font-size: var(--fs-body);
-  font-weight: var(--fw-semibold);
-  color: var(--text-2);
-}
-.plan__sheet-meal.is-active { background: var(--accent); color: #fff; }
-
 .plan__sheet-confirm {
   width: 100%;
   padding: 15px;
@@ -340,6 +332,10 @@
   font-size: 15px;
   font-weight: 800;
   box-shadow: 0 8px 22px rgba(6, 78, 59, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 .plan__sheet-confirm:disabled { opacity: 0.5; }
 
@@ -365,8 +361,35 @@
 @media (max-width: 600px) {
   .plan__header { padding: var(--space-3) var(--space-4) var(--space-2); }
   .plan__date-nav h1 { font-size: 19px; }
-  .plan__week { padding: var(--space-3) var(--space-4); }
-  .plan__daycard { min-width: 140px; }
   .plan__magicrow, .plan__libhead, .plan__lib { padding-left: var(--space-4); padding-right: var(--space-4); }
-  .plan__lib { grid-template-columns: 1fr; }
+
+  /* Rezepte: 2 hochkante Kacheln pro Reihe, Fokus auf Rezepte */
+  .plan__lib { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+
+  /* Wochenstreifen MINIMAL: nur Tag + verplant-Punkt, kompakt & wischbar.
+     Mahlzeiten-Details + Add-Button am Handy ausgeblendet — Tippen auf die
+     Pille startet das Einplanen (scrollt zur Rezeptliste). */
+  .plan__week { padding: var(--space-2) var(--space-4); gap: 6px; }
+  .plan__daycard {
+    min-width: 52px;
+    padding: 8px 6px;
+    gap: 0;
+    align-items: center;
+  }
+  .plan__daycard-head { flex-direction: column; align-items: center; gap: 2px; }
+  .plan__daycard-name { font-size: 13px; }
+  .plan__daycard-date { font-size: 10px; }
+  .plan__daycard-meals { display: none; }
+  .plan__daycard-dot {
+    display: block;
+    width: 7px; height: 7px;
+    border-radius: var(--radius-pill);
+    margin-top: 4px;
+    border: 1.5px solid var(--border-strong, #cdd6d0);
+    background: transparent;
+  }
+  .plan__daycard.is-planned .plan__daycard-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
 }
