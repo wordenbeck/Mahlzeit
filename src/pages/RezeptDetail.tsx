@@ -10,6 +10,7 @@ import { RecipeRating } from '../components/RecipeRating';
 import { CookedButton } from '../components/CookedButton';
 import { RecipeNotes } from '../components/RecipeNotes';
 import { RecipeTypeSelector } from '../components/RecipeTypeSelector';
+import { ImageSelectorModal } from '../components/ImageSelectorModal';
 import { getRecipe, deleteRecipe, toggleFavorite, updateRecipe } from '../lib/recipes';
 import { supabase } from '../lib/supabase';
 import type { Recipe, Schwierigkeit, Zutat } from '../lib/types/recipe';
@@ -27,6 +28,7 @@ export function RezeptDetail() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Recipe | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   // Load recipe + user/workspace info
   useEffect(() => {
@@ -109,6 +111,7 @@ export function RezeptDetail() {
         zutaten: draft.zutaten,
         zubereitung: draft.zubereitung,
         tags: draft.tags,
+        bild_url: draft.bild_url,
       });
       setRecipe(updated);
       setEditing(false);
@@ -172,10 +175,32 @@ export function RezeptDetail() {
         </Link>
 
         <div className="rdet__hero">
-          {r.bild_url ? (
-            <img src={r.bild_url} alt={r.titel} className="rdet__image" />
-          ) : (
-            <div className="rdet__image rdet__image--placeholder"><ChefHat size={48} /></div>
+          <div className="rdet__image-wrap">
+            {r.bild_url ? (
+              <img src={r.bild_url} alt={r.titel} className="rdet__image" />
+            ) : (
+              <div className="rdet__image rdet__image--placeholder"><ChefHat size={48} /></div>
+            )}
+            {editing && draft && (
+              <button
+                type="button"
+                className="rdet__image-change"
+                onClick={() => setShowImagePicker(true)}
+              >
+                {r.bild_url ? 'Bild ändern' : 'Bild wählen'}
+              </button>
+            )}
+          </div>
+          {showImagePicker && draft && (
+            <ImageSelectorModal
+              recipeId={draft.id}
+              recipeName={draft.titel}
+              onClose={() => setShowImagePicker(false)}
+              onSelect={(url) => {
+                setDraft({ ...draft, bild_url: url });
+                setShowImagePicker(false);
+              }}
+            />
           )}
 
           <div className="rdet__title-block">

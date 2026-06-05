@@ -55,12 +55,35 @@
   .rdet__hero { grid-template-columns: 1fr; }
 }
 
+.rdet__image-wrap {
+  position: relative;
+  width: 200px;
+  flex-shrink: 0;
+}
+
 .rdet__image {
   width: 200px;
   height: 200px;
   border-radius: var(--radius-md);
   object-fit: cover;
 }
+
+.rdet__image-change {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-2);
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.rdet__image-change:hover { background: rgba(0, 0, 0, 0.78); }
 
 .rdet__image--placeholder {
   background: var(--accent-soft);
@@ -452,6 +475,9 @@
   .rdet__hero {
     padding: var(--space-3);
     grid-template-columns: 1fr;
+  }
+  .rdet__image-wrap {
+    width: 100%;
   }
   .rdet__image {
     width: 100%;
