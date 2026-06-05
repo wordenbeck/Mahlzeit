@@ -167,6 +167,14 @@ export function RezeptDetail() {
   // Render-Quelle: draft im Edit-Mode, sonst recipe
   const r = editing && draft ? draft : recipe;
 
+  // Speichern nur aktiv, wenn wirklich etwas geändert wurde
+  const editableKeys = [
+    'titel', 'beschreibung', 'portionen', 'zubereitungszeit_min', 'schwierigkeit',
+    'kategorie', 'zutaten', 'zubereitung', 'tags', 'bild_url',
+  ] as const;
+  const isDirty = !!(editing && draft && recipe &&
+    editableKeys.some(k => JSON.stringify((draft as any)[k]) !== JSON.stringify((recipe as any)[k])));
+
   return (
     <div className="rdet">
       <header className="rdet__header">
@@ -276,14 +284,14 @@ export function RezeptDetail() {
             )}
           </div>
 
-          <div className="rdet__actions">
+          <div className={`rdet__actions ${editing ? 'is-editing' : ''}`}>
             {editing ? (
               <>
-                <button className="rdet__save" onClick={saveEdit} disabled={saving} aria-label="Speichern">
-                  <Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}
-                </button>
                 <button className="rdet__cancel" onClick={cancelEdit} aria-label="Abbrechen">
                   <X size={16} />
+                </button>
+                <button className="rdet__save" onClick={saveEdit} disabled={saving || !isDirty} aria-label="Speichern">
+                  <Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}
                 </button>
               </>
             ) : (
@@ -309,7 +317,7 @@ export function RezeptDetail() {
 
       {error && <div className="rdet__error">{error}</div>}
 
-      <main className="rdet__main">
+      <main className={`rdet__main ${editing ? 'is-editing' : ''}`}>
         <section className="rdet__zutaten">
           <h2>Zutaten</h2>
           {editing && draft ? (

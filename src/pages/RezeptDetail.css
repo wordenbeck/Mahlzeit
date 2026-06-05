@@ -143,6 +143,12 @@
   align-self: start;
 }
 
+/* Edit: Abbrechen + Speichern nebeneinander (nicht untereinander) */
+.rdet__actions.is-editing {
+  flex-direction: row;
+  align-items: center;
+}
+
 .rdet__fav, .rdet__delete {
   width: 40px;
   height: 40px;
@@ -168,6 +174,10 @@
   grid-template-columns: 1fr 1.5fr;
   gap: var(--space-5);
 }
+
+/* Edit-Mode: volle Breite, einspaltig — sonst quetscht das 2-Spalten-Grid
+   die Zubereitungs-Editor-Zeilen und der Löschen-Button bricht um. */
+.rdet__main.is-editing { grid-template-columns: 1fr; }
 
 @media (max-width: 800px) {
   .rdet__main { grid-template-columns: 1fr; }
@@ -313,10 +323,12 @@
 .rdet__desc-input:focus { border-color: var(--accent); }
 
 .rdet__meta-edit {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-3);
-  flex-wrap: wrap;
 }
+.rdet__meta-field input,
+.rdet__meta-field select { width: 100%; }
 
 .rdet__meta-field {
   display: flex;
@@ -375,7 +387,7 @@
   font-weight: var(--fw-semibold);
   box-shadow: var(--shadow-card);
 }
-.rdet__save:disabled { opacity: 0.6; cursor: wait; }
+.rdet__save:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
 .rdet__cancel {
   width: 36px;
