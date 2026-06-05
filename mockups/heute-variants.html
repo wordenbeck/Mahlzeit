@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heute — 3 Varianten</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);--today:linear-gradient(135deg,#F0FDF4,#D1FADF);
+    --grec:linear-gradient(135deg,#D4E8D5,#9DBF9E);--grec2:linear-gradient(135deg,#FFE0B5,#F6C27A);
+    --r-card:16px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:560px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}
+  .vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center}
+  .vd{font-size:12px;color:#5a6b62;text-align:center;margin:4px 0 12px;min-height:50px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:780px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}
+  svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .pad{padding:16px}
+  .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+  .date{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);overflow:hidden;margin-top:14px}
+  .card.today{background:var(--today);border-color:var(--accent-soft)}
+  .ch{padding:14px 14px 0}
+  .ch .e{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;display:inline-flex;align-items:center;gap:5px}
+  .ch h2{font-size:20px;font-weight:800;margin-top:4px}
+
+  .herorec{display:block;text-decoration:none;color:inherit}
+  .herorec .img{height:160px;background:var(--grec);display:flex;align-items:center;justify-content:center;font-size:40px}
+  .herobody{padding:14px}
+  .herobody h3{font-size:18px;font-weight:800;color:var(--accent)}
+  .herobody .m{font-size:13px;color:var(--text-2);display:inline-flex;gap:5px;align-items:center;margin-top:4px}
+  .cook{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:99px;background:var(--grad);color:#fff;font-weight:700;font-size:14px;border:none}
+
+  .restlbl{font-size:12px;color:var(--text-3);font-weight:600;padding:0 14px}
+  .slot{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--border);text-decoration:none;color:inherit}
+  .slot .t{font-weight:600;font-size:14px}
+  .slot .m{font-size:12px;color:var(--text-3);display:inline-flex;gap:4px;align-items:center}
+
+  .quick{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+  .tile{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);text-decoration:none;color:inherit}
+  .tile svg{stroke:var(--accent);width:22px;height:22px;flex-shrink:0}
+  .tile strong{font-size:14px;display:block}.tile span{font-size:12px;color:var(--text-3)}
+
+  /* variant C tiles grid */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .gtile{padding:16px;border-radius:var(--r-card);background:var(--surface-1);border:1px solid var(--border);box-shadow:var(--sh);text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;min-height:96px;justify-content:space-between}
+  .gtile svg{stroke:var(--accent)}
+  .gtile strong{font-size:14px}.gtile span{font-size:11px;color:var(--text-3)}
+
+  /* timeline (B) */
+  .tl{margin-top:14px}
+  .tlrow{display:grid;grid-template-columns:54px 1fr;gap:10px}
+  .tlday{font-size:12px;font-weight:800;color:var(--accent);padding-top:14px;text-transform:uppercase}
+  .tlcards{display:flex;flex-direction:column;gap:10px}
+  .minirec{display:flex;gap:10px;align-items:center;padding:10px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);text-decoration:none;color:inherit}
+  .minirec .img{width:54px;height:54px;border-radius:10px;background:var(--grec2);flex-shrink:0}
+  .minirec .t{font-weight:700;font-size:14px;color:var(--accent)}
+  .minirec .m{font-size:12px;color:var(--text-3)}
+  .barbtn{display:flex;gap:8px;margin-top:14px}
+  .barbtn a{flex:1;text-align:center;padding:11px;border-radius:12px;background:var(--surface-1);border:1px solid var(--border);text-decoration:none;color:var(--text-2);font-size:12px;font-weight:600;box-shadow:var(--sh)}
+</style></head>
+<body>
+  <h1>Heute (Startseite) — 3 Varianten</h1>
+  <div class="sub">Echter Inhalt: „Guten Abend, Thomas" · Freitag, 5. Juni · heute Seitangeschnetzeltes + Burger Buns · morgen Gurkensalat.</div>
+
+  <div class="row">
+
+    <!-- A: Hero-Karte -->
+    <div class="col">
+      <div class="vh">A · Hero-Karte</div>
+      <div class="vd">Eine große „Heute"-Karte mit Bild-Hero + „Jetzt kochen". Quick-Aktionen als Liste darunter. Fokus: das Gericht heute.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Guten Abend, Thomas</div>
+        <div class="date">Freitag, 5. Juni</div>
+        <div class="card today">
+          <div class="ch"><span class="e"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5 2 7h10c0-2 2-4 2-7a7 7 0 0 0-7-7Z"/></svg> Heute</span><h2>Was kochen wir?</h2></div>
+          <a class="herorec">
+            <div class="img">🍛</div>
+            <div class="herobody">
+              <h3>Seitangeschnetzeltes</h3>
+              <span class="m"><svg viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 45 Minuten</span><br>
+              <button class="cook">Jetzt kochen →</button>
+            </div>
+          </a>
+          <div class="restlbl">Noch mehr heute:</div>
+          <a class="slot"><span class="t">Burger Buns</span><span class="m">30 Min</span></a>
+        </div>
+        <div class="quick">
+          <a class="tile"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div><strong>Woche planen</strong><span>Rezepte für die Woche legen</span></div></a>
+          <a class="tile"><svg viewBox="0 0 24 24"><path d="m3 6 2 13h14l2-13"/><path d="M3 6h18M8 6V4a4 4 0 0 1 8 0v2"/></svg><div><strong>Einkauf prüfen</strong><span>Mengen anpassen</span></div></a>
+          <a class="tile"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><div><strong>Neues Rezept</strong><span>Aus Insta, URL oder manuell</span></div></a>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- B: Timeline Heute/Morgen -->
+    <div class="col">
+      <div class="vh">B · Timeline</div>
+      <div class="vd">Heute + Morgen als Zeitstrahl. Zeigt „was kommt", planungsnah. Aktionen als schmale Leiste unten. Gut wenn mehrere Gerichte/Tag.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Guten Abend, Thomas</div>
+        <div class="date">Freitag, 5. Juni</div>
+        <div class="tl">
+          <div class="tlrow">
+            <div class="tlday">Heute</div>
+            <div class="tlcards">
+              <a class="minirec"><div class="img"></div><div><div class="t">Seitangeschnetzeltes</div><div class="m">45 Min · mittel</div></div></a>
+              <a class="minirec"><div class="img"></div><div><div class="t">Burger Buns</div><div class="m">30 Min · mittel</div></div></a>
+            </div>
+          </div>
+          <div class="tlrow" style="margin-top:12px">
+            <div class="tlday">Morgen</div>
+            <div class="tlcards">
+              <a class="minirec"><div class="img"></div><div><div class="t">Scharfer Gurkensalat</div><div class="m">10 Min</div></div></a>
+            </div>
+          </div>
+        </div>
+        <div class="barbtn">
+          <a>📅 Woche</a><a>🛒 Einkauf</a><a>＋ Rezept</a>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- C: Dashboard-Tiles -->
+    <div class="col">
+      <div class="vh">C · Dashboard</div>
+      <div class="vd">Kompakte Übersicht: „Heute"-Tile prominent, Rest als gleich große Kacheln. Am wenigsten Scrollen, alles auf einen Blick.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Guten Abend, Thomas</div>
+        <div class="date">Freitag, 5. Juni</div>
+        <a class="card today" style="display:block;text-decoration:none;color:inherit;margin-top:14px">
+          <div class="herorec"><div class="img" style="height:140px">🍛</div>
+            <div class="herobody"><div class="e" style="font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase">Heute kochen</div>
+              <h3>Seitangeschnetzeltes</h3><span class="m">45 Min · + Burger Buns</span></div></div>
+        </a>
+        <div class="grid2">
+          <a class="gtile"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div><strong>Woche planen</strong><br><span>3 Tage offen</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="m3 6 2 13h14l2-13"/><path d="M3 6h18M8 6V4a4 4 0 0 1 8 0v2"/></svg><div><strong>Einkauf</strong><br><span>12 Zutaten</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><div><strong>Neues Rezept</strong><br><span>Insta / URL</span></div></a>
+          <a class="gtile"><svg viewBox="0 0 24 24"><path d="M15 11h4a2 2 0 0 1 0 4h-1M3 11v6a2 2 0 0 0 2 2h9"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div><strong>Rezepte</strong><br><span>101 in Sammlung</span></div></a>
+        </div>
+      </div></div></div>
+    </div>
+
+  </div>
+</body></html>
