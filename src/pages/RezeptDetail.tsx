@@ -306,9 +306,6 @@ export function RezeptDetail() {
                 >
                   <Star size={18} fill={r.is_favorite ? 'currentColor' : 'none'} />
                 </button>
-                <button className="rdet__delete" onClick={handleDelete} aria-label="Löschen">
-                  <Trash2 size={16} />
-                </button>
               </>
             )}
           </div>
@@ -316,6 +313,17 @@ export function RezeptDetail() {
       </header>
 
       {error && <div className="rdet__error">{error}</div>}
+
+      {/* Quick-Panel: Gekocht + Rating + Typ — oben, in der ersten Kachel-Reihe */}
+      {!editing && recipe && userId && workspaceId && (
+        <section className="rdet__quick">
+          <div className="rdet__quick-top">
+            <CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
+            <RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
+          </div>
+          <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
+        </section>
+      )}
 
       <main className={`rdet__main ${editing ? 'is-editing' : ''}`}>
         <section className="rdet__zutaten">
@@ -410,14 +418,14 @@ export function RezeptDetail() {
 
       {/* Koch-Tracking als eigener Block unter dem Rezept (nicht im Edit) */}
       {!editing && recipe && userId && workspaceId && (
-        <section className="rdet__cooking">
-          <div className="rdet__cooking-row">
-            <div className="rdet__panel"><CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} /></div>
-            <div className="rdet__panel"><RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} /></div>
-            <div className="rdet__panel"><RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} /></div>
-          </div>
-          <div className="rdet__panel"><RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} /></div>
-        </section>
+        <div className="rdet__panel rdet__notes"><RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} /></div>
+      )}
+
+      {/* Löschen ganz unten, dezent */}
+      {!editing && recipe && (
+        <button className="rdet__delete-bottom" onClick={handleDelete}>
+          <Trash2 size={15} strokeWidth={1.75} /> Rezept löschen
+        </button>
       )}
     </div>
   );

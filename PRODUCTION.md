@@ -77,6 +77,8 @@ ALTER TABLE recipes ADD recipe_type (hauptgericht/beilage/etc)
 - [x] **W1+W4** Plan-Seite iPhone-first neu (Wochenstreifen + Tipp-Zuordnung + Mahlzeit-Typ)
 - [x] **W2** Bild im Rezept-Edit wählbar
 - [x] **W3 (Teil)** Koch-Features im Edit ausgeblendet
+- [ ] **Magic Fill** (KI-Vorschlag fuer leere Tage) NEU einbauen — vorher entfernt (Platz/UX)
+- [ ] **Eigenes Bild hochladen** im Rezept-Edit (aktuell nur Stockfoto-Suche Unsplash/Openverse)
 - [ ] **W3 (voll)** Rezept-Edit als Akkordeon (Eckdaten/Zutaten/Zubereitung/Bild) — tieferer Rebuild
 - [ ] **IA** Einkauf + Liste zu EINEM Screen mit zwei Modi (Bearbeiten/Einkaufsmodus) → Nav von 5 auf 4 Tabs
 - [ ] **N1** native confirm()/alert() durch eigene Sheets ersetzen

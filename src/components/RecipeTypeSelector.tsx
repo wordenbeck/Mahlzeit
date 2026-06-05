@@ -48,18 +48,19 @@ export function RecipeTypeSelector({ recipeId, initialType = 'hauptgericht', onC
   return (
     <div className="rcn">
       <label className="rcn__label">🏷️ Rezept-Typ</label>
-      <select
-        className="rcn__select"
-        value={type}
-        onChange={(e) => handleTypeChange(e.target.value as RecipeType)}
-        disabled={saving}
-      >
+      <div className="rcn__pills">
         {RECIPE_TYPES.map((t) => (
-          <option key={t.value} value={t.value}>
+          <button
+            key={t.value}
+            type="button"
+            className={`rcn__pill ${type === t.value ? 'is-active' : ''}`}
+            onClick={() => handleTypeChange(t.value)}
+            disabled={saving}
+          >
             {t.emoji} {t.label}
-          </option>
+          </button>
         ))}
-      </select>
+      </div>
     </div>
   );
 }
