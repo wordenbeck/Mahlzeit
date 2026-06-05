@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { Onboarding } from './pages/Onboarding';
 import { JoinByCode } from './pages/JoinByCode';
@@ -15,7 +15,6 @@ import { Einkauf } from './pages/Einkauf';
 import { Liste } from './pages/Liste';
 import { Profile } from './pages/Profile';
 import { BulkImport } from './pages/BulkImport';
-import { WorkspaceSettingsPage } from './pages/WorkspaceSettingsPage';
 
 // Sprint-0-Prototypen lazy-loaded (separates Bundle, nicht im Haupt-Bundle)
 const ProtoIndex = lazy(() => import('./pages/proto/ProtoIndex').then(m => ({ default: m.ProtoIndex })));
@@ -63,7 +62,8 @@ export function App() {
           <Route path="/rezepte/image-seeding" element={<ImageSeedingPage />} />
           <Route path="/rezepte/:id" element={<RezeptDetail />} />
           <Route path="/profil" element={<Profile />} />
-          <Route path="/workspace" element={<WorkspaceSettingsPage />} />
+          {/* Workspace-Einstellungen sind ins Profil konsolidiert */}
+          <Route path="/workspace" element={<Navigate to="/profil" replace />} />
         </Route>
 
         {/* Prototypen — lazy loaded */}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight, Users,
+  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight,
 } from 'lucide-react';
 import './AppMenu.css';
 import { useAuth } from '../lib/auth';
@@ -67,18 +67,11 @@ export function AppMenu() {
 
       <div className="app-menu__right">
         <Link
-          to="/workspace"
-          className="app-menu__icon-link"
-          aria-label="Haushalt"
-          title="Haushalt-Einstellungen"
-        >
-          <Users size={16} />
-        </Link>
-        <Link
           to="/profil"
           className="app-menu__profile"
           style={{ background: `var(${profileColor})` }}
           aria-label={auth.profile?.display_name ?? 'Profil'}
+          title="Profil & Haushalt"
         >
           {initial}
         </Link>
