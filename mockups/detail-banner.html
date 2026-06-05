@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Detail — Banner-Hero (final)</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--danger:#DC2626;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);--grec:linear-gradient(135deg,#FFE0B5,#F6C27A);
+    --r-card:16px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  h1{font-size:20px}.sub{color:#5a6b62;font-size:13px;text-align:center;max-width:520px;margin-bottom:16px}
+  .phone{width:392px;max-width:100%;background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 16px 44px rgba(0,0,0,.22)}
+  .scr{height:780px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}
+  svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  .img{height:230px;background:var(--grec);position:relative}
+  .back{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:5px;color:#fff;background:rgba(0,0,0,.34);padding:6px 11px;border-radius:99px;backdrop-filter:blur(5px);font-size:12px;font-weight:600}
+  .acts{position:absolute;top:12px;right:12px;display:flex;gap:7px}
+  .ib{width:36px;height:36px;border-radius:99px;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:var(--text-1);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .ib.fav-on{background:var(--accent);color:#fff}
+  /* dezenter Rating-Badge unten links: nur Sterne */
+  .rbadge{position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;gap:3px;padding:5px 9px;border-radius:99px;background:rgba(0,0,0,.4);backdrop-filter:blur(5px)}
+  .rbadge svg{width:14px;height:14px}
+  .star-f{fill:#FFD36B;stroke:#FFD36B}.star-h{fill:url(#half);stroke:#FFD36B}.star-e{fill:none;stroke:rgba(255,255,255,.7)}
+
+  .pad{padding:16px}
+  h2{font-size:23px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+  .desc{font-size:13px;color:var(--text-2);margin-top:6px;line-height:1.4}
+  .meta{display:flex;gap:12px;font-size:15px;font-weight:500;color:var(--text-1);margin-top:12px;align-items:center;flex-wrap:wrap}
+  .meta svg{width:16px;height:16px;stroke:var(--text-2)}
+  .tpill{display:inline-block;margin-top:12px;padding:4px 12px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700}
+
+  .panel{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);padding:14px;margin-top:14px}
+  .panel h3{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:10px}
+  .zut li{list-style:none;display:flex;gap:8px;font-size:13px;padding:3px 0}.zut .m{color:var(--text-2);font-weight:600;min-width:60px}
+  .step{display:grid;grid-template-columns:24px 1fr;gap:10px;font-size:13px;line-height:1.45;margin-bottom:9px}
+  .num{width:22px;height:22px;border-radius:99px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .notes label{font-size:12px;font-weight:700}.notes textarea{width:100%;min-height:54px;border:1px solid var(--border-strong);border-radius:10px;padding:9px;font:inherit;font-size:13px;margin-top:8px}
+  .del{display:flex;margin:14px auto 4px;padding:8px 16px;border-radius:99px;background:transparent;border:1px solid var(--border);color:var(--text-3);font-size:12px;font-weight:600;gap:6px;align-items:center}
+
+  /* Gekocht-Sheet */
+  .sheet{margin:24px auto 0;width:392px;max-width:100%;background:#fff;border:1px solid var(--accent-soft);border-radius:18px;box-shadow:var(--sh);padding:18px;text-align:center}
+  .sheet h4{font-size:15px;font-weight:800;margin-bottom:4px}
+  .sheet p{font-size:12px;color:var(--text-2);margin-bottom:12px}
+  .pickstars svg{width:34px;height:34px;cursor:pointer}
+  .sheet textarea{width:100%;min-height:48px;border:1px solid var(--border-strong);border-radius:10px;padding:9px;font:inherit;font-size:13px;margin:12px 0}
+  .sheet .save{width:100%;padding:13px;border:none;border-radius:12px;background:var(--grad);color:#fff;font-weight:800;font-size:14px}
+  .anno{font-size:12px;color:#5a6b62;max-width:392px;line-height:1.5;margin-top:8px}
+  .anno b{color:var(--accent)}
+</style></head>
+<body>
+  <svg width="0" height="0"><defs><linearGradient id="half"><stop offset="50%" stop-color="#FFD36B"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs></svg>
+
+  <h1>Detail · Banner-Hero (verfeinert)</h1>
+  <div class="sub">🔖 Lesezeichen = Favorit · 🥄 Kochlöffel = gekocht+bewerten · ★ Sterne nur fürs Rating (dezent, mit halb/leer) · feiner Linien-Stift fürs Edit.</div>
+
+  <div class="phone"><div class="scr">
+    <div class="img">
+      <span class="back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> zurück</span>
+      <div class="acts">
+        <!-- Edit: feiner Linien-Stift (lucide) -->
+        <span class="ib"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+        <!-- Kochlöffel = gekocht+bewerten (lucide utensils) -->
+        <span class="ib"><svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h0a2 2 0 0 0 2-2V2"/><path d="M5 2v20"/><path d="M16 2v20c3 0 4-2 4-5V7c0-3-1-5-4-5Z"/></svg></span>
+        <!-- Lesezeichen = Favorit (lucide bookmark) — aktiv -->
+        <span class="ib fav-on"><svg viewBox="0 0 24 24" style="fill:currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+        <!-- Quelle -->
+        <span class="ib"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></span>
+      </div>
+      <!-- dezenter Rating-Badge: nur Sterne (4 voll, 1 halb) -->
+      <div class="rbadge">
+        <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+        <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+        <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+        <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+        <svg viewBox="0 0 24 24" class="star-h"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+      </div>
+    </div>
+    <div class="pad">
+      <h2>Burger Buns</h2>
+      <div class="desc">Proteinreiche Burger Buns mit Soja-Hack-Füllung</div>
+      <div class="meta">
+        <span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 30 Min</span>
+        <span>· mittel</span><span>· 6 Port.</span>
+      </div>
+      <span class="tpill">Hauptgericht</span>
+      <div class="panel"><h3>Zutaten</h3><ul class="zut">
+        <li><span class="m">200 g</span>Magerquark</li><li><span class="m">160 g</span>Dinkelmehl</li>
+        <li><span class="m">1 Pck.</span>Backpulver</li><li><span class="m">180 g</span>Like Hack</li>
+        <li><span class="m">100 g</span>Reibekäse light</li><li><span class="m">30 g</span>Rote Zwiebel</li>
+      </ul></div>
+      <div class="panel"><h3>Zubereitung</h3>
+        <div class="step"><span class="num">1</span>Zutaten für den Teig ordentlich verkneten.</div>
+        <div class="step"><span class="num">2</span>Hack anbraten, Tomaten & Gurken kleinschneiden.</div>
+        <div class="step"><span class="num">3</span>Teig in 6 Kugeln aufteilen.</div>
+      </div>
+      <div class="panel notes"><label>📝 Notizen — alle im Haushalt sehen sie</label><textarea placeholder="z.B. 'Nächstes Mal weniger Salz'"></textarea></div>
+      <button class="del"><svg viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg> Rezept löschen</button>
+    </div>
+  </div></div>
+
+  <!-- Gekocht-Sheet (erscheint nach Tap auf Kochlöffel) -->
+  <div class="sheet">
+    <h4>🥄 Gekocht — wie war's?</h4>
+    <p>Sterne vergeben (optional) + Notiz</p>
+    <div class="pickstars">
+      <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+      <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+      <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+      <svg viewBox="0 0 24 24" class="star-f"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+      <svg viewBox="0 0 24 24" class="star-e"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+    </div>
+    <textarea placeholder="Notiz (optional) — 'Familie liebt es!'"></textarea>
+    <button class="save">✓ Als gekocht speichern</button>
+  </div>
+  <div class="anno"><b>Ablauf:</b> Kochlöffel-Icon tippen → dieses Sheet → Sterne + optionale Notiz → speichern. Danach erscheint der dezente Sterne-Badge unten links auf dem Bild. Lesezeichen (Favorit) ist davon klar getrennt.</div>
+</body></html>
