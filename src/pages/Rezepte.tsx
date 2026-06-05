@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, ChefHat } from 'lucide-react';
 import './Rezepte.css';
 import { RealRecipeCard } from '../components/RealRecipeCard';
-import { RecipeModal } from '../components/RecipeModal';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import { useRealtimeReload } from '../lib/realtime';
 import { RECIPE_TYPE_LABELS, type RecipeType } from '../lib/types/recipe';
@@ -14,7 +13,6 @@ export function Rezepte() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<RecipeType | 'alle'>('alle');
-  const [modalId, setModalId] = useState<string | null>(null);
 
   const reload = () => {
     listRecipes()
@@ -118,13 +116,13 @@ export function Rezepte() {
         {filtered.length > 0 && (
           <div className="rezepte__grid">
             {filtered.map(r => (
-              <RealRecipeCard key={r.id} recipe={r} onClick={() => setModalId(r.id)} />
+              // Kein onClick → Karte ist ein Link auf die echte Detailseite
+              // (statt Overlay). Bearbeiten-Stift sitzt dort.
+              <RealRecipeCard key={r.id} recipe={r} />
             ))}
           </div>
         )}
       </main>
-
-      {modalId && <RecipeModal recipeId={modalId} onClose={() => setModalId(null)} />}
     </div>
   );
 }

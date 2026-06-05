@@ -40,6 +40,9 @@ export function Plan() {
   const [assign, setAssign] = useState<{ recipe: RecipeListItem; day: number; meal: MealType } | null>(null);
   // "Rezept für Tag X wählen"-Modus (gestartet über das + an einem Tag)
   const [pendingDay, setPendingDay] = useState<number | null>(null);
+  const [assigning, setAssigning] = useState(false);
+  // Tages-Detail-Sheet (Mahlzeiten ansehen/entfernen, v.a. am Handy)
+  const [dayView, setDayView] = useState<number | null>(null);
 
   const reload = async () => {
     if (!auth.profile) return;
@@ -100,7 +103,8 @@ export function Plan() {
     new Date(new Date(weekStart).getTime() + d * 86400000).getDate();
 
   const confirmAssign = async () => {
-    if (!assign || !weekplan) return;
+    if (!assign || !weekplan || assigning) return;
+    setAssigning(true);
     try {
       const slot = await addSlot({
         weekplan_id: weekplan.id,
@@ -112,6 +116,8 @@ export function Plan() {
       setAssign(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -180,7 +186,7 @@ export function Plan() {
               key={d}
               className={`plan__daycard ${isToday(weekStart, d) ? 'is-today' : ''} ${slots.length > 0 ? 'is-planned' : ''}`}
               role="listitem"
-              onClick={() => recipes.length > 0 && startFromDay(d)}
+              onClick={() => setDayView(d)}
             >
               <header className="plan__daycard-head">
                 <span className="plan__daycard-name">{dayLabelShort(weekStart, d)}</span>
@@ -298,8 +304,50 @@ export function Plan() {
               })}
             </div>
 
-            <button className="plan__sheet-confirm" onClick={confirmAssign} disabled={!assign.recipe}>
-              <Check size={18} strokeWidth={2.5} /> Für {dayLabelShort(weekStart, assign.day)}, {dayNum(assign.day)}. einplanen
+            <button className="plan__sheet-confirm" onClick={confirmAssign} disabled={!assign.recipe || assigning}>
+              <Check size={18} strokeWidth={2.5} />
+              {assigning ? 'Wird eingeplant…' : `Für ${dayLabelShort(weekStart, assign.day)}, ${dayNum(assign.day)}. einplanen`}
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Tag-Detail-Sheet: Mahlzeiten des Tages ansehen + entfernen + ergänzen */}
+      {dayView !== null && (
+        <>
+          <div className="plan__sheet-backdrop" onClick={() => setDayView(null)} />
+          <div className="plan__sheet" role="dialog" aria-label="Tag bearbeiten">
+            <button className="plan__sheet-close" onClick={() => setDayView(null)} aria-label="Schließen"><X size={18} /></button>
+            <div className="plan__sheet-grab" />
+            <div className="plan__sheet-recipe">
+              <span className="plan__sheet-eyebrow">{dayLabelShort(weekStart, dayView)}, {dayNum(dayView)}.</span>
+              <h2>Geplant</h2>
+            </div>
+            <div className="plan__dayview-list">
+              {slotsForDay(dayView).length === 0 && (
+                <p className="plan__dayview-empty">Noch nichts geplant.</p>
+              )}
+              {slotsForDay(dayView).map(s => {
+                const r = recipeFor(s);
+                return (
+                  <div key={s.id} className="plan__dayview-item">
+                    <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__dayview-link" onClick={() => setDayView(null)}>
+                      <span className="plan__meal-icon">{mealIcon(s.meal_type)}</span>
+                      <span>{r?.titel ?? '—'}</span>
+                    </Link>
+                    <button className="plan__dayview-del" onClick={() => handleDeleteSlot(s)} aria-label="Entfernen">
+                      <Trash2 size={16} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              className="plan__sheet-confirm"
+              onClick={() => { const d = dayView; setDayView(null); if (recipes.length > 0) startFromDay(d); }}
+              disabled={recipes.length === 0}
+            >
+              <Plus size={18} strokeWidth={2.5} /> Rezept hinzufügen
             </button>
           </div>
         </>
