@@ -120,65 +120,83 @@ $$;
 
 -- --- workspaces ---
 -- Lesen: nur eigener Workspace
+drop policy if exists "ws_read_own" on workspaces;
 create policy "ws_read_own" on workspaces for select
   using (id = current_workspace_id());
 
 -- Erstellen: jeder authentifizierte User darf einen Workspace anlegen (Onboarding)
+drop policy if exists "ws_insert_authed" on workspaces;
 create policy "ws_insert_authed" on workspaces for insert
   with check (auth.uid() is not null);
 
 -- Update: nur Mitglieder
+drop policy if exists "ws_update_own" on workspaces;
 create policy "ws_update_own" on workspaces for update
   using (id = current_workspace_id());
 
 -- --- profiles ---
 -- Lesen: alle Profile im eigenen Workspace
+drop policy if exists "profiles_read_workspace" on profiles;
 create policy "profiles_read_workspace" on profiles for select
   using (workspace_id = current_workspace_id());
 
 -- Erstellen: nur eigenes Profil
+drop policy if exists "profiles_insert_self" on profiles;
 create policy "profiles_insert_self" on profiles for insert
   with check (id = auth.uid());
 
 -- Update: nur eigenes Profil
+drop policy if exists "profiles_update_self" on profiles;
 create policy "profiles_update_self" on profiles for update
   using (id = auth.uid());
 
 -- --- recipes ---
+drop policy if exists "recipes_read_workspace" on recipes;
 create policy "recipes_read_workspace" on recipes for select
   using (workspace_id = current_workspace_id());
 
+drop policy if exists "recipes_insert_workspace" on recipes;
 create policy "recipes_insert_workspace" on recipes for insert
   with check (workspace_id = current_workspace_id());
 
+drop policy if exists "recipes_update_workspace" on recipes;
 create policy "recipes_update_workspace" on recipes for update
   using (workspace_id = current_workspace_id());
 
+drop policy if exists "recipes_delete_workspace" on recipes;
 create policy "recipes_delete_workspace" on recipes for delete
   using (workspace_id = current_workspace_id());
 
 -- --- weekplans ---
+drop policy if exists "weekplans_read_workspace" on weekplans;
 create policy "weekplans_read_workspace" on weekplans for select
   using (workspace_id = current_workspace_id());
 
+drop policy if exists "weekplans_insert_workspace" on weekplans;
 create policy "weekplans_insert_workspace" on weekplans for insert
   with check (workspace_id = current_workspace_id());
 
+drop policy if exists "weekplans_update_workspace" on weekplans;
 create policy "weekplans_update_workspace" on weekplans for update
   using (workspace_id = current_workspace_id());
 
+drop policy if exists "weekplans_delete_workspace" on weekplans;
 create policy "weekplans_delete_workspace" on weekplans for delete
   using (workspace_id = current_workspace_id());
 
 -- --- weekplan_slots ---
+drop policy if exists "slots_read_workspace" on weekplan_slots;
 create policy "slots_read_workspace" on weekplan_slots for select
   using (weekplan_id in (select id from weekplans where workspace_id = current_workspace_id()));
 
+drop policy if exists "slots_insert_workspace" on weekplan_slots;
 create policy "slots_insert_workspace" on weekplan_slots for insert
   with check (weekplan_id in (select id from weekplans where workspace_id = current_workspace_id()));
 
+drop policy if exists "slots_update_workspace" on weekplan_slots;
 create policy "slots_update_workspace" on weekplan_slots for update
   using (weekplan_id in (select id from weekplans where workspace_id = current_workspace_id()));
 
+drop policy if exists "slots_delete_workspace" on weekplan_slots;
 create policy "slots_delete_workspace" on weekplan_slots for delete
   using (weekplan_id in (select id from weekplans where workspace_id = current_workspace_id()));
