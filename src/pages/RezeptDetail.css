@@ -229,6 +229,25 @@
   padding: var(--space-4);
 }
 
+/* Koch-Tracking-Block (Gekocht / Rating / Typ / Notizen) */
+.rdet__cooking {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.rdet__cooking-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+}
+.rdet__cooking-row > * { min-width: 0; }
+
+@media (max-width: 700px) {
+  .rdet__cooking-row { grid-template-columns: 1fr; }
+}
+
 .rdet__zubereitung ol {
   display: flex;
   flex-direction: column;

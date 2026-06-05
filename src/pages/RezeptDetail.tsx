@@ -366,34 +366,6 @@ export function RezeptDetail() {
           )}
         </section>
 
-        {/* Sprint 15: Cooking Features — beim Bearbeiten ausblenden (gehört
-            nicht ins Edit, reduziert die Überfrachtung am Handy) */}
-        {!editing && recipe && userId && workspaceId && (
-          <section style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-              {/* Gekocht markieren */}
-              <div>
-                <CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
-              </div>
-
-              {/* Sterne-Rating */}
-              <div>
-                <RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
-              </div>
-
-              {/* Recipe-Type */}
-              <div>
-                <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
-              </div>
-            </div>
-
-            {/* Notizen (volle Breite) */}
-            <div>
-              <RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} />
-            </div>
-          </section>
-        )}
-
         <section className="rdet__zubereitung">
           <h2>Zubereitung</h2>
           {editing && draft ? (
@@ -427,6 +399,18 @@ export function RezeptDetail() {
           )}
         </section>
       </main>
+
+      {/* Koch-Tracking als eigener Block unter dem Rezept (nicht im Edit) */}
+      {!editing && recipe && userId && workspaceId && (
+        <section className="rdet__cooking">
+          <div className="rdet__cooking-row">
+            <CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
+            <RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
+            <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
+          </div>
+          <RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} />
+        </section>
+      )}
     </div>
   );
 }
