@@ -268,3 +268,23 @@
   color: var(--danger);
   background: var(--surface-2);
 }
+
+/* iPhone: Eintrag als sauberes 2-Zeilen-Grid statt gequetschter Flex-Reihe */
+@media (max-width: 600px) {
+  .einkaufsliste__item {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    grid-template-areas:
+      "check name remove"
+      ".     menge days";
+    column-gap: var(--space-2);
+    row-gap: 6px;
+    align-items: center;
+    padding: var(--space-3);
+  }
+  .einkaufsliste__check  { grid-area: check; flex: none; }
+  .einkaufsliste__name   { grid-area: name; flex: none; }
+  .einkaufsliste__remove { grid-area: remove; flex: none; }
+  .einkaufsliste__menge  { grid-area: menge; flex: none; }
+  .einkaufsliste__days   { grid-area: days; flex: none; margin-left: 0; justify-self: end; }
+}
