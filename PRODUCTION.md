@@ -1,7 +1,7 @@
 # PRODUCTION — MealPlanner Status & Runbook
 
 **Last Updated:** 2026-06-05 (Workspace cleanup complete)  
-**Status:** ✅ **PRODUCTION READY** — 🚀 Live on https://mahlzeit.vercel.app
+**Status:** ✅ **PRODUCTION READY** — 🚀 Live on https://mahlzeit123.vercel.app
 
 ---
 
@@ -150,7 +150,7 @@ Vercel auto-detects push
     ↓
 Vercel builds + deploys
     ↓
-Live on https://mahlzeit.vercel.app (2-3 min)
+Live on https://mahlzeit123.vercel.app (2-3 min)
 ```
 
 ---
