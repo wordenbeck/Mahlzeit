@@ -138,20 +138,24 @@
   padding: var(--space-2) var(--space-5) var(--space-6);
 }
 .plan__lib-item { position: relative; }
+/* + sitzt OBEN RECHTS auf dem Bild (nie ueber Text), zeigt den Ziel-Tag */
 .plan__lib-add {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 40px; height: 40px;
+  top: 8px;
+  right: 8px;
+  height: 30px;
+  padding: 0 11px;
   border-radius: var(--radius-pill);
-  background: var(--gradient-cta);
+  background: rgba(0, 108, 73, 0.92);
+  backdrop-filter: blur(6px);
   color: #fff;
   border: none;
-  display: inline-flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3);
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 12px; font-weight: 700;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.35);
 }
-.plan__lib-add:hover { transform: scale(1.06); }
-.plan__lib-add.is-done { background: var(--accent); }
+.plan__lib-add:hover { transform: scale(1.05); }
+.plan__lib-add.is-done { background: var(--accent-2, #10b981); }
 
 .plan__loading, .plan__empty { padding: var(--space-5); text-align: center; color: var(--text-3); }
 .plan__cta {

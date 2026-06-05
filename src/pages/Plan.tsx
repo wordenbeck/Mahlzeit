@@ -197,9 +197,10 @@ export function Plan() {
               className={`plan__lib-add ${justAdded === r.id ? 'is-done' : ''}`}
               onClick={() => addToSelectedDay(r)}
               aria-label={`${r.titel} für ${dayLabelShort(weekStart, selectedDay)} einplanen`}
-              title={`Für ${dayLabelShort(weekStart, selectedDay)} einplanen`}
             >
-              {justAdded === r.id ? <Check size={18} strokeWidth={3} /> : <Plus size={18} strokeWidth={2.5} />}
+              {justAdded === r.id
+                ? <><Check size={15} strokeWidth={3} /> {dayLabelShort(weekStart, selectedDay)}</>
+                : <><Plus size={15} strokeWidth={2.5} /> {dayLabelShort(weekStart, selectedDay)}</>}
             </button>
           </div>
         ))}
