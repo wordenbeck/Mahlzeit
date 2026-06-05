@@ -13,7 +13,8 @@ import { RecipeTypeSelector } from '../components/RecipeTypeSelector';
 import { ImageSelectorModal } from '../components/ImageSelectorModal';
 import { getRecipe, deleteRecipe, toggleFavorite, updateRecipe } from '../lib/recipes';
 import { supabase } from '../lib/supabase';
-import type { Recipe, Schwierigkeit, Zutat } from '../lib/types/recipe';
+import type { Recipe, Schwierigkeit, Zutat, RecipeType } from '../lib/types/recipe';
+import { RECIPE_TYPE_LABELS } from '../lib/types/recipe';
 
 export function RezeptDetail() {
   const { id } = useParams<{ id: string }>();
@@ -189,6 +190,34 @@ export function RezeptDetail() {
             ) : (
               <div className="rdet__image rdet__image--placeholder"><ChefHat size={48} /></div>
             )}
+            {/* View: Aktionen als Icons aufs Bild (oben rechts) */}
+            {!editing && (
+              <div className="rdet__img-actions">
+                <button className="rdet__img-btn" onClick={startEdit} aria-label="Bearbeiten" title="Bearbeiten">
+                  <Pencil size={15} strokeWidth={2} />
+                </button>
+                <button
+                  className={`rdet__img-btn ${r.is_favorite ? 'is-active' : ''}`}
+                  onClick={handleFav}
+                  aria-label={r.is_favorite ? 'Aus Favoriten entfernen' : 'Als Favorit'}
+                  title="Favorit"
+                >
+                  <Star size={15} fill={r.is_favorite ? 'currentColor' : 'none'} strokeWidth={2} />
+                </button>
+                {r.source_url && (
+                  <a
+                    className="rdet__img-btn"
+                    href={r.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Quelle: ${r.source_author ?? r.source}`}
+                    title={r.source_author ?? r.source}
+                  >
+                    <ExternalLink size={15} strokeWidth={2} />
+                  </a>
+                )}
+              </div>
+            )}
             {editing && draft && (
               <button
                 type="button"
@@ -259,6 +288,11 @@ export function RezeptDetail() {
                     </select>
                   </label>
                 </div>
+                {recipe && (
+                  <div className="rdet__type-edit">
+                    <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -267,48 +301,31 @@ export function RezeptDetail() {
                 <div className="rdet__meta">
                   {r.zubereitungszeit_min != null && (
                     <span className="rdet__meta-item">
-                      <Clock size={14} strokeWidth={1.75} /> {r.zubereitungszeit_min} Min
+                      <Clock size={15} strokeWidth={2} /> {r.zubereitungszeit_min} Min
                     </span>
                   )}
                   {r.schwierigkeit && (
-                    <SchwierigkeitBadge schwierigkeit={r.schwierigkeit as Schwierigkeit} size={14} />
+                    <SchwierigkeitBadge schwierigkeit={r.schwierigkeit as Schwierigkeit} size={15} />
                   )}
                   <span className="rdet__meta-item">{r.portionen} Port.</span>
                 </div>
-                {r.source_url && (
-                  <a href={r.source_url} target="_blank" rel="noopener noreferrer" className="rdet__source">
-                    <ExternalLink size={12} strokeWidth={1.75} /> {r.source_author ?? r.source}
-                  </a>
+                {r.recipe_type && (
+                  <span className="rdet__type-pill">{RECIPE_TYPE_LABELS[r.recipe_type as RecipeType] ?? r.recipe_type}</span>
                 )}
               </>
             )}
           </div>
 
-          <div className={`rdet__actions ${editing ? 'is-editing' : ''}`}>
-            {editing ? (
-              <>
-                <button className="rdet__cancel" onClick={cancelEdit} aria-label="Abbrechen">
-                  <X size={16} />
-                </button>
-                <button className="rdet__save" onClick={saveEdit} disabled={saving || !isDirty} aria-label="Speichern">
-                  <Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}
-                </button>
-              </>
-            ) : (
-              <>
-                <button className="rdet__edit" onClick={startEdit} aria-label="Bearbeiten">
-                  <Pencil size={16} strokeWidth={1.75} />
-                </button>
-                <button
-                  className={`rdet__fav ${r.is_favorite ? 'is-active' : ''}`}
-                  onClick={handleFav}
-                  aria-label={r.is_favorite ? 'Aus Favoriten entfernen' : 'Als Favorit markieren'}
-                >
-                  <Star size={18} fill={r.is_favorite ? 'currentColor' : 'none'} />
-                </button>
-              </>
-            )}
-          </div>
+          {editing && (
+            <div className="rdet__actions is-editing">
+              <button className="rdet__cancel" onClick={cancelEdit} aria-label="Abbrechen">
+                <X size={16} />
+              </button>
+              <button className="rdet__save" onClick={saveEdit} disabled={saving || !isDirty} aria-label="Speichern">
+                <Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -321,7 +338,6 @@ export function RezeptDetail() {
             <CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
             <RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
           </div>
-          <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
         </section>
       )}
 
