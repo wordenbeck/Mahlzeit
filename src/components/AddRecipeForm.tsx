@@ -10,6 +10,8 @@ import type { Schwierigkeit } from '../lib/types/recipe';
 import { insertRecipe } from '../lib/recipes';
 import { StructuredIngredientForm, type Zutat } from './StructuredIngredientForm';
 import { trackEvent } from '../lib/analytics';
+import { fetchInstagramCaption, isValidInstagramUrl } from '../lib/instagram';
+import { parseRecipeFromText } from '../lib/groqRecipeParser';
 import './AddRecipeForm.css';
 
 interface AddRecipeFormProps {
@@ -63,6 +65,8 @@ export function AddRecipeForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bildUrl, setBildUrl] = useState(initialBildUrl || '');
+  const [instagramUrl, setInstagramUrl] = useState('');
+  const [parsingInstagram, setParsingInstagram] = useState(false);
 
   // Auto-save to SessionStorage whenever form data changes
   useEffect(() => {
@@ -72,6 +76,63 @@ export function AddRecipeForm({
     sessionStorage.setItem('recipe-draft-zeit', zeit);
     sessionStorage.setItem('recipe-draft-schwierigkeit', schwierigkeit);
   }, [titel, zutaten, zubereitung, zeit, schwierigkeit]);
+
+  // Parse Instagram Reel caption
+  const handleParseInstagram = async () => {
+    if (!instagramUrl.trim()) {
+      setError('❌ Instagram URL erforderlich');
+      return;
+    }
+
+    if (!isValidInstagramUrl(instagramUrl)) {
+      setError('❌ Ungültige Instagram URL (muss von instagram.com/p/... sein)');
+      return;
+    }
+
+    setError(null);
+    setParsingInstagram(true);
+
+    try {
+      // Fetch caption from Instagram
+      const caption = await fetchInstagramCaption(instagramUrl);
+
+      if (!caption.trim()) {
+        throw new Error('Keine Caption gefunden');
+      }
+
+      // Parse caption with Groq
+      const parsed = await parseRecipeFromText(caption);
+
+      // Prefill form fields
+      if (parsed.titel && !titel.trim()) {
+        setTitel(parsed.titel);
+      }
+      if (parsed.zutaten && parsed.zutaten.length > 0 && zutaten.length === 0) {
+        setZutaten(parsed.zutaten);
+      }
+      if (parsed.zubereitung && !zubereitung.trim()) {
+        setZubereitung(parsed.zubereitung);
+      }
+      if (parsed.zeit && !zeit) {
+        setZeit(parsed.zeit.toString());
+      }
+      if (parsed.schwierigkeit && schwierigkeit === 'mittel') {
+        setSchwierigkeit(parsed.schwierigkeit);
+      }
+
+      // Clear Instagram URL field
+      setInstagramUrl('');
+      setError(null);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? `❌ Parse-Fehler: ${err.message}`
+          : '❌ Fehler beim Parsen der Caption'
+      );
+    } finally {
+      setParsingInstagram(false);
+    }
+  };
 
   // Keyboard shortcut: Ctrl/Cmd + Enter to save
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -221,6 +282,45 @@ export function AddRecipeForm({
         </div>
       )}
 
+      {/* Instagram URL Parser */}
+      <div className="form-group" style={{ background: '#fff3cd', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid #ffc107' }}>
+        <label htmlFor="instagramUrl" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '13px' }}>
+          🎬 Instagram Reel URL (optional)
+        </label>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <input
+            id="instagramUrl"
+            type="url"
+            value={instagramUrl}
+            onChange={(e) => setInstagramUrl(e.target.value)}
+            placeholder="z.B. https://instagram.com/p/ABC123..."
+            disabled={parsingInstagram || loading}
+            style={{ flex: 1 }}
+          />
+          <button
+            type="button"
+            onClick={handleParseInstagram}
+            disabled={parsingInstagram || loading || !instagramUrl.trim()}
+            style={{
+              padding: '0.6rem 1rem',
+              background: parsingInstagram ? '#ccc' : '#ffc107',
+              color: '#333',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: '600',
+              fontSize: '12px',
+              cursor: parsingInstagram || loading ? 'wait' : 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {parsingInstagram ? '⏳ Parsing...' : '🔍 Parse'}
+          </button>
+        </div>
+        <p style={{ margin: '0.5rem 0 0 0', fontSize: '11px', color: '#666' }}>
+          Caption wird automatisch geparst und in die Form eingefüllt
+        </p>
+      </div>
+
       <div className="form-group">
         <label htmlFor="titel">Titel *</label>
         <input
@@ -229,7 +329,7 @@ export function AddRecipeForm({
           value={titel}
           onChange={(e) => setTitel(e.target.value)}
           placeholder="z.B. Pasta Bolognese"
-          disabled={loading}
+          disabled={loading || parsingInstagram}
         />
       </div>
 
