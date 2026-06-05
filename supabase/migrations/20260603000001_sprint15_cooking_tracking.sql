@@ -46,26 +46,34 @@ ALTER TABLE recipes ADD COLUMN IF NOT EXISTS recipe_type text DEFAULT 'hauptgeri
 
 -- Ratings: User sieht nur eigene + alle anderen im Haushalt
 ALTER TABLE recipe_ratings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "user can view all ratings in workspace" ON recipe_ratings;
 CREATE POLICY "user can view all ratings in workspace" ON recipe_ratings FOR SELECT
   USING (workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "user can insert own rating" ON recipe_ratings;
 CREATE POLICY "user can insert own rating" ON recipe_ratings FOR INSERT
   WITH CHECK (user_id = auth.uid() AND workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "user can update own rating" ON recipe_ratings;
 CREATE POLICY "user can update own rating" ON recipe_ratings FOR UPDATE
   USING (user_id = auth.uid());
 
 -- History: User sieht nur sein Haushalt History
 ALTER TABLE recipe_history ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "user can view workspace history" ON recipe_history;
 CREATE POLICY "user can view workspace history" ON recipe_history FOR SELECT
   USING (workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "user can insert own history" ON recipe_history;
 CREATE POLICY "user can insert own history" ON recipe_history FOR INSERT
   WITH CHECK (user_id = auth.uid() AND workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
 
 -- Notes: User sieht nur sein Haushalt Notizen
 ALTER TABLE recipe_notes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "user can view workspace notes" ON recipe_notes;
 CREATE POLICY "user can view workspace notes" ON recipe_notes FOR SELECT
   USING (workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "user can manage workspace notes" ON recipe_notes;
 CREATE POLICY "user can manage workspace notes" ON recipe_notes FOR INSERT
   WITH CHECK (workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "user can update workspace notes" ON recipe_notes;
 CREATE POLICY "user can update workspace notes" ON recipe_notes FOR UPDATE
   USING (workspace_id IN (SELECT workspace_id FROM profiles WHERE id = auth.uid()));
 
