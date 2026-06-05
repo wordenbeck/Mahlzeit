@@ -1,7 +1,7 @@
 # PRODUCTION — MealPlanner Status & Runbook
 
-**Last Updated:** 2026-06-05  
-**Status:** 🚀 **LIVE** on https://mahlzeit.vercel.app
+**Last Updated:** 2026-06-05 (Workspace cleanup complete)  
+**Status:** ✅ **PRODUCTION READY** — 🚀 Live on https://mahlzeit.vercel.app
 
 ---
 
@@ -9,13 +9,9 @@
 
 | ID | Name | Code | Status | Notes |
 |---|---|---|---|---|
-| `d207aaec-dcc3-40cf-9db3-eb1136dbde3c` | Wordenbeck | WZJJ-MW | **Active** | Primary workspace |
-| `e7f25de4-4fce-4aba-b1ce-70f9fe20f47d` | Wordenbeck | 4NSJ-3S | **Active** | Old (from initial setup) |
-| `f252a35e-bf20-4029-a5ca-5b6e6a5804be` | Test | 7939 | **Test** | Can delete |
-| `ea1d89d8-97ff-468b-a89f-f22fc57f56f7` | Test | 9516 | **Test** | Can delete |
-| `b405aa68-9605-4962-8538-974c8ac40e64` | asd | 9333 | **Test** | Can delete |
+| `897fafb5-6b5d-43e2-9556-8d91217bf010` | Wordenbeck | 8991 | **LIVE** | Production workspace (90 recipes) |
 
-**Action:** Clean up test workspaces OR use `4NSJ-3S` for fresh testing.
+**Status:** ✅ Single clean workspace. All test workspaces deleted. All recipes migrated. Database ready for production.
 
 ---
 
@@ -150,12 +146,19 @@ Live on https://mahlzeit.vercel.app (2-3 min)
 
 ## 📱 TESTING CHECKLIST (Friday)
 
-- [ ] Instagram Reel → Share → Parse → Save
-- [ ] Rating + Notes work
-- [ ] "Gekocht markieren" tracks correctly
-- [ ] Mobile layout OK
-- [ ] iPad layout OK
-- [ ] Performance acceptable
+**Date:** 2026-06-06 (Real-world testing on iOS device)
+
+- [ ] Install PWA on iPhone (Add to Home Screen)
+- [ ] Instagram Reel → Share → Appears in share sheet
+- [ ] Instagram Reel → Share → App opens → Caption parsed correctly
+- [ ] Parse result → Save recipe → Appears in /rezepte
+- [ ] Rating (RecipeRating) works on saved recipe
+- [ ] "Gekocht markieren" (CookedButton) tracks correctly
+- [ ] RecipeNotes persists
+- [ ] Mobile layout (iPhone 12/13): text readable, tap-targets >= 44px
+- [ ] iPad layout: grid OK, sticky ingredients OK
+- [ ] Performance: No lag on image load or recipe save
+- [ ] Network: Works on 4G (throttle in DevTools to test)
 
 ---
 
