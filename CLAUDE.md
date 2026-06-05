@@ -144,11 +144,14 @@ Später: Vitest für Logic, Playwright für E2E.
 Sobald: **Developed + Deployed + Tested + Akzeptiert** (oder Bugs fixed)
 
 **DANN (neuer Chat, neue Iteration):**
-1. `memory-consolidation` — MEMORY.md aufräumen (Duplikate, stale facts)
-2. `fewer-permission-prompts` — Permission-Allowlist für häufige Calls
-3. Docs-Struktur prüfen (zu viel Redundanz? Stale Docs?)
-4. Backlog-Refinement (vor dem nächsten Sprint)
-5. **NEUER SPRINT-CHAT** mit frischem Context
+1. **UX-Audit anbieten** — am Ende jedes größeren Sprints Thomas fragen:
+   „Soll ich den `mahlzeit-ux-audit` Skill drüberlaufen lassen?" Nicht
+   ungefragt durchführen, aber **aktiv anbieten** (er will das explizit).
+2. `memory-consolidation` — MEMORY.md aufräumen (Duplikate, stale facts)
+3. `fewer-permission-prompts` — Permission-Allowlist für häufige Calls
+4. Docs-Struktur prüfen (zu viel Redundanz? Stale Docs?)
+5. Backlog-Refinement (vor dem nächsten Sprint)
+6. **NEUER SPRINT-CHAT** mit frischem Context
 
 ### HANDOFF.md Template — was IMMER rein
 - **Status:** Aktueller Sprint + Phase (dev/testing/done)
