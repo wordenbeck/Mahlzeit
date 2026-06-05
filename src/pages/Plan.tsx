@@ -1,30 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ChevronLeft, ChevronRight, Sparkles, Plus, Search, Trash2, X, Check,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Search, Trash2, Check } from 'lucide-react';
 import './Plan.css';
 import { useAuth } from '../lib/auth';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import {
-  isoWeekNumber, isoWeekRangeLabel, isoWeekStart, dayLabelShort,
+  isoWeekNumber, isoWeekRangeLabel, isoWeekStart, dayLabelLong, dayLabelShort,
   shiftWeek, isToday,
-  getOrCreateWeekplan, addSlot, deleteSlot, magicFillWeek,
+  getOrCreateWeekplan, addSlot, deleteSlot,
   type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
 import type { MealType } from '../lib/types/recipe';
-import { CookingSpinner } from '../components/CookingSpinner';
 import { RealRecipeCard } from '../components/RealRecipeCard';
 import { useRealtimeReload } from '../lib/realtime';
 
-// Mahlzeit-Typen die wir im Plan anbieten (Familien-Alltag: Mittag + Abend)
-const MEALS: { key: MealType; label: string; icon: string }[] = [
-  { key: 'mittag', label: 'Mittag', icon: '☀️' },
-  { key: 'abendessen', label: 'Abend', icon: '🌙' },
-];
-const mealIcon = (m: string) => MEALS.find(x => x.key === m)?.icon ?? '🍽';
-
 const DAYS = [0, 1, 2, 3, 4, 5, 6];
+const MEAL_ORDER: MealType[] = ['mittag', 'abendessen'];
 
 export function Plan() {
   const auth = useAuth();
@@ -34,15 +25,12 @@ export function Plan() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [magicRunning, setMagicRunning] = useState(false);
-
-  // Assign-Sheet: welches Rezept wird gerade eingeplant + vorgewählter Tag
-  const [assign, setAssign] = useState<{ recipe: RecipeListItem; day: number; meal: MealType } | null>(null);
-  // "Rezept für Tag X wählen"-Modus (gestartet über das + an einem Tag)
-  const [pendingDay, setPendingDay] = useState<number | null>(null);
-  const [assigning, setAssigning] = useState(false);
-  // Tages-Detail-Sheet (Mahlzeiten ansehen/entfernen, v.a. am Handy)
-  const [dayView, setDayView] = useState<number | null>(null);
+  // Gewählter Tag: oben Übersicht, darunter die Inhalte dieses Tages
+  const [selectedDay, setSelectedDay] = useState<number>(() => {
+    const d = (new Date().getDay() + 6) % 7; // Mo=0
+    return d;
+  });
+  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   const reload = async () => {
     if (!auth.profile) return;
@@ -77,47 +65,30 @@ export function Plan() {
 
   const slotsForDay = (day: number): Slot[] =>
     (weekplan?.slots.filter(s => s.day_of_week === day) ?? [])
-      .sort((a, b) => (a.meal_type > b.meal_type ? 1 : -1));
+      .sort((a, b) => MEAL_ORDER.indexOf(a.meal_type as MealType) - MEAL_ORDER.indexOf(b.meal_type as MealType));
 
   const recipeFor = (slot: Slot) => recipes.find(r => r.id === slot.recipe_id);
-
-  // Erstes leeres Mahlzeit-Feld eines Tages finden (für Vorauswahl im Sheet)
-  const firstFreeMeal = (day: number): MealType => {
-    const taken = new Set(slotsForDay(day).map(s => s.meal_type));
-    return (MEALS.find(m => !taken.has(m.key))?.key) ?? 'mittag';
-  };
-
-  const openAssign = (recipe: RecipeListItem, day?: number) => {
-    const d = day ?? pendingDay ?? DAYS.find(x => slotsForDay(x).length === 0) ?? 0;
-    setAssign({ recipe, day: d, meal: firstFreeMeal(d) });
-    setPendingDay(null);
-  };
-
-  // + an einem Tag: Tag merken und zur Bibliothek scrollen
-  const startFromDay = (day: number) => {
-    setPendingDay(day);
-    document.querySelector('.plan__libhead')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 
   const dayNum = (d: number) =>
     new Date(new Date(weekStart).getTime() + d * 86400000).getDate();
 
-  const confirmAssign = async () => {
-    if (!assign || !weekplan || assigning) return;
-    setAssigning(true);
+  // Rezept zum gewählten Tag hinzufügen (freie Mahlzeit wählen: mittag, dann abend)
+  const addToSelectedDay = async (recipe: RecipeListItem) => {
+    if (!weekplan) return;
+    const taken = new Set(slotsForDay(selectedDay).map(s => s.meal_type));
+    const meal = MEAL_ORDER.find(m => !taken.has(m)) ?? 'mittag';
     try {
       const slot = await addSlot({
         weekplan_id: weekplan.id,
-        day_of_week: assign.day,
-        meal_type: assign.meal,
-        recipe_id: assign.recipe.id,
+        day_of_week: selectedDay,
+        meal_type: meal,
+        recipe_id: recipe.id,
       });
       setWeekplan({ ...weekplan, slots: [...weekplan.slots, slot] });
-      setAssign(null);
+      setJustAdded(recipe.id);
+      setTimeout(() => setJustAdded(curr => (curr === recipe.id ? null : curr)), 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Konnte nicht hinzufügen.');
-    } finally {
-      setAssigning(false);
     }
   };
 
@@ -131,33 +102,7 @@ export function Plan() {
     }
   };
 
-  const handleMagicFill = async () => {
-    if (!weekplan || magicRunning) return;
-    const filledDays = new Set(weekplan.slots.map(s => s.day_of_week));
-    const targets = DAYS.filter(d => !filledDays.has(d));
-    if (targets.length === 0) { setError('Alle Tage sind schon befüllt.'); return; }
-    if (recipes.length === 0) { setError('Du hast noch keine Rezepte.'); return; }
-    setMagicRunning(true);
-    setError(null);
-    try {
-      const suggestions = await magicFillWeek(weekplan.id, targets);
-      const newSlots: Slot[] = [];
-      for (const s of suggestions) {
-        try {
-          const slot = await addSlot({
-            weekplan_id: weekplan.id, day_of_week: s.day_of_week,
-            meal_type: 'mittag', recipe_id: s.recipe_id,
-          });
-          newSlots.push(slot);
-        } catch { /* einzelner Slot-Fehler ignorieren */ }
-      }
-      setWeekplan({ ...weekplan, slots: [...weekplan.slots, ...newSlots] });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Magic Fill fehlgeschlagen.');
-    } finally {
-      setMagicRunning(false);
-    }
-  };
+  const daySlots = slotsForDay(selectedDay);
 
   return (
     <div className="plan">
@@ -177,76 +122,53 @@ export function Plan() {
 
       {error && <div className="plan__error" onClick={() => setError(null)}>{error}</div>}
 
-      {/* Wochenstreifen — DEINE Woche (wischbar) */}
-      <div className="plan__week" role="list">
+      {/* Wochenübersicht: Tag wählen */}
+      <div className="plan__week" role="tablist">
         {DAYS.map(d => {
-          const slots = slotsForDay(d);
+          const count = slotsForDay(d).length;
           return (
-            <section
+            <button
               key={d}
-              className={`plan__daycard ${isToday(weekStart, d) ? 'is-today' : ''} ${slots.length > 0 ? 'is-planned' : ''}`}
-              role="listitem"
-              onClick={() => setDayView(d)}
+              role="tab"
+              aria-selected={selectedDay === d}
+              className={`plan__day ${selectedDay === d ? 'is-selected' : ''} ${isToday(weekStart, d) ? 'is-today' : ''}`}
+              onClick={() => setSelectedDay(d)}
             >
-              <header className="plan__daycard-head">
-                <span className="plan__daycard-name">{dayLabelShort(weekStart, d)}</span>
-                <span className="plan__daycard-date">{dayNum(d)}.</span>
-                {/* Mobil: nur ein Punkt = verplant ja/nein */}
-                <span className="plan__daycard-dot" aria-hidden="true" />
-              </header>
-              <div className="plan__daycard-meals">
-                {slots.map(s => {
-                  const r = recipeFor(s);
-                  return (
-                    <div key={s.id} className="plan__meal">
-                      <Link
-                        to={r ? `/rezepte/${r.id}` : '#'}
-                        className="plan__meal-link"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <span className="plan__meal-icon">{mealIcon(s.meal_type)}</span>
-                        <span className="plan__meal-title">{r?.titel ?? '—'}</span>
-                      </Link>
-                      <button
-                        className="plan__meal-del"
-                        onClick={e => { e.stopPropagation(); handleDeleteSlot(s); }}
-                        aria-label="Entfernen"
-                      >
-                        <Trash2 size={13} strokeWidth={1.75} />
-                      </button>
-                    </div>
-                  );
-                })}
-                <button
-                  className="plan__daycard-add"
-                  onClick={e => { e.stopPropagation(); startFromDay(d); }}
-                  disabled={recipes.length === 0}
-                >
-                  <Plus size={14} strokeWidth={2.5} /> Rezept
-                </button>
-              </div>
-            </section>
+              <span className="plan__day-name">{dayLabelShort(weekStart, d)}</span>
+              <span className="plan__day-date">{dayNum(d)}.</span>
+              <span className={`plan__day-dot ${count > 0 ? 'is-filled' : ''}`}>
+                {count > 0 ? count : ''}
+              </span>
+            </button>
           );
         })}
       </div>
 
-      <div className="plan__magicrow">
-        <button className="plan__magic" onClick={handleMagicFill} disabled={magicRunning}>
-          <Sparkles size={14} strokeWidth={2} />
-          {magicRunning ? 'Denkt nach…' : 'Magic Fill — leere Tage'}
-        </button>
-      </div>
-
-      {/* Bibliothek — stöbern + einplanen */}
-      <div className="plan__libhead">
-        {pendingDay !== null ? (
-          <span className="plan__lib-eyebrow plan__lib-eyebrow--pending">
-            👉 Rezept für {dayLabelShort(weekStart, pendingDay)}, {dayNum(pendingDay)}. wählen
-            <button className="plan__lib-cancel" onClick={() => setPendingDay(null)}>abbrechen</button>
-          </span>
+      {/* Inhalte des gewählten Tages */}
+      <section className="plan__selected">
+        <h2 className="plan__selected-title">{dayLabelLong(weekStart, selectedDay)}, {dayNum(selectedDay)}.</h2>
+        {daySlots.length === 0 ? (
+          <p className="plan__selected-empty">Noch nichts geplant — tippe unten bei einem Rezept auf <Plus size={12} strokeWidth={3} />.</p>
         ) : (
-          <span className="plan__lib-eyebrow">🍳 Rezepte stöbern · {recipes.length}</span>
+          <div className="plan__selected-list">
+            {daySlots.map(s => {
+              const r = recipeFor(s);
+              return (
+                <div key={s.id} className="plan__planned">
+                  <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__planned-link">{r?.titel ?? '—'}</Link>
+                  <button className="plan__planned-del" onClick={() => handleDeleteSlot(s)} aria-label="Entfernen">
+                    <Trash2 size={14} strokeWidth={1.75} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         )}
+      </section>
+
+      {/* Bibliothek — Klick = Details, + = zum gewählten Tag hinzufügen */}
+      <div className="plan__libhead">
+        <span className="plan__lib-eyebrow">🍳 Rezepte · {recipes.length}</span>
         <div className="plan__search-wrap">
           <Search size={16} strokeWidth={1.75} className="plan__search-icon" />
           <input
@@ -270,97 +192,18 @@ export function Plan() {
       <div className="plan__lib">
         {filtered.map(r => (
           <div key={r.id} className="plan__lib-item">
-            <RealRecipeCard recipe={r} onClick={() => openAssign(r)} />
+            <RealRecipeCard recipe={r} />
+            <button
+              className={`plan__lib-add ${justAdded === r.id ? 'is-done' : ''}`}
+              onClick={() => addToSelectedDay(r)}
+              aria-label={`${r.titel} für ${dayLabelShort(weekStart, selectedDay)} einplanen`}
+              title={`Für ${dayLabelShort(weekStart, selectedDay)} einplanen`}
+            >
+              {justAdded === r.id ? <Check size={18} strokeWidth={3} /> : <Plus size={18} strokeWidth={2.5} />}
+            </button>
           </div>
         ))}
       </div>
-
-      {/* Assign-Sheet */}
-      {assign && (
-        <>
-          <div className="plan__sheet-backdrop" onClick={() => setAssign(null)} />
-          <div className="plan__sheet" role="dialog" aria-label="Rezept einplanen">
-            <button className="plan__sheet-close" onClick={() => setAssign(null)} aria-label="Schließen"><X size={18} /></button>
-            <div className="plan__sheet-grab" />
-            <div className="plan__sheet-recipe">
-              <span className="plan__sheet-eyebrow">Einplanen</span>
-              <h2>{assign.recipe?.titel ?? 'Rezept'}</h2>
-            </div>
-
-            <span className="plan__sheet-label">An welchem Tag?</span>
-            <div className="plan__sheet-days">
-              {DAYS.map(d => {
-                const has = slotsForDay(d).length > 0;
-                return (
-                  <button
-                    key={d}
-                    className={`plan__sheet-day ${assign.day === d ? 'is-active' : ''} ${has ? 'has' : ''}`}
-                    onClick={() => setAssign({ ...assign, day: d, meal: firstFreeMeal(d) })}
-                  >
-                    <span className="n">{dayLabelShort(weekStart, d)}</span>
-                    <span className="d">{dayNum(d)}.</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <button className="plan__sheet-confirm" onClick={confirmAssign} disabled={!assign.recipe || assigning}>
-              <Check size={18} strokeWidth={2.5} />
-              {assigning ? 'Wird eingeplant…' : `Für ${dayLabelShort(weekStart, assign.day)}, ${dayNum(assign.day)}. einplanen`}
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Tag-Detail-Sheet: Mahlzeiten des Tages ansehen + entfernen + ergänzen */}
-      {dayView !== null && (
-        <>
-          <div className="plan__sheet-backdrop" onClick={() => setDayView(null)} />
-          <div className="plan__sheet" role="dialog" aria-label="Tag bearbeiten">
-            <button className="plan__sheet-close" onClick={() => setDayView(null)} aria-label="Schließen"><X size={18} /></button>
-            <div className="plan__sheet-grab" />
-            <div className="plan__sheet-recipe">
-              <span className="plan__sheet-eyebrow">{dayLabelShort(weekStart, dayView)}, {dayNum(dayView)}.</span>
-              <h2>Geplant</h2>
-            </div>
-            <div className="plan__dayview-list">
-              {slotsForDay(dayView).length === 0 && (
-                <p className="plan__dayview-empty">Noch nichts geplant.</p>
-              )}
-              {slotsForDay(dayView).map(s => {
-                const r = recipeFor(s);
-                return (
-                  <div key={s.id} className="plan__dayview-item">
-                    <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__dayview-link" onClick={() => setDayView(null)}>
-                      <span className="plan__meal-icon">{mealIcon(s.meal_type)}</span>
-                      <span>{r?.titel ?? '—'}</span>
-                    </Link>
-                    <button className="plan__dayview-del" onClick={() => handleDeleteSlot(s)} aria-label="Entfernen">
-                      <Trash2 size={16} strokeWidth={1.75} />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-            <button
-              className="plan__sheet-confirm"
-              onClick={() => { const d = dayView; setDayView(null); if (recipes.length > 0) startFromDay(d); }}
-              disabled={recipes.length === 0}
-            >
-              <Plus size={18} strokeWidth={2.5} /> Rezept hinzufügen
-            </button>
-          </div>
-        </>
-      )}
-
-      {magicRunning && (
-        <>
-          <div className="plan__magic-backdrop" />
-          <div className="plan__magic-overlay">
-            <CookingSpinner size={80} label="Magic Fill — wähle Rezepte für leere Tage…" />
-          </div>
-        </>
-      )}
     </div>
   );
 }
