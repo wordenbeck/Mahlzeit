@@ -161,6 +161,30 @@
   transition: width 350ms var(--ease-ios), height 350ms var(--ease-ios), transform var(--dur-fast) var(--ease-ios);
 }
 
+.app-menu__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.app-menu__icon-link {
+  width: var(--m-profile);
+  height: var(--m-profile);
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background var(--dur-fast) var(--ease-ios), transform var(--dur-fast) var(--ease-ios);
+}
+
+.app-menu__icon-link:hover {
+  background: rgba(0, 108, 73, 0.1);
+  transform: scale(1.05);
+}
+
 .app-menu__profile:hover { transform: scale(1.05); }
 
 /* === iPhone (<600px): kompaktes Menü dauerhaft === */
