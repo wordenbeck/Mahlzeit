@@ -54,8 +54,14 @@
   (das + zeigt den Ziel-Tag, z.B. „+ Mi", damit nie unklar ist wohin).
 - Kein Drag&Drop (Touch-untauglich). Kein Magic Fill (vorerst raus → Backlog).
 - Mahlzeit-Sonne/Mond-Icons raus.
-- **Offen/zu testen:** Wochentags-Farbpalette (peach/butter/sage…) für Wiedererkennung —
-  wird in den Plan-Mockups gegenübergestellt.
+- **Tag-Farben: ENTSCHIEDEN = schlicht grün** (keine Pastell-Tagfarben). Gewählter Tag via
+  Akzent-Gradient hervorgehoben, verplante Tage via gefülltem Punkt/Count.
+
+## Text-Umbruch (ENTSCHIEDEN)
+
+- **Lange Titel auf Karten/Listen: kürzen mit … (max 2 Zeilen)**, Karten exakt gleich hoch.
+  Voller Name nur auf der Detailseite. Gilt für Rezeptkarten, Plan, Einkauf, Liste.
+- Zutaten-Namen in Listen ebenfalls 1 Zeile + Ellipsis; lange Einheiten/Mengen tabellarisch.
 
 ## Was vermeiden (gelernt aus Frust)
 
