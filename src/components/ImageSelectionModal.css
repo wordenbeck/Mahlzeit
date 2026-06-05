@@ -1,0 +1,73 @@
+.ism__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 40, 28, 0.5);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+}
+.ism {
+  background: var(--surface-1);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(6, 78, 59, 0.28);
+}
+.ism__title { font-size: 20px; font-weight: 800; margin: 0 0 var(--space-1); }
+.ism__sub { color: var(--text-2); font-size: var(--fs-caption); margin: 0 0 var(--space-4); }
+
+.ism__preview { margin-bottom: var(--space-4); }
+.ism__preview-img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+.ism__preview-meta {
+  margin-top: var(--space-2);
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.ism__thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.ism__thumb {
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: none;
+}
+.ism__thumb.is-active { border-color: var(--accent); border-width: 3px; }
+.ism__thumb img { width: 100%; height: 80px; object-fit: cover; display: block; }
+
+.ism__actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.ism__btn {
+  flex: 1;
+  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: var(--radius-md);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
+  border: 1px solid transparent;
+}
+.ism__btn--primary { background: var(--gradient-cta); color: #fff; box-shadow: var(--shadow-card); }
+.ism__btn--secondary { background: var(--surface-2); color: var(--text-2); border-color: var(--border); }
+.ism__btn:disabled { opacity: 0.5; }

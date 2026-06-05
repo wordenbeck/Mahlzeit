@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { AddRecipeForm } from '../components/AddRecipeForm';
+import './ShareRecipePage.css';
 import { ImageSelectionModal, type SearchResult } from '../components/ImageSelectionModal';
 import { getErrorInfo, formatErrorDisplay, type AppError } from '../lib/errors';
 import { trackEvent, trackRecipeParsed, trackImageSelected, trackError } from '../lib/analytics';
@@ -326,58 +327,34 @@ export function ShareRecipePage() {
     setLoadingStage('ready');
   };
 
-  if (loadingStage) {
+  if (loadingStage === 'fetching' || loadingStage === 'parsing') {
     const messages = {
-      fetching: { icon: '📱', title: 'Instagram wird gelesen...', subtitle: 'Caption wird abrufen' },
-      parsing: { icon: '🤖', title: 'KI analysiert Rezept...', subtitle: 'Groq LLM parst Caption' },
-    };
+      fetching: { icon: '📱', title: 'Instagram wird gelesen…', subtitle: 'Caption wird abgerufen' },
+      parsing: { icon: '🤖', title: 'KI analysiert Rezept…', subtitle: 'Groq parst die Caption' },
+    } as const;
     const msg = messages[loadingStage];
 
     return (
-      <div style={{ padding: '4rem 2rem', textAlign: 'center', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '1rem', animation: 'pulse 1.5s ease-in-out infinite' }}>
-          {msg.icon}
-        </div>
-        <h2 style={{ color: '#333', marginBottom: '0.5rem' }}>{msg.title}</h2>
-        <p style={{ color: '#666', fontSize: '14px', marginBottom: '2rem' }}>{msg.subtitle}</p>
-
-        {/* Progress bar */}
-        <div style={{ width: '200px', height: '4px', background: '#e0e0e0', borderRadius: '2px', overflow: 'hidden' }}>
-          <div
-            style={{
-              height: '100%',
-              background: '#006c49',
-              animation: `progress ${loadingStage === 'fetching' ? '1.5' : '2'}s ease-in-out infinite`,
-            }}
-          />
-        </div>
-
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-          }
-          @keyframes progress {
-            0% { width: 0%; }
-            50% { width: 80%; }
-            100% { width: 100%; }
-          }
-        `}</style>
+      <div className="srp__loading">
+        <div className="srp__loading-icon">{msg.icon}</div>
+        <h2>{msg.title}</h2>
+        <p>{msg.subtitle}</p>
+        <div className="srp__bar"><div className="srp__bar-fill" /></div>
       </div>
     );
   }
 
   if (!sharedData) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <p>❌ Keine Daten gefunden</p>
-        <button onClick={() => navigate('/rezepte')}>← Zurück zu Rezepten</button>
+      <div className="srp__empty">
+        <p>Keine Daten gefunden.</p>
+        <button className="srp__back" onClick={() => navigate('/rezepte')}>← Zurück zu Rezepten</button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', minHeight: '100vh', background: '#fff' }}>
+    <div className="srp">
       {/* Image Selection Modal */}
       {showImageModal && imageSearchResults && (
         <ImageSelectionModal
@@ -390,45 +367,24 @@ export function ShareRecipePage() {
         />
       )}
 
-      <div style={{ marginBottom: '2rem' }}>
-        <button
-          onClick={() => navigate('/rezepte')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#006c49',
-            fontSize: '16px',
-            cursor: 'pointer',
-            padding: '0.5rem 0',
-            marginBottom: '1rem',
-          }}
-        >
-          ← Zurück zu Rezepten
-        </button>
-        <h1 style={{ margin: '0.5rem 0 0 0', fontSize: '28px' }}>📸 Instagram-Rezept hinzufügen</h1>
+      <div className="srp__head">
+        <button className="srp__back" onClick={() => navigate('/rezepte')}>← Zurück zu Rezepten</button>
+        <h1 className="srp__title">📸 Instagram-Rezept hinzufügen</h1>
       </div>
 
-      <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f0f8f5', border: '1px solid #c8e6c9', borderRadius: '8px' }}>
-        <p style={{ margin: '0.5rem 0', fontSize: '12px', color: '#555', wordBreak: 'break-all' }}>
-          <strong>🔗 Quelle:</strong> {sharedData.url}
-        </p>
+      <div className="srp__source">
+        <p className="srp__source-url"><strong>🔗 Quelle:</strong> {sharedData.url}</p>
 
         {thumbnailUrl && (
-          <div style={{ margin: '1rem 0', borderRadius: '6px', overflow: 'hidden', maxHeight: '200px', background: '#fff' }}>
-            <img
-              src={thumbnailUrl}
-              alt="Instagram Reel Thumbnail"
-              style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'cover' }}
-            />
+          <div className="srp__thumb">
+            <img src={thumbnailUrl} alt="Instagram Reel Thumbnail" />
           </div>
         )}
 
         {caption && (
-          <div style={{ margin: '1rem 0 0 0', fontSize: '12px', color: '#666', maxHeight: '150px', overflow: 'auto', background: '#fff', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd' }}>
+          <div className="srp__caption">
             <strong style={{ display: 'block', marginBottom: '0.5rem' }}>📝 Caption-Vorschau:</strong>
-            <pre style={{ margin: 0, fontFamily: 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '11px', color: '#666' }}>
-              {caption.slice(0, 300)}{caption.length > 300 ? '\n...' : ''}
-            </pre>
+            <pre>{caption.slice(0, 300)}{caption.length > 300 ? '\n…' : ''}</pre>
           </div>
         )}
       </div>
@@ -436,39 +392,18 @@ export function ShareRecipePage() {
       {parseError && (() => {
         const display = formatErrorDisplay(parseError);
         return (
-          <div
-            style={{
-              marginBottom: '1rem',
-              padding: '1rem',
-              background: parseError.code.includes('ERR_') ? '#fff3cd' : '#fff3cd',
-              border: '1px solid #ffc107',
-              borderRadius: '6px',
-              fontSize: '13px',
-              color: '#856404',
-            }}
-          >
-            <div style={{ marginBottom: '0.75rem' }}>
+          <div className="srp__error">
+            <div>
               <strong>{display.icon} {parseError.code}:</strong> {parseError.message}
             </div>
             {!manualMode && (
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div className="srp__error-actions">
                 {parseError.action === 'RETRY' && (
                   <button
+                    className="srp__error-btn srp__error-btn--primary"
                     onClick={async () => {
                       setParseError(null);
-                      if (caption) {
-                        await parseWithGroq(caption, sharedData?.title || sharedData?.text);
-                      }
-                    }}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: '#ffc107',
-                      color: '#333',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: '600',
+                      if (caption) await parseWithGroq(caption, sharedData?.title || sharedData?.text);
                     }}
                   >
                     🔄 Nochmal versuchen
@@ -476,49 +411,21 @@ export function ShareRecipePage() {
                 )}
                 {(parseError.action === 'MANUAL_EDIT' || parseError.action === 'RETRY') && (
                   <button
-                    onClick={() => {
-                      setManualMode(true);
-                      setParseError(null);
-                    }}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: '#e3f2fd',
-                      color: '#1565c0',
-                      border: '1px solid #2196f3',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                    }}
+                    className="srp__error-btn srp__error-btn--primary"
+                    onClick={() => { setManualMode(true); setParseError(null); }}
                   >
                     ✏️ Manuell bearbeiten
                   </button>
                 )}
                 {(parseError.action === 'SKIP' || parseError.action === 'RETRY') && (
-                  <button
-                    onClick={() => {
-                      setParseError(null);
-                    }}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: '#f0f0f0',
-                      color: '#333',
-                      border: '1px solid #ddd',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                    }}
-                  >
+                  <button className="srp__error-btn srp__error-btn--ghost" onClick={() => setParseError(null)}>
                     ➡️ Überspringen
                   </button>
                 )}
               </div>
             )}
             {parseError.details && (
-              <p style={{ margin: '0.75rem 0 0 0', fontSize: '11px', color: '#666', fontFamily: 'monospace' }}>
-                Debug: {parseError.details.slice(0, 100)}
-              </p>
+              <p className="srp__error-debug">Debug: {parseError.details.slice(0, 100)}</p>
             )}
           </div>
         );
