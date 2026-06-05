@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahlzeit — Design System</title>
+<style>
+  /* === ECHTE Tokens aus src/styles/tokens.css === */
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;
+    --text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--success:#15803D;--danger:#DC2626;
+    --border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --profile-amber:#F6C27A;--profile-rose:#E8A4A4;--profile-sage:#9DBF9E;
+    --profile-sky:#9EC0DE;--profile-lavender:#B8A8D9;--profile-ochre:#C8A35E;
+    --day-mo-bg:#FFD7B5;--day-mo-fg:#8C4A1A;--day-di-bg:#FCE4A6;--day-di-fg:#7A5A12;
+    --day-mi-bg:#DDEBC6;--day-mi-fg:#4F6A2E;--day-do-bg:#C9E1E8;--day-do-fg:#2E5A66;
+    --day-fr-bg:#D6D3F0;--day-fr-fg:#4D4480;--day-sa-bg:#F5C9D4;--day-sa-fg:#8A3B52;
+    --day-so-bg:#F0B8B0;--day-so-fg:#843326;
+    --gradient-cta:linear-gradient(135deg,#10B981 0%,#006C49 100%);
+    --gradient-today:linear-gradient(135deg,#F0FDF4 0%,#D1FADF 100%);
+    --gradient-recipe-3:linear-gradient(135deg,#D4E8D5 0%,#9DBF9E 100%);
+    --font-system:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+    --fs-h1:28px;--fs-h2:20px;--fs-body:15px;--fs-caption:12px;
+    --fw-regular:400;--fw-medium:500;--fw-semibold:600;
+    --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;
+    --radius-sm:8px;--radius-md:12px;--radius-card:16px;--radius-lg:20px;--radius-pill:999px;
+    --shadow-card:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --shadow-card-hover:0 2px 4px rgba(6,78,59,.08),0 8px 24px rgba(6,78,59,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-system);background:var(--bg);color:var(--text-1);padding:32px;max-width:1100px;margin:0 auto;line-height:1.5}
+  h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+  .lede{color:var(--text-2);margin-bottom:32px}
+  section{margin-bottom:40px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .note{font-size:12px;color:var(--text-3);margin-top:8px}
+
+  /* swatches */
+  .sw{border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border);background:#fff}
+  .sw .chip{height:64px}
+  .sw .meta{padding:8px 10px;font-size:11px}
+  .sw .meta b{display:block;font-size:12px;color:var(--text-1)}
+  .sw .meta code{color:var(--text-3)}
+
+  /* type scale */
+  .type-row{display:flex;align-items:baseline;gap:16px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .type-row code{font-size:11px;color:var(--text-3);min-width:160px}
+
+  /* spacing */
+  .sp{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .sp .bar{height:16px;background:var(--accent-soft);border-radius:4px}
+  .sp code{font-size:11px;color:var(--text-3);min-width:120px}
+
+  /* components */
+  .btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--gradient-cta);color:#fff;padding:11px 18px;border-radius:var(--radius-pill);font-size:var(--fs-body);font-weight:var(--fw-semibold);box-shadow:var(--shadow-card)}
+  .btn-secondary{background:var(--surface-2);color:var(--text-2);padding:11px 18px;border-radius:var(--radius-pill);font-size:var(--fs-body);font-weight:var(--fw-semibold);border:1px solid var(--border)}
+  .btn-ghost{background:transparent;color:var(--text-3);padding:9px 16px;border-radius:var(--radius-pill);font-size:var(--fs-caption);font-weight:var(--fw-medium);border:1px solid var(--border)}
+  .btn-icon{width:38px;height:38px;border-radius:var(--radius-pill);background:var(--surface-1);box-shadow:var(--shadow-card);color:var(--text-2);justify-content:center}
+
+  .pill{padding:4px 12px;border-radius:var(--radius-pill);font-size:var(--fs-caption);font-weight:var(--fw-semibold);border:1px solid var(--border);background:#fff;color:var(--text-2)}
+  .pill.accent{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
+  .pill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .input{width:240px;padding:10px 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font:inherit;font-size:var(--fs-body);outline:none}
+  .input:focus{border-color:var(--accent)}
+
+  /* recipe card */
+  .rcard{width:200px;background:linear-gradient(135deg,#FFF,#F0FDF4);border:1px solid var(--accent-soft);border-radius:var(--radius-card);box-shadow:var(--shadow-card);overflow:hidden}
+  .rcard .img{height:150px;background:var(--gradient-recipe-3);position:relative}
+  .rcard .add{position:absolute;top:8px;right:8px;height:30px;padding:0 11px;border-radius:99px;background:rgba(0,108,73,.92);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:3px;border:none}
+  .rcard .body{padding:12px}
+  .rcard .t{font-size:15px;font-weight:700;color:var(--accent);line-height:1.25}
+  .rcard .m{font-size:12px;color:var(--text-2);margin-top:6px}
+
+  /* day tabs */
+  .days{display:flex;gap:6px}
+  .day{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:var(--radius-md);background:var(--surface-1);border:1.5px solid var(--border)}
+  .day.sel{background:var(--gradient-cta);border-color:var(--accent)}
+  .day .n{font-size:14px;font-weight:800;color:var(--accent)}
+  .day .d{font-size:10px;color:var(--text-3)}
+  .day.sel .n,.day.sel .d{color:#fff}
+
+  .stars{color:var(--accent);font-size:20px;letter-spacing:3px}
+  .panel{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius-card);padding:16px;box-shadow:var(--shadow-card);max-width:320px}
+</style>
+</head>
+<body>
+  <h1>Mahlzeit · Design System</h1>
+  <div class="lede">Verbindliche Referenz aus <code>src/styles/tokens.css</code>. Alle Seiten-Mockups bauen ausschließlich auf diesen Tokens & Komponenten.</div>
+
+  <section>
+    <h2>Farben</h2>
+    <div class="grid">
+      <div class="sw"><div class="chip" style="background:var(--bg)"></div><div class="meta"><b>Hintergrund</b><code>--bg #FAF7F2</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--surface-1)"></div><div class="meta"><b>Surface 1 (Karten)</b><code>--surface-1 #FFFFFF</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--surface-2)"></div><div class="meta"><b>Surface 2</b><code>--surface-2 #F2EDE5</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--accent)"></div><div class="meta"><b>Accent</b><code>--accent #006C49</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--accent-soft)"></div><div class="meta"><b>Accent Soft</b><code>--accent-soft #D1FADF</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--gradient-cta)"></div><div class="meta"><b>CTA-Gradient</b><code>--gradient-cta</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--danger)"></div><div class="meta"><b>Danger</b><code>--danger #DC2626</code></div></div>
+      <div class="sw"><div class="chip" style="background:var(--text-1)"></div><div class="meta"><b>Text 1</b><code>--text-1 #2A2620</code></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Wochentags-Farben (vorhanden, aktuell ungenutzt — Wiedererkennung!)</h2>
+    <div class="row">
+      <span class="pill" style="background:var(--day-mo-bg);color:var(--day-mo-fg);border:none">Mo</span>
+      <span class="pill" style="background:var(--day-di-bg);color:var(--day-di-fg);border:none">Di</span>
+      <span class="pill" style="background:var(--day-mi-bg);color:var(--day-mi-fg);border:none">Mi</span>
+      <span class="pill" style="background:var(--day-do-bg);color:var(--day-do-fg);border:none">Do</span>
+      <span class="pill" style="background:var(--day-fr-bg);color:var(--day-fr-fg);border:none">Fr</span>
+      <span class="pill" style="background:var(--day-sa-bg);color:var(--day-sa-fg);border:none">Sa</span>
+      <span class="pill" style="background:var(--day-so-bg);color:var(--day-so-fg);border:none">So</span>
+    </div>
+    <div class="note">Tipp: Diese Palette könnten wir im Plan für die Tag-Wiedererkennung nutzen.</div>
+  </section>
+
+  <section>
+    <h2>Profil-Farben</h2>
+    <div class="row">
+      <span class="pill" style="background:var(--profile-amber);border:none">amber</span>
+      <span class="pill" style="background:var(--profile-rose);border:none">rose</span>
+      <span class="pill" style="background:var(--profile-sage);border:none">sage</span>
+      <span class="pill" style="background:var(--profile-sky);border:none">sky</span>
+      <span class="pill" style="background:var(--profile-lavender);border:none">lavender</span>
+      <span class="pill" style="background:var(--profile-ochre);border:none">ochre</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Typografie</h2>
+    <div class="type-row"><code>--fs-h1 28/22px · 800</code><span style="font-size:28px;font-weight:800;letter-spacing:-.02em">Seitentitel</span></div>
+    <div class="type-row"><code>--fs-h2 20/17px · 700</code><span style="font-size:20px;font-weight:700">Abschnitt</span></div>
+    <div class="type-row"><code>--fs-body 15/14px · 400</code><span style="font-size:15px">Fließtext — proteinreiche Burger Buns</span></div>
+    <div class="type-row"><code>--fs-caption 12px · 600</code><span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)">Eyebrow / Label</span></div>
+  </section>
+
+  <section>
+    <h2>Abstände (4px-Grid)</h2>
+    <div class="sp"><code>--space-2 8px</code><div class="bar" style="width:8px"></div></div>
+    <div class="sp"><code>--space-3 12px</code><div class="bar" style="width:12px"></div></div>
+    <div class="sp"><code>--space-4 16px</code><div class="bar" style="width:16px"></div></div>
+    <div class="sp"><code>--space-5 24px</code><div class="bar" style="width:24px"></div></div>
+    <div class="sp"><code>--space-6 32px</code><div class="bar" style="width:32px"></div></div>
+  </section>
+
+  <section>
+    <h2>Radius &amp; Schatten</h2>
+    <div class="row">
+      <div style="width:90px;height:60px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-3)">sm 8</div>
+      <div style="width:90px;height:60px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-3)">md 12</div>
+      <div style="width:90px;height:60px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-3)">card 16</div>
+      <div style="width:120px;height:60px;background:#fff;border-radius:var(--radius-card);box-shadow:var(--shadow-card);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-3)">shadow-card</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Buttons</h2>
+    <div class="row" style="align-items:center">
+      <button class="btn btn-primary">＋ Primär-Aktion</button>
+      <button class="btn btn-secondary">Sekundär</button>
+      <button class="btn btn-ghost">🗑 Dezent / Löschen</button>
+      <button class="btn btn-icon">✏️</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pills &amp; Chips</h2>
+    <div class="row" style="align-items:center">
+      <span class="pill accent">@quelle ↗</span>
+      <span class="pill on">Hauptgericht</span>
+      <span class="pill">Beilage</span>
+      <span class="pill">Snack</span>
+    </div>
+    <div class="note">Read-only = <b>accent</b>-Pill. Auswählbar = neutral/gefüllt (<b>on</b>). Größe einheitlich (Caption).</div>
+  </section>
+
+  <section>
+    <h2>Inputs</h2>
+    <div class="row"><input class="input" placeholder="Suchen — Titel, Tag…"></div>
+  </section>
+
+  <section>
+    <h2>Tag-Tabs (Plan)</h2>
+    <div class="days" style="max-width:420px">
+      <div class="day"><span class="n">Mo</span><span class="d">1.</span></div>
+      <div class="day sel"><span class="n">Mi</span><span class="d">3.</span></div>
+      <div class="day"><span class="n">Do</span><span class="d">4.</span></div>
+      <div class="day"><span class="n">Fr</span><span class="d">5.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rezept-Karte (hochkant, einheitliche Höhe)</h2>
+    <div class="row">
+      <div class="rcard">
+        <div class="img"><button class="add">＋ Mi</button></div>
+        <div class="body"><div class="t">Burger Buns</div><div class="m">⏱ 30 Min · 🍳 mittel</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Panel + Rating</h2>
+    <div class="panel">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">👍 Wie hat's geschmeckt?</div>
+      <div class="stars">★★★★☆</div>
+    </div>
+  </section>
+
+</body>
+</html>
