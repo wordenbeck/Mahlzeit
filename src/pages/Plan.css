@@ -3,6 +3,9 @@
   background: var(--bg);
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .plan__header {
@@ -121,11 +124,20 @@
   .plan__grid-area { padding: var(--space-3); }
   .plan__grid {
     grid-template-columns: 1fr;
-    gap: var(--space-2);
+    gap: var(--space-3);
   }
   .plan__list { gap: var(--space-2); }
   .plan__drag-preview { width: calc(100vw - 32px); }
   .plan__magic { padding: 6px var(--space-3); font-size: 12px; }
+
+  /* Ensure recipe cards are readable on mobile */
+  .plan__recipe {
+    min-height: 200px;
+  }
+  .plan__recipe-title {
+    text-align: left;
+    font-size: var(--fs-body);
+  }
 }
 
 .plan__days {
@@ -418,6 +430,7 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  text-align: left;
 }
 
 .plan__recipe-meta {
