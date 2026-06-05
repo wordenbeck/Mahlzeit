@@ -366,8 +366,9 @@ export function RezeptDetail() {
           )}
         </section>
 
-        {/* Sprint 15: Cooking Features */}
-        {recipe && userId && workspaceId && (
+        {/* Sprint 15: Cooking Features — beim Bearbeiten ausblenden (gehört
+            nicht ins Edit, reduziert die Überfrachtung am Handy) */}
+        {!editing && recipe && userId && workspaceId && (
           <section style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
               {/* Gekocht markieren */}
