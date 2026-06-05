@@ -77,7 +77,7 @@ export function CookedButton({ recipeId, workspaceId, userId }: CookedButtonProp
           alignItems: 'center',
           gap: '0.5rem',
           padding: '0.75rem 1rem',
-          background: '#4caf50',
+          background: 'var(--accent)',
           color: 'white',
           border: 'none',
           borderRadius: '6px',
@@ -85,14 +85,6 @@ export function CookedButton({ recipeId, workspaceId, userId }: CookedButtonProp
           fontWeight: '600',
           fontSize: '13px',
           transition: 'background 0.2s',
-        }}
-        onMouseEnter={(e) => {
-          if (!loading) {
-            (e.currentTarget as HTMLButtonElement).style.background = '#45a049';
-          }
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = '#4caf50';
         }}
       >
         <Check size={16} />

@@ -254,6 +254,20 @@
 }
 .rdet__cooking-row > * { min-width: 0; }
 
+/* Einheitliches Panel für alle Koch-Bausteine (sonst bringt jede Komponente
+   ihre eigene Optik mit -> wirkt 'gewuerfelt') */
+.rdet__panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+/* Innere Ad-hoc-Karten neutralisieren, damit kein Doppel-Rahmen entsteht */
+.rdet__panel .recipe-rating { background: transparent; border: none; padding: 0; gap: var(--space-2); }
+
 @media (max-width: 700px) {
   .rdet__cooking-row { grid-template-columns: 1fr; }
 }

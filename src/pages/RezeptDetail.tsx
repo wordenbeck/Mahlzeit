@@ -412,11 +412,11 @@ export function RezeptDetail() {
       {!editing && recipe && userId && workspaceId && (
         <section className="rdet__cooking">
           <div className="rdet__cooking-row">
-            <CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
-            <RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} />
-            <RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} />
+            <div className="rdet__panel"><CookedButton recipeId={recipe.id} workspaceId={workspaceId} userId={userId} /></div>
+            <div className="rdet__panel"><RecipeRating recipeId={recipe.id} workspaceId={workspaceId} userId={userId} /></div>
+            <div className="rdet__panel"><RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} /></div>
           </div>
-          <RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} />
+          <div className="rdet__panel"><RecipeNotes recipeId={recipe.id} workspaceId={workspaceId} /></div>
         </section>
       )}
     </div>
