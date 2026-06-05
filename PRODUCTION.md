@@ -71,6 +71,17 @@ ALTER TABLE recipes ADD recipe_type (hauptgericht/beilage/etc)
 
 ## 📋 BACKLOG (Next Sprints)
 
+### UX-Audit Follow-ups (2026-06-05, aus mahlzeit-ux-audit)
+- [x] **K2** Build repariert + EIN Service Worker (autoUpdate) — Deploys landen wieder
+- [x] **K1** Touch-Scroll in Plan-Liste
+- [x] **W1+W4** Plan-Seite iPhone-first neu (Wochenstreifen + Tipp-Zuordnung + Mahlzeit-Typ)
+- [x] **W2** Bild im Rezept-Edit wählbar
+- [x] **W3 (Teil)** Koch-Features im Edit ausgeblendet
+- [ ] **W3 (voll)** Rezept-Edit als Akkordeon (Eckdaten/Zutaten/Zubereitung/Bild) — tieferer Rebuild
+- [ ] **IA** Einkauf + Liste zu EINEM Screen mit zwei Modi (Bearbeiten/Einkaufsmodus) → Nav von 5 auf 4 Tabs
+- [ ] **N1** native confirm()/alert() durch eigene Sheets ersetzen
+- [ ] **Instagram-Share via iOS-Shortcut** (~1-2h): Reel teilen → Shortcut → `/share?url=` → bestehender Parse-Flow. Baut auf fertigem /share auf.
+
 ### Sprint 17: Concept-System (6-8h)
 - [ ] DB: `concepts` + `recipe_concepts` Tables
 - [ ] UI: Filter by Concept in `/rezepte`
