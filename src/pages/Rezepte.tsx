@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, ChefHat } from 'lucide-react';
+import { Plus, Search, ChefHat, Clock, LayoutGrid, List } from 'lucide-react';
 import './Rezepte.css';
 import { RealRecipeCard } from '../components/RealRecipeCard';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
 import { useRealtimeReload } from '../lib/realtime';
 import { RECIPE_TYPE_LABELS, type RecipeType } from '../lib/types/recipe';
+
+type View = 'grid' | 'list';
 
 export function Rezepte() {
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
@@ -13,6 +15,9 @@ export function Rezepte() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<RecipeType | 'alle'>('alle');
+  const [view, setView] = useState<View>(() => (localStorage.getItem('rezepte-view') as View) || 'grid');
+
+  const setViewPersist = (v: View) => { setView(v); localStorage.setItem('rezepte-view', v); };
 
   const reload = () => {
     listRecipes()
@@ -73,6 +78,14 @@ export function Rezepte() {
             onChange={e => setQuery(e.target.value)}
           />
         </div>
+        <div className="rezepte__view" role="group" aria-label="Ansicht">
+          <button className={`rezepte__view-btn ${view === 'grid' ? 'is-active' : ''}`} onClick={() => setViewPersist('grid')} aria-label="Raster" title="Raster">
+            <LayoutGrid size={16} strokeWidth={2} />
+          </button>
+          <button className={`rezepte__view-btn ${view === 'list' ? 'is-active' : ''}`} onClick={() => setViewPersist('list')} aria-label="Liste" title="Liste">
+            <List size={16} strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       <nav className="rezepte__type-filter" aria-label="Filter nach Kategorie">
@@ -113,12 +126,39 @@ export function Rezepte() {
           <p className="rezepte__placeholder">Keine Treffer für „{query}".</p>
         )}
 
-        {filtered.length > 0 && (
+        {filtered.length > 0 && view === 'grid' && (
           <div className="rezepte__grid">
             {filtered.map(r => (
-              // Kein onClick → Karte ist ein Link auf die echte Detailseite
-              // (statt Overlay). Bearbeiten-Stift sitzt dort.
               <RealRecipeCard key={r.id} recipe={r} />
+            ))}
+          </div>
+        )}
+
+        {filtered.length > 0 && view === 'list' && (
+          <div className="rezepte__list">
+            {filtered.map(r => (
+              <Link key={r.id} to={`/rezepte/${r.id}`} className="rezepte__row">
+                <div
+                  className="rezepte__row-img"
+                  style={r.bild_url ? { backgroundImage: `url(${r.bild_url})` } : undefined}
+                >
+                  {!r.bild_url && <span>🍽</span>}
+                </div>
+                <div className="rezepte__row-body">
+                  <span className="rezepte__row-title">{r.titel}</span>
+                  <span className="rezepte__row-meta">
+                    {r.zubereitungszeit_min != null && (
+                      <span className="rezepte__row-metaitem"><Clock size={12} strokeWidth={2} /> {r.zubereitungszeit_min} Min</span>
+                    )}
+                    {r.schwierigkeit && <span>· {r.schwierigkeit}</span>}
+                  </span>
+                  {r.tags.length > 0 && (
+                    <span className="rezepte__row-tags">
+                      {r.tags.slice(0, 3).map(t => <span key={t} className="rezepte__row-tag">{t}</span>)}
+                    </span>
+                  )}
+                </div>
+              </Link>
             ))}
           </div>
         )}

@@ -46,11 +46,59 @@
 
 .rezepte__toolbar {
   margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .rezepte__search-wrap {
   position: relative;
+  flex: 1;
   max-width: 480px;
+}
+
+.rezepte__view {
+  display: flex;
+  gap: 3px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  flex-shrink: 0;
+}
+.rezepte__view-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-pill);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-3); background: transparent; border: none;
+}
+.rezepte__view-btn.is-active { background: var(--accent); color: #fff; }
+
+/* Listen-Ansicht (B) */
+.rezepte__list { display: flex; flex-direction: column; gap: var(--space-2); padding-bottom: var(--space-6); }
+.rezepte__row {
+  display: flex; align-items: center; gap: var(--space-3);
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card); padding: var(--space-2); text-decoration: none; color: inherit;
+  transition: box-shadow var(--dur-fast) var(--ease-ios);
+}
+.rezepte__row:hover { box-shadow: var(--shadow-card-hover); }
+.rezepte__row-img {
+  width: 60px; height: 60px; border-radius: var(--radius-md); flex-shrink: 0;
+  background: var(--accent-soft) center/cover no-repeat;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.rezepte__row-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.rezepte__row-title {
+  font-size: var(--fs-body); font-weight: 700; color: var(--accent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rezepte__row-meta { font-size: var(--fs-caption); color: var(--text-2); display: inline-flex; align-items: center; gap: 6px; }
+.rezepte__row-metaitem { display: inline-flex; align-items: center; gap: 3px; }
+.rezepte__row-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.rezepte__row-tag {
+  font-size: 10px; font-weight: var(--fw-medium); text-transform: lowercase;
+  background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: var(--radius-pill);
 }
 
 .rezepte__search-icon {
