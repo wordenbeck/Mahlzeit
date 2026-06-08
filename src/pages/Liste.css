@@ -39,9 +39,9 @@
 }
 .liste__row {
   display: grid;
-  grid-template-columns: 24px 1fr auto auto;
+  grid-template-columns: 22px minmax(0, 1fr) 98px 62px;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   padding: 11px var(--space-4);
   border-bottom: 1px solid var(--border);
 }
@@ -58,7 +58,7 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .liste__row.is-checked .liste__name { opacity: 0.45; text-decoration: line-through; }
-.liste__qty { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.liste__qty { display: inline-flex; align-items: center; gap: 5px; justify-content: flex-end; }
 .liste__qty-input {
   width: 56px; text-align: right; padding: 5px 8px;
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
@@ -68,8 +68,9 @@
 .liste__qty-input:focus { border-color: var(--accent); }
 .liste__einheit { font-size: var(--fs-caption); color: var(--text-3); min-width: 28px; }
 .liste__day-pill {
-  flex-shrink: 0; font-size: 10px; font-weight: 700; white-space: nowrap;
+  justify-self: end; font-size: 10px; font-weight: 700; white-space: nowrap;
   padding: 3px 8px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--text-2);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* eigene Zutat hinzufügen */

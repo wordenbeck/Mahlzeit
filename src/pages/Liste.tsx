@@ -61,12 +61,15 @@ export function Liste() {
   const exportList = async () => {
     const lines = items.filter(i => !i.checked).map(i => `${fmt(i.menge)} ${i.einheit} ${i.name}`);
     const text = `Mahlzeit Einkaufsliste · ${isoWeekRangeLabel(weekStart)}\n\n${lines.join('\n')}`;
-    if (navigator.share) {
-      try { await navigator.share({ title: 'Einkaufsliste', text }); } catch { /* cancelled */ }
-    } else {
-      try { await navigator.clipboard.writeText(text); alert('Liste in Zwischenablage kopiert.'); }
-      catch { alert('Teilen nicht verfügbar — Liste manuell kopieren.'); }
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    // Auf Touch/Handy: System-Share-Sheet. Sonst (Desktop): direkt in die
+    // Zwischenablage — zuverlässiger und ohne Browser-Extension-Konflikte.
+    if (isTouch && navigator.share) {
+      try { await navigator.share({ title: 'Einkaufsliste', text }); return; }
+      catch (e) { if ((e as Error)?.name === 'AbortError') return; /* sonst: Clipboard-Fallback */ }
     }
+    try { await navigator.clipboard.writeText(text); alert('Einkaufsliste in die Zwischenablage kopiert.'); }
+    catch { alert('Konnte nicht exportieren — bitte Liste manuell markieren & kopieren.'); }
   };
 
   return (
@@ -90,6 +93,17 @@ export function Liste() {
 
       {!loading && (
         <main className="liste__main">
+          <div className="liste__add">
+            <input
+              className="liste__add-input"
+              placeholder="Eigene Zutat hinzufügen…"
+              value={extraName}
+              onChange={e => setExtraName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') addExtra(); }}
+            />
+            <button className="liste__add-btn" onClick={addExtra} aria-label="Hinzufügen"><Plus size={16} strokeWidth={2.5} /></button>
+          </div>
+
           {items.length === 0 ? (
             <div className="liste__empty">
               <p>Diese Woche ist nichts geplant.</p>
@@ -122,17 +136,6 @@ export function Liste() {
               })}
             </div>
           )}
-
-          <div className="liste__add">
-            <input
-              className="liste__add-input"
-              placeholder="Eigene Zutat hinzufügen…"
-              value={extraName}
-              onChange={e => setExtraName(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') addExtra(); }}
-            />
-            <button className="liste__add-btn" onClick={addExtra} aria-label="Hinzufügen"><Plus size={16} strokeWidth={2.5} /></button>
-          </div>
         </main>
       )}
 
