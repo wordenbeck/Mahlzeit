@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ShoppingBag, Minus, Plus, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Users, ShoppingBag } from 'lucide-react';
 import './Einkauf.css';
 import { useAuth } from '../lib/auth';
 import {
-  isoWeekStart, isoWeekRangeLabel, dayLabelShort, dayDateLong, shiftWeek,
-  getOrCreateWeekplan, setPortionenOverride, setZutatenOverride,
+  isoWeekStart, isoWeekNumber, isoWeekRangeLabel, dayLabelShort, dayLabelLong, shiftWeek,
+  getOrCreateWeekplan, setPortionenOverride,
   type WeekplanWithSlots, type Slot,
 } from '../lib/weekplan';
 import { getRecipe } from '../lib/recipes';
@@ -20,7 +20,10 @@ export function Einkauf() {
   const [recipesById, setRecipesById] = useState<Record<string, Recipe>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showWeekend, setShowWeekend] = useState(false);
+  const [activeDay, setActiveDay] = useState<number | null>(null);
+
+  const sectionRefs = useRef<Record<number, HTMLElement | null>>({});
+  const isJumping = useRef(false);
 
   const load = async () => {
     if (!auth.profile) return;
@@ -47,73 +50,92 @@ export function Einkauf() {
 
   useRealtimeReload('weekplan_slots', load, !!auth.profile);
 
-  const visibleDays = showWeekend ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 3, 4];
+  // Tage mit verplanten Rezepten (sortiert)
+  const days = useMemo(() => {
+    const set = new Set<number>((weekplan?.slots ?? []).map(s => s.day_of_week));
+    return [...set].sort((a, b) => a - b);
+  }, [weekplan]);
+
+  useEffect(() => {
+    if (activeDay === null && days.length > 0) setActiveDay(days[0]);
+  }, [days, activeDay]);
 
   const slotsForDay = (day: number): Slot[] =>
     weekplan?.slots.filter(s => s.day_of_week === day) ?? [];
 
+  const dayNum = (d: number) => new Date(new Date(weekStart).getTime() + d * 86400000).getDate();
+
+  // Scroll-Spy
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (isJumping.current) return;
+        const visible = entries.filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) {
+          const d = Number((visible[0].target as HTMLElement).dataset.day);
+          if (!Number.isNaN(d)) setActiveDay(d);
+        }
+      },
+      { rootMargin: '-120px 0px -60% 0px', threshold: 0 },
+    );
+    Object.values(sectionRefs.current).forEach(el => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, [days]);
+
+  const jumpToDay = (d: number) => {
+    setActiveDay(d);
+    const el = sectionRefs.current[d];
+    if (el) {
+      isJumping.current = true;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.setTimeout(() => { isJumping.current = false; }, 600);
+    }
+  };
+
+  const handlePortionen = async (slot: Slot, next: number) => {
+    if (!weekplan) return;
+    const val = Math.max(1, next);
+    setWeekplan({
+      ...weekplan,
+      slots: weekplan.slots.map(s => s.id === slot.id ? { ...s, portionen_override: val } : s),
+    });
+    try { await setPortionenOverride(slot.id, val); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Konnte nicht speichern.'); }
+  };
+
   const totalSlots = weekplan?.slots.length ?? 0;
-
-  const handlePortionen = async (slot: Slot, portionen: number) => {
-    if (!weekplan) return;
-    const next = Math.max(1, portionen);
-    setWeekplan({
-      ...weekplan,
-      slots: weekplan.slots.map(s => s.id === slot.id ? { ...s, portionen_override: next } : s),
-    });
-    try {
-      await setPortionenOverride(slot.id, next);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Konnte nicht speichern.');
-    }
-  };
-
-  const handleZutatChange = async (slot: Slot, zutatName: string, menge: number) => {
-    if (!weekplan) return;
-    const key = zutatName.toLowerCase();
-    const currentOverride = (slot.zutaten_override ?? {}) as Record<string, number>;
-    const nextOverride = { ...currentOverride, [key]: menge };
-    setWeekplan({
-      ...weekplan,
-      slots: weekplan.slots.map(s => s.id === slot.id ? { ...s, zutaten_override: nextOverride } : s),
-    });
-    try {
-      await setZutatenOverride(slot.id, nextOverride);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Konnte nicht speichern.');
-    }
-  };
 
   return (
     <div className="ekf">
-      <header className="ekf__header">
-        <div>
-          <span className="ekf__eyebrow">Mahlzeit · Wochenübersicht</span>
-          <div className="ekf__title-row">
-            <button className="ekf__nav-btn" onClick={() => setWeekStart(shiftWeek(weekStart, -1))}>
-              <ChevronLeft size={18} strokeWidth={2} />
-            </button>
-            <h1>{isoWeekRangeLabel(weekStart)}</h1>
-            <button className="ekf__nav-btn" onClick={() => setWeekStart(shiftWeek(weekStart, 1))}>
-              <ChevronRight size={18} strokeWidth={2} />
-            </button>
+      <header className="ekf__top">
+        <div className="ekf__top-row">
+          <span className="ekf__eyebrow">Kalenderwoche {isoWeekNumber(new Date(weekStart))}</span>
+          <div className="ekf__weeknav">
+            <button className="ekf__nav-btn" onClick={() => setWeekStart(shiftWeek(weekStart, -1))} aria-label="Vorherige Woche"><ChevronLeft size={18} strokeWidth={2} /></button>
+            <button className="ekf__nav-btn" onClick={() => setWeekStart(shiftWeek(weekStart, 1))} aria-label="Nächste Woche"><ChevronRight size={18} strokeWidth={2} /></button>
           </div>
         </div>
-        <div className="ekf__header-actions">
-          <button
-            className={`ekf__weekend ${showWeekend ? 'is-active' : ''}`}
-            onClick={() => setShowWeekend(!showWeekend)}
-          >
-            {showWeekend ? '— Wochenende' : '+ Wochenende'}
-          </button>
-          <Link to="/liste" className="ekf__cta">
-            <ShoppingBag size={14} strokeWidth={2} /> Einkaufsliste
-          </Link>
-        </div>
+        <h1 className="ekf__title">Einkauf prüfen</h1>
+
+        {days.length > 0 && (
+          <div className="ekf__tabs" role="tablist">
+            {days.map(d => (
+              <button
+                key={d}
+                className={`ekf__tab ${activeDay === d ? 'is-active' : ''}`}
+                onClick={() => jumpToDay(d)}
+                role="tab"
+                aria-selected={activeDay === d}
+              >
+                {dayLabelShort(weekStart, d)}<small>{dayNum(d)}.</small>
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
-      {error && <div className="ekf__error">{error}</div>}
-
+      {error && <div className="ekf__error" onClick={() => setError(null)}>{error}</div>}
       {loading && <p className="ekf__loading">Lade Übersicht…</p>}
 
       {!loading && totalSlots === 0 && (
@@ -123,103 +145,53 @@ export function Einkauf() {
         </div>
       )}
 
-      <main className={`ekf__grid ${showWeekend ? 'is-7' : 'is-5'}`}>
-        {!loading && visibleDays.map(i => {
-          const slots = slotsForDay(i);
-          return (
-            <section key={i} className="ekf__column">
-              <header className="ekf__col-header">
-                <span className="ekf__col-day">{dayLabelShort(weekStart, i)}</span>
-                <span className="ekf__col-date">{dayDateLong(weekStart, i)}</span>
-              </header>
-              <div className="ekf__col-content">
-                {slots.length === 0 ? (
-                  <Link to="/plan" className="ekf__col-empty">+ Rezept</Link>
-                ) : (
-                  slots.map(slot => {
-                    const recipe = slot.recipe_id ? recipesById[slot.recipe_id] : null;
-                    if (!recipe) return null;
-                    const portionen = slot.portionen_override ?? recipe.portionen;
-                    return (
-                      <article key={slot.id} className="ekf__rec">
-                        <header className="ekf__rec-header">
-                          <Link to={`/rezepte/${recipe.id}`} className="ekf__rec-title">
-                            {recipe.titel}
-                          </Link>
-                          <div className="ekf__portionen" aria-label="Portionen">
-                            <Users size={11} strokeWidth={1.75} />
-                            <button
-                              className="ekf__portionen-btn"
-                              onClick={() => handlePortionen(slot, portionen - 1)}
-                            >
-                              <Minus size={10} strokeWidth={2.5} />
-                            </button>
-                            <span className="ekf__portionen-val">{portionen}</span>
-                            <button
-                              className="ekf__portionen-btn"
-                              onClick={() => handlePortionen(slot, portionen + 1)}
-                            >
-                              <Plus size={10} strokeWidth={2.5} />
-                            </button>
-                          </div>
-                        </header>
-                        <ul className="ekf__zutaten">
-                          {recipe.zutaten.map((z, idx) => {
-                            if (z.menge == null) {
-                              return (
-                                <li key={idx} className="ekf__zutat">
-                                  <span className="ekf__zutat-name">
-                                    <ZutatIcon name={z.name} size={14} />
-                                    {z.name}
-                                  </span>
-                                  <span className="ekf__zutat-menge-text">nach Geschmack</span>
-                                </li>
-                              );
-                            }
-                            const factor = recipe.portionen > 0 ? portionen / recipe.portionen : 1;
-                            const skaliert = Math.round(z.menge * factor * 10) / 10;
-                            const overrideKey = z.name.toLowerCase();
-                            const overrides = (slot.zutaten_override ?? {}) as Record<string, number>;
-                            const value = overrides[overrideKey] ?? skaliert;
-                            const isOverridden = overrides[overrideKey] !== undefined;
-                            return (
-                              <li key={idx} className={`ekf__zutat ${isOverridden ? 'is-overridden' : ''}`}>
-                                <span className="ekf__zutat-name">
-                                  <ZutatIcon name={z.name} size={14} />
-                                  {z.name}
-                                </span>
-                                <input
-                                  type="number"
-                                  step="0.5"
-                                  min="0"
-                                  value={value}
-                                  onChange={e => handleZutatChange(slot, z.name, parseFloat(e.target.value) || 0)}
-                                  className="ekf__zutat-input"
-                                />
-                                <span className="ekf__zutat-einheit">{z.einheit}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </article>
-                    );
-                  })
-                )}
-              </div>
-            </section>
-          );
-        })}
+      <main className="ekf__sections">
+        {days.map(d => (
+          <section
+            key={d}
+            className="ekf__section"
+            data-day={d}
+            ref={el => { sectionRefs.current[d] = el; }}
+          >
+            <h2 className="ekf__section-head">{dayLabelLong(weekStart, d)}, {dayNum(d)}.</h2>
+            {slotsForDay(d).map(slot => {
+              const recipe = slot.recipe_id ? recipesById[slot.recipe_id] : null;
+              if (!recipe) return null;
+              const portionen = slot.portionen_override ?? recipe.portionen;
+              const factor = recipe.portionen > 0 ? portionen / recipe.portionen : 1;
+              return (
+                <article key={slot.id} className="ekf__rec">
+                  <header className="ekf__rec-head">
+                    <Link to={`/rezepte/${recipe.id}`} className="ekf__rec-title">{recipe.titel}</Link>
+                    <div className="ekf__port" aria-label="Portionen">
+                      <button className="ekf__port-btn" onClick={() => handlePortionen(slot, portionen - 1)} aria-label="Weniger"><Minus size={13} strokeWidth={2.5} /></button>
+                      <span className="ekf__port-val"><Users size={12} strokeWidth={2} /> {portionen}</span>
+                      <button className="ekf__port-btn" onClick={() => handlePortionen(slot, portionen + 1)} aria-label="Mehr"><Plus size={13} strokeWidth={2.5} /></button>
+                    </div>
+                  </header>
+                  <ul className="ekf__ing">
+                    {recipe.zutaten.map((z, i) => {
+                      const menge = z.menge != null ? Math.round(z.menge * factor * 10) / 10 : null;
+                      return (
+                        <li key={i} className="ekf__ing-row">
+                          <span className="ekf__ing-name"><ZutatIcon name={z.name} size={15} /> {z.name}</span>
+                          <span className="ekf__ing-qty">{menge != null ? `${menge} ${z.einheit ?? ''}` : (z.einheit || 'n. Geschm.')}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </article>
+              );
+            })}
+          </section>
+        ))}
       </main>
 
-      <footer className="ekf__footer">
-        <span className="ekf__footer-info">
-          {totalSlots} {totalSlots === 1 ? 'Rezept' : 'Rezepte'} verplant
-        </span>
-        <Link to="/liste" className="ekf__cta-large">
-          <ShoppingBag size={18} strokeWidth={2} />
-          In die Einkaufstüte →
-        </Link>
-      </footer>
+      {totalSlots > 0 && (
+        <div className="ekf__footer">
+          <Link to="/liste" className="ekf__footer-cta"><ShoppingBag size={18} strokeWidth={2} /> Zur Einkaufsliste</Link>
+        </div>
+      )}
     </div>
   );
 }
