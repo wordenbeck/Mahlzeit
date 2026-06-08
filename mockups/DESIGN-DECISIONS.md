@@ -96,3 +96,19 @@
 - **~100% echter Inhalt** (echte Rezeptnamen/Zutaten/Schritte), echte Tokens.
 - iPhone + (wo relevant) Desktop zeigen.
 - **3 Varianten pro Seite**, klar beschriftet, mit kurzer Begründung je Variante.
+
+## Profil (ENTSCHIEDEN: Variante B kombiniert)
+
+- Eine Karte oben: Avatar + Name (✎) + Haushalt + **Mitgliederliste** (mit „du"-Badge).
+- Einladen separat: Code + Link-Teilen, **QR versteckt** (auf Tipp).
+- Einladen öffnet `/join/<code>` → „<Name> lädt dich ein: <Haushalt> beitreten" **oder**
+  „eigenen Haushalt erstellen".
+- Neuer Block **„Konto & Geräte"**.
+
+## Auth / Identität (RICHTUNG, eigener Sprint)
+
+- **Anonym starten (frictionless) + optional „Konto sichern"** via E-Mail/Telefon-OTP
+  (Supabase linkIdentity / updateUser+OTP). Passwortlos.
+- Löst doppelte Accounts + iPad/Handy-Kopplung dauerhaft.
+- Name+Code+PIN verworfen (Supabase kann anon-User nicht sauber per PIN re-authen).
+- **Eigener Sprint nach dem visuellen Redesign** — backend-lastig, sorgfältig testen.
