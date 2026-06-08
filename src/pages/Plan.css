@@ -34,7 +34,7 @@
 .plan__day.is-planned .plan__day-name, .plan__day.is-planned .plan__day-date { color: #fff; }
 
 /* ---------- Bibliothek ---------- */
-.plan__libhead { position: sticky; top: 48px; z-index: 5; background: var(--bg); padding: var(--space-3) var(--space-5) var(--space-2); border-top: 1px solid var(--border); }
+.plan__libhead { position: sticky; top: 36px; z-index: 5; background: var(--bg); padding: var(--space-3) var(--space-5) var(--space-2); border-top: 1px solid var(--border); }
 .plan__lib-eyebrow { display: block; font-size: var(--fs-caption); color: var(--text-3); font-weight: var(--fw-semibold); margin-bottom: var(--space-2); }
 .plan__search-wrap { position: relative; }
 .plan__search-icon { position: absolute; left: var(--space-3); top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
