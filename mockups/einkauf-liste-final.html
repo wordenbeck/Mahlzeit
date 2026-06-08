@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Einkauf + Liste — final</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);
+    --r-card:16px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:560px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}.vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center;margin-bottom:10px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:720px;overflow-y:auto;position:relative}.scr::-webkit-scrollbar{display:none}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+  .h1{font-size:22px;font-weight:800;margin:2px 0}
+
+  /* sticky header + tabs */
+  .stick{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 14px 8px;border-bottom:1px solid var(--border)}
+  .days{display:flex;gap:5px;margin-top:10px}
+  .day{flex:1;text-align:center;padding:7px 3px;border-radius:10px;background:var(--surface-1);border:1.5px solid var(--border);font-size:13px;font-weight:800;color:var(--accent)}
+  .day small{display:block;font-size:9px;color:var(--text-3);font-weight:600}
+  .day.sel{background:var(--grad);border-color:var(--accent);color:#fff}.day.sel small{color:rgba(255,255,255,.8)}
+
+  .sec{padding:14px 14px 0}
+  .sech{font-size:13px;font-weight:800;color:var(--text-2);text-transform:capitalize;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .sech::after{content:"";flex:1;height:1px;background:var(--border)}
+
+  .rec{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden}
+  .rech{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;gap:10px}
+  .rect{font-weight:800;font-size:14px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .port{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:99px;padding:3px;flex-shrink:0}
+  .port b{width:24px;height:24px;border-radius:99px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--accent);box-shadow:var(--sh)}
+  .port .v{font-size:12px;font-weight:700;min-width:34px;text-align:center}
+  .ing{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:0 13px 11px}
+  .ing .n{font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ing .q{font-size:13px;color:var(--text-2);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+
+  /* Liste B */
+  .toggle{display:flex;gap:4px;background:var(--surface-1);border:1px solid var(--border);border-radius:99px;padding:3px;margin:10px 0}
+  .toggle button{flex:1;padding:7px;border:none;background:transparent;border-radius:99px;font-size:12px;font-weight:700;color:var(--text-3)}
+  .toggle button.on{background:var(--accent);color:#fff}
+  .btab{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .brow{display:grid;grid-template-columns:22px 1fr auto auto;gap:8px;align-items:center;padding:11px 12px;border-bottom:1px solid var(--border)}
+  .brow:last-child{border-bottom:none}
+  .check{width:22px;height:22px;border-radius:99px;border:1.5px solid var(--border-strong);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+  .check.on{background:var(--accent);border-color:var(--accent)}
+  .brow .name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brow .qty{font-size:13px;color:var(--text-2);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--text-2);white-space:nowrap}
+  .brow.done{opacity:.45}.brow.done .name{text-decoration:line-through}
+  .anno{font-size:12px;color:#5a6b62;max-width:392px;margin:10px auto 0;line-height:1.5}.anno b{color:var(--accent)}
+</style></head>
+<body>
+  <h1>Einkauf prüfen + Einkaufsliste — final</h1>
+  <div class="sub">Links: sticky Tag-Tabs + durchgehende Liste nach Tagen getrennt (Scroll-Spy). Rechts: Liste B mit Tag-Pills, einzeilig, nur Haken.</div>
+
+  <div class="row">
+
+    <!-- Einkauf prüfen: sticky tabs + sections -->
+    <div class="col">
+      <div class="vh">Einkauf prüfen</div>
+      <div class="phone"><div class="scr">
+        <div class="stick">
+          <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkauf prüfen</div>
+          <div class="days">
+            <div class="day">Mo<small>1.</small></div>
+            <div class="day">Di<small>2.</small></div>
+            <div class="day sel">Mi<small>3.</small></div>
+            <div class="day">Do<small>4.</small></div>
+            <div class="day">Fr<small>5.</small></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sech">Dienstag, 2.</div>
+          <div class="rec"><div class="rech"><span class="rect">Penne mit Linsen-Bolognese</span><span class="port"><b>−</b><span class="v">2 P.</span><b>+</b></span></div>
+            <div class="ing"><span class="n">Penne</span><span class="q">250 g</span><span class="n">Tomatenmark</span><span class="q">2 EL</span><span class="n">Rote Zwiebel</span><span class="q">1 Stk</span></div></div>
+        </div>
+        <div class="sec">
+          <div class="sech">Mittwoch, 3.</div>
+          <div class="rec"><div class="rech"><span class="rect">Kartoffelwürfel mit Pinienkernen…</span><span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
+            <div class="ing"><span class="n">Festkochende Kartoffeln</span><span class="q">667 g</span><span class="n">Pinienkerne</span><span class="q">27 g</span><span class="n">Rapsöl</span><span class="q">1 EL</span></div></div>
+          <div class="rec"><div class="rech"><span class="rect">Burger Buns</span><span class="port"><b>−</b><span class="v">6 P.</span><b>+</b></span></div>
+            <div class="ing"><span class="n">Magerquark</span><span class="q">200 g</span><span class="n">Dinkelmehl</span><span class="q">160 g</span></div></div>
+        </div>
+        <div class="sec">
+          <div class="sech">Donnerstag, 4.</div>
+          <div class="rec"><div class="rech"><span class="rect">Seitangeschnetzeltes</span><span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
+            <div class="ing"><span class="n">Seitan</span><span class="q">300 g</span><span class="n">Sojasauce</span><span class="q">3 EL</span></div></div>
+        </div>
+      </div></div>
+      <div class="anno"><b>Scroll-Spy:</b> Beim Scrollen wandert die Tab-Markierung mit (Mi → Do). Tipp auf einen Tag springt zur Sektion. Tabs bleiben oben kleben.</div>
+    </div>
+
+    <!-- Einkaufsliste B final -->
+    <div class="col">
+      <div class="vh">Einkaufsliste (B final)</div>
+      <div class="phone"><div class="scr">
+        <div class="stick">
+          <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkaufsliste</div>
+          <div class="toggle"><button class="on">Liste</button><button>Nach Kategorie</button></div>
+        </div>
+        <div style="padding:14px">
+          <div class="btab">
+            <div class="brow"><span class="check"></span><span class="name">Festkochende Kartoffeln</span><span class="qty">1000 g</span><span class="pill">Mi·Do</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Like Hack (Soja Hack)</span><span class="qty">360 g</span><span class="pill">Mi</span></div>
+            <div class="brow done"><span class="check on">✓</span><span class="name">Magerquark</span><span class="qty">400 g</span><span class="pill">Mi</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Rote Zwiebel</span><span class="qty">2 Stk</span><span class="pill">Mi·Fr</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Reibekäse light</span><span class="qty">200 g</span><span class="pill">Mi</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Penne</span><span class="qty">250 g</span><span class="pill">Di</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Tomatenmark</span><span class="qty">2 EL</span><span class="pill">Di</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Pinienkerne</span><span class="qty">40 g</span><span class="pill">Mi</span></div>
+            <div class="brow done"><span class="check on">✓</span><span class="name">Frischer Rosmarin</span><span class="qty">20 g</span><span class="pill">Mi</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="anno"><b>Einzeilig:</b> Haken · Name (kürzt) · Menge · Tag-Pill. Kein X — der Haken markiert „gekauft". Umschalter oben: Liste ↔ nach Kategorie.</div>
+    </div>
+
+  </div>
+</body></html>

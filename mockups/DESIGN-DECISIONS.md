@@ -72,6 +72,22 @@
 - Aktionen die Text überlappen (absolut positioniert über Body).
 - Mehrere konkurrierende Komponenten mit eigenem Look (→ gewürfelt). Einheitliche Panels.
 
+## Einkauf prüfen (ENTSCHIEDEN)
+
+- **Tag-Tabs sticky oben.** Darunter EINE durchgehende Liste aller verplanten Rezepte,
+  **nach Tagen gruppiert mit dezenten Trennern**.
+- **Scroll-Spy:** Beim Scrollen wechselt der aktive Tab automatisch mit. Tab-Klick **springt**
+  zum jeweiligen Tag in der Liste. Tabs bleiben stehen.
+- Pro Rezept: Portions-Stepper + skalierte Mengen (Name links, Menge rechts, tabellarisch).
+- Desktop: Spalten pro Tag (bewährt, beibehalten).
+
+## Einkaufsliste (ENTSCHIEDEN)
+
+- **Layout B (tabellarisch, einzeilig).** Spalten: Haken · Name (kürzt mit …) · Menge · Tag.
+- **Tage als Kurz-Pill** (Mi, Do) statt Punkte — muss **einzeilig** bleiben.
+- **Kein Löschen/X** — der Haken („gekauft") reicht. (X + Haken war doppelt.)
+- **Kategorien als optionaler Umschalter** (B ↔ nach Kategorie gruppiert). Offen ob nötig.
+
 ## Mockup-Regeln
 
 - **~100% echter Inhalt** (echte Rezeptnamen/Zutaten/Schritte), echte Tokens.
