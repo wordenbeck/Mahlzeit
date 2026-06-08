@@ -32,6 +32,10 @@
   .qtoggle{font-size:12px;color:var(--accent);font-weight:700;text-align:center;margin-top:6px}
   .link{font-size:11px;color:var(--text-3);text-align:center;margin-top:6px;word-break:break-all}
   .pen{color:var(--text-3)}
+  .pinrow{display:flex;align-items:center;gap:8px;margin-top:14px;padding:10px 12px;background:var(--surface-2);border-radius:10px}
+  .pinlbl{font-size:13px;font-weight:600;color:var(--text-2)}
+  .pinval{margin-left:auto;font-family:ui-monospace,monospace;font-size:15px;font-weight:700;letter-spacing:.15em;color:var(--text-1)}
+  .pineye{width:30px;height:30px;border-radius:99px;border:none;background:#fff;box-shadow:var(--sh);display:inline-flex;align-items:center;justify-content:center;font-size:13px}
   .device{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);padding:9px 0;border-top:1px solid var(--border)}
   .signout{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border-radius:99px;background:transparent;border:1px solid var(--border);color:var(--text-3);font-size:13px;font-weight:600}
 
@@ -61,7 +65,12 @@
             <div><div style="font-size:20px;font-weight:800;display:flex;align-items:center;gap:6px">Thomas <span class="pen">✎</span></div>
               <div style="font-size:12px;color:var(--text-3)">Haushalt <b style="color:var(--text-2)">Wordenbeck</b></div></div>
           </div>
-          <span class="eyebrow" style="display:block;margin-top:14px">Mitglieder · 2</span>
+          <div class="pinrow">
+            <span class="pinlbl">🔑 Deine PIN</span>
+            <span class="pinval">••••</span>
+            <button class="pineye" aria-label="PIN anzeigen">👁</button>
+          </div>
+          <span class="eyebrow" style="display:block;margin-top:6px">Mitglieder · 2</span>
           <div class="mem"><div class="av" style="background:var(--amber)">T</div><span>Thomas</span><span class="you">du</span></div>
           <div class="mem"><div class="av" style="background:var(--sky)">A</div><span>Anna</span></div>
         </div>
@@ -72,14 +81,6 @@
           <div style="display:flex;align-items:center;justify-content:space-between"><div class="code">8991</div><button class="copy">⧉ Kopieren</button></div>
           <button class="share">↗ Einladungslink teilen</button>
           <div class="qtoggle">▾ QR-Code zeigen</div>
-        </div>
-
-        <div class="card">
-          <span class="eyebrow">Konto &amp; Geräte</span>
-          <p style="font-size:12px;color:var(--text-3);margin:4px 0 8px">Damit du dich auf iPad &amp; Handy mit demselben Konto anmeldest.</p>
-          <div class="device" style="border-top:none;justify-content:space-between"><span>🔑 Deine PIN · ····</span><button class="copy" style="background:var(--surface-2);color:var(--text-2)">ändern</button></div>
-          <div class="device">📱 iPhone · dieses Gerät</div>
-          <div class="device" style="color:var(--accent);font-weight:600">＋ Anderes Gerät koppeln</div>
         </div>
 
         <button class="signout">⎋ Abmelden</button>
