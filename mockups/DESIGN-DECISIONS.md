@@ -87,6 +87,9 @@
 - **Tage als Kurz-Pill** (Mi, Do) statt Punkte — muss **einzeilig** bleiben.
 - **Kein Löschen/X** — der Haken („gekauft") reicht. (X + Haken war doppelt.)
 - **Kategorien als optionaler Umschalter** (B ↔ nach Kategorie gruppiert). Offen ob nötig.
+- **Menge editierbar als freies Textfeld** (kein Stepper, keine ±-Icons).
+- **Export** als Aktion (oben rechts + große Aktion unten): Teilen/Kopieren/PDF.
+- Einkauf prüfen: Tab-Klick scrollt die gewählte Tag-Sektion an den **oberen Rand**.
 
 ## Mockup-Regeln
 

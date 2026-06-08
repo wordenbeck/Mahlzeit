@@ -53,6 +53,12 @@
   .brow .qty{font-size:13px;color:var(--text-2);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
   .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--text-2);white-space:nowrap}
   .brow.done{opacity:.45}.brow.done .name{text-decoration:line-through}
+  .qtyf{width:74px;text-align:right;padding:5px 8px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--surface-1);outline:none}
+  .qtyf:focus{border-color:var(--accent)}
+  .lst-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .export{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;background:var(--surface-1);border:1px solid var(--border);border-radius:99px;font-size:12px;font-weight:700;color:var(--accent);box-shadow:var(--sh)}
+  .exportbar{position:sticky;bottom:0;padding:12px 14px;background:linear-gradient(to top,var(--bg) 60%,transparent)}
+  .exportbar .big{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:var(--grad);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:800}
   .anno{font-size:12px;color:#5a6b62;max-width:392px;margin:10px auto 0;line-height:1.5}.anno b{color:var(--accent)}
 </style></head>
 <body>
@@ -76,11 +82,6 @@
           </div>
         </div>
         <div class="sec">
-          <div class="sech">Dienstag, 2.</div>
-          <div class="rec"><div class="rech"><span class="rect">Penne mit Linsen-Bolognese</span><span class="port"><b>−</b><span class="v">2 P.</span><b>+</b></span></div>
-            <div class="ing"><span class="n">Penne</span><span class="q">250 g</span><span class="n">Tomatenmark</span><span class="q">2 EL</span><span class="n">Rote Zwiebel</span><span class="q">1 Stk</span></div></div>
-        </div>
-        <div class="sec">
           <div class="sech">Mittwoch, 3.</div>
           <div class="rec"><div class="rech"><span class="rect">Kartoffelwürfel mit Pinienkernen…</span><span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
             <div class="ing"><span class="n">Festkochende Kartoffeln</span><span class="q">667 g</span><span class="n">Pinienkerne</span><span class="q">27 g</span><span class="n">Rapsöl</span><span class="q">1 EL</span></div></div>
@@ -101,24 +102,26 @@
       <div class="vh">Einkaufsliste (B final)</div>
       <div class="phone"><div class="scr">
         <div class="stick">
-          <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkaufsliste</div>
+          <div class="lst-top"><div><div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkaufsliste</div></div>
+            <span class="export">⤓ Export</span></div>
           <div class="toggle"><button class="on">Liste</button><button>Nach Kategorie</button></div>
         </div>
         <div style="padding:14px">
           <div class="btab">
-            <div class="brow"><span class="check"></span><span class="name">Festkochende Kartoffeln</span><span class="qty">1000 g</span><span class="pill">Mi·Do</span></div>
-            <div class="brow"><span class="check"></span><span class="name">Like Hack (Soja Hack)</span><span class="qty">360 g</span><span class="pill">Mi</span></div>
-            <div class="brow done"><span class="check on">✓</span><span class="name">Magerquark</span><span class="qty">400 g</span><span class="pill">Mi</span></div>
-            <div class="brow"><span class="check"></span><span class="name">Rote Zwiebel</span><span class="qty">2 Stk</span><span class="pill">Mi·Fr</span></div>
-            <div class="brow"><span class="check"></span><span class="name">Reibekäse light</span><span class="qty">200 g</span><span class="pill">Mi</span></div>
-            <div class="brow"><span class="check"></span><span class="name">Penne</span><span class="qty">250 g</span><span class="pill">Di</span></div>
-            <div class="brow"><span class="check"></span><span class="name">Tomatenmark</span><span class="qty">2 EL</span><span class="pill">Di</span></div>
-            <div class="brow"><span class="check"></span><span class="name">Pinienkerne</span><span class="qty">40 g</span><span class="pill">Mi</span></div>
-            <div class="brow done"><span class="check on">✓</span><span class="name">Frischer Rosmarin</span><span class="qty">20 g</span><span class="pill">Mi</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Festkochende Kartoffeln</span><input class="qtyf" value="1000 g"><span class="pill">Mi·Do</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Like Hack (Soja Hack)</span><input class="qtyf" value="360 g"><span class="pill">Mi</span></div>
+            <div class="brow done"><span class="check on">✓</span><span class="name">Magerquark</span><input class="qtyf" value="400 g"><span class="pill">Mi</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Rote Zwiebel</span><input class="qtyf" value="2 Stk"><span class="pill">Mi·Fr</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Reibekäse light</span><input class="qtyf" value="200 g"><span class="pill">Mi</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Penne</span><input class="qtyf" value="250 g"><span class="pill">Di</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Tomatenmark</span><input class="qtyf" value="2 EL"><span class="pill">Di</span></div>
+            <div class="brow"><span class="check"></span><span class="name">Pinienkerne</span><input class="qtyf" value="40 g"><span class="pill">Mi</span></div>
+            <div class="brow done"><span class="check on">✓</span><span class="name">Frischer Rosmarin</span><input class="qtyf" value="20 g"><span class="pill">Mi</span></div>
           </div>
         </div>
+        <div class="exportbar"><button class="big">⤓ Liste teilen / exportieren</button></div>
       </div></div>
-      <div class="anno"><b>Einzeilig:</b> Haken · Name (kürzt) · Menge · Tag-Pill. Kein X — der Haken markiert „gekauft". Umschalter oben: Liste ↔ nach Kategorie.</div>
+      <div class="anno"><b>Einzeilig:</b> Haken · Name (kürzt) · <b>Mengen-Textfeld</b> (frei editierbar, keine Stepper) · Tag-Pill. Kein X. <b>Export</b> oben rechts + als große Aktion unten (Teilen/Kopieren/PDF).</div>
     </div>
 
   </div>
