@@ -25,6 +25,19 @@ export function pickProfileColor(takenColorVars: string[] = []): string {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+// Persönliche 4-stellige PIN setzen (≠ Haushalts-Code). Fehler ignorieren,
+// falls die Spalte (noch) fehlt — die App funktioniert auch ohne.
+async function setInitialPin(excludeCode: string) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    let pin = '';
+    do { pin = Math.floor(Math.random() * 10000).toString().padStart(4, '0'); }
+    while (pin === excludeCode);
+    await supabase.from('profiles').update({ pin }).eq('id', user.id);
+  } catch { /* Spalte evtl. nicht migriert — egal */ }
+}
+
 // =====================================================================
 // Create + Join — über RPCs (lösen RLS-After-Insert-Problem)
 // =====================================================================
@@ -62,6 +75,7 @@ export async function createWorkspace(workspaceName: string, displayName: string
     );
   }
 
+  await setInitialPin(code);
   return { workspaceId, code };
 }
 
@@ -90,6 +104,7 @@ export async function joinWorkspaceByCode(code: string, displayName: string) {
 
   if (error) throw new Error(error.message);
 
+  await setInitialPin(normalized);
   return { workspaceId: found.workspace_id, workspaceName: found.workspace_name };
 }
 

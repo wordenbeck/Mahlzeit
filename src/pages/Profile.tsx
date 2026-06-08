@@ -35,7 +35,8 @@ export function Profile() {
         const { data } = await supabase.from('profiles').select('pin').eq('id', auth.userId!).maybeSingle();
         let p = (data as any)?.pin as string | null;
         if (!p) {
-          p = String(Math.floor(1000 + Math.random() * 9000));
+          const wsCode = auth.workspace?.code ?? '';
+          do { p = Math.floor(Math.random() * 10000).toString().padStart(4, '0'); } while (p === wsCode);
           await supabase.from('profiles').update({ pin: p }).eq('id', auth.userId!);
         }
         if (!cancelled) setPin(p);
