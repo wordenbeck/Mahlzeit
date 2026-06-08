@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Plus, Share2, Trash2, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Check, Plus, Share2, ShoppingBag } from 'lucide-react';
 import './Liste.css';
 import { useAuth } from '../lib/auth';
 import {
@@ -9,6 +9,8 @@ import {
   type ShoppingItem,
 } from '../lib/weekplan';
 import { ZutatIcon } from '../components/ZutatIcon';
+
+const DAY_SHORT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
 export function Liste() {
   const auth = useAuth();
@@ -38,72 +40,49 @@ export function Liste() {
   }, [weekStart, auth.profile?.id]);
 
   const remaining = items.filter(i => !i.checked).length;
-  const fromRecipes = useMemo(() => items.filter(i => !i.isExtra), [items]);
-  const extras = useMemo(() => items.filter(i => i.isExtra), [items]);
 
   const toggle = (key: string) =>
     setItems(items.map(i => i.key === key ? { ...i, checked: !i.checked } : i));
-
-  const remove = (key: string) =>
-    setItems(items.filter(i => i.key !== key));
-
-  const setMenge = (key: string, menge: number) =>
-    setItems(items.map(i => i.key === key ? { ...i, menge } : i));
+  const setMenge = (key: string, raw: string) =>
+    setItems(items.map(i => i.key === key ? { ...i, menge: parseFloat(raw.replace(',', '.')) || 0 } : i));
 
   const addExtra = () => {
     const name = extraName.trim();
     if (!name) return;
-    setItems([
-      ...items,
-      { key: `extra-${Date.now()}`, name, menge: 1, einheit: 'Stk', sources: [], isExtra: true },
-    ]);
+    setItems([...items, { key: `extra-${Date.now()}`, name, menge: 1, einheit: 'Stk', sources: [], isExtra: true }]);
     setExtraName('');
   };
 
-  const uniqueDays = (item: ShoppingItem): number[] => {
-    const set = new Set(item.sources.map(s => s.dayOfWeek));
-    return Array.from(set).sort((a, b) => a - b);
-  };
+  const daysOf = (item: ShoppingItem): string =>
+    Array.from(new Set(item.sources.map(s => s.dayOfWeek))).sort((a, b) => a - b).map(d => DAY_SHORT[d]).join('·');
 
-  const dayShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(1);
 
-  const exportToBring = async () => {
-    // Web-Share-API als Bridge: User wählt Bring im iOS-Share-Sheet
-    // Format: eine Zutat pro Zeile, "Menge Einheit Name"
-    const lines = items
-      .filter(i => !i.checked)
-      .map(i => {
-        const m = Number.isInteger(i.menge) ? i.menge : i.menge.toFixed(1);
-        return `${m} ${i.einheit} ${i.name}`;
-      });
+  const exportList = async () => {
+    const lines = items.filter(i => !i.checked).map(i => `${fmt(i.menge)} ${i.einheit} ${i.name}`);
     const text = `Mahlzeit Einkaufsliste · ${isoWeekRangeLabel(weekStart)}\n\n${lines.join('\n')}`;
-
     if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Einkaufsliste', text });
-      } catch {
-        // user cancelled
-      }
+      try { await navigator.share({ title: 'Einkaufsliste', text }); } catch { /* cancelled */ }
     } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        alert('Liste in Zwischenablage kopiert — füg sie in Bring ein.');
-      } catch {
-        alert('Web-Share nicht verfügbar. Markier die Liste und kopier sie manuell.');
-      }
+      try { await navigator.clipboard.writeText(text); alert('Liste in Zwischenablage kopiert.'); }
+      catch { alert('Teilen nicht verfügbar — Liste manuell kopieren.'); }
     }
   };
 
   return (
     <div className="liste">
-      <header className="liste__header">
-        <Link to="/einkauf" className="liste__back">
-          <ArrowLeft size={14} strokeWidth={2} /> zurück zur Wochenübersicht
-        </Link>
-        <div>
-          <span className="liste__eyebrow">Mahlzeit · Einkaufsliste</span>
-          <h1>{isoWeekRangeLabel(weekStart)}</h1>
+      <header className="liste__top">
+        <Link to="/einkauf" className="liste__back"><ArrowLeft size={14} strokeWidth={2} /> Wochenübersicht</Link>
+        <div className="liste__top-row">
+          <div>
+            <span className="liste__eyebrow">Einkaufsliste</span>
+            <h1>{isoWeekRangeLabel(weekStart)}</h1>
+          </div>
+          <button className="liste__export" onClick={exportList} disabled={remaining === 0}>
+            <Share2 size={15} strokeWidth={2} /> Export
+          </button>
         </div>
+        <p className="liste__count">{remaining} {remaining === 1 ? 'Zutat offen' : 'Zutaten offen'}</p>
       </header>
 
       {error && <div className="liste__error">{error}</div>}
@@ -111,123 +90,58 @@ export function Liste() {
 
       {!loading && (
         <main className="liste__main">
-          <section className="liste__card">
-            <header className="liste__card-header">
-              <div>
-                <span className="liste__card-eyebrow">
-                  <ShoppingBag size={14} strokeWidth={1.75} /> Einkaufsliste
-                </span>
-                <h2>{remaining} {remaining === 1 ? 'Zutat' : 'Zutaten'} · diese Woche</h2>
-              </div>
-              <button
-                className="liste__bring"
-                onClick={exportToBring}
-                disabled={items.filter(i => !i.checked).length === 0}
-                title="Öffnet iOS-Share-Sheet — wähle Bring aus"
-              >
-                <Share2 size={14} strokeWidth={2} /> Teilen / An Bring
-              </button>
-            </header>
-
-            <div className="liste__add">
-              <input
-                className="liste__add-input"
-                placeholder="Eigene Zutat hinzufügen…"
-                value={extraName}
-                onChange={e => setExtraName(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') addExtra(); }}
-              />
-              <button className="liste__add-btn" onClick={addExtra} aria-label="Hinzufügen">
-                <Plus size={16} strokeWidth={2} />
-              </button>
+          {items.length === 0 ? (
+            <div className="liste__empty">
+              <p>Diese Woche ist nichts geplant.</p>
+              <Link to="/plan" className="liste__cta-link">→ Jetzt planen</Link>
             </div>
+          ) : (
+            <div className="liste__table">
+              {items.map(item => {
+                const days = daysOf(item);
+                return (
+                  <div key={item.key} className={`liste__row ${item.checked ? 'is-checked' : ''}`}>
+                    <button className="liste__check" onClick={() => toggle(item.key)} aria-label={item.checked ? 'Nicht gekauft' : 'Gekauft'}>
+                      {item.checked && <Check size={14} strokeWidth={3} />}
+                    </button>
+                    <span className="liste__name"><ZutatIcon name={item.name} size={16} /> {item.name}</span>
+                    <span className="liste__qty">
+                      <input
+                        className="liste__qty-input"
+                        type="text"
+                        inputMode="decimal"
+                        value={fmt(item.menge)}
+                        onChange={e => setMenge(item.key, e.target.value)}
+                        aria-label={`Menge ${item.name}`}
+                      />
+                      <span className="liste__einheit">{item.einheit}</span>
+                    </span>
+                    <span className="liste__day-pill">{days || (item.isExtra ? 'extra' : '')}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
-            {items.length === 0 && (
-              <div className="liste__empty">
-                <p>Diese Woche ist nichts geplant.</p>
-                <Link to="/plan" className="liste__cta-link">→ Jetzt planen</Link>
-              </div>
-            )}
-
-            {fromRecipes.length > 0 && (
-              <div className="liste__group">
-                <h3 className="liste__group-title">Aus Rezepten</h3>
-                <ul className="liste__list">
-                  {fromRecipes.map(item => (
-                    <li key={item.key} className={`liste__item ${item.checked ? 'is-checked' : ''}`}>
-                      <button className="liste__check" onClick={() => toggle(item.key)}>
-                        {item.checked && <Check size={14} strokeWidth={2.5} />}
-                      </button>
-                      <span className="liste__name">
-                        <ZutatIcon name={item.name} size={18} />
-                        {item.name}
-                      </span>
-                      <span className="liste__menge">
-                        <input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          value={item.menge}
-                          onChange={e => setMenge(item.key, parseFloat(e.target.value) || 0)}
-                          className="liste__menge-input"
-                        />
-                        <span className="liste__einheit">{item.einheit}</span>
-                      </span>
-                      <span className="liste__days">
-                        {uniqueDays(item).map(d => (
-                          <span key={d} className="liste__day-pill">{dayShort[d]}</span>
-                        ))}
-                      </span>
-                      <span className="liste__origin" title={item.sources.map(s => s.recipeTitle).join(', ')}>
-                        {item.sources.length === 1
-                          ? item.sources[0].recipeTitle
-                          : `${item.sources.length} Rezepte`}
-                      </span>
-                      <button className="liste__remove" onClick={() => remove(item.key)} aria-label="Entfernen">
-                        <Trash2 size={13} strokeWidth={1.75} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {extras.length > 0 && (
-              <div className="liste__group">
-                <h3 className="liste__group-title">Extras</h3>
-                <ul className="liste__list">
-                  {extras.map(item => (
-                    <li key={item.key} className={`liste__item ${item.checked ? 'is-checked' : ''}`}>
-                      <button className="liste__check" onClick={() => toggle(item.key)}>
-                        {item.checked && <Check size={14} strokeWidth={2.5} />}
-                      </button>
-                      <span className="liste__name">
-                        <ZutatIcon name={item.name} size={18} />
-                        {item.name}
-                      </span>
-                      <span className="liste__menge">
-                        <input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          value={item.menge}
-                          onChange={e => setMenge(item.key, parseFloat(e.target.value) || 0)}
-                          className="liste__menge-input"
-                        />
-                        <span className="liste__einheit">{item.einheit}</span>
-                      </span>
-                      <span className="liste__days" />
-                      <span className="liste__origin liste__origin--extra">manuell</span>
-                      <button className="liste__remove" onClick={() => remove(item.key)} aria-label="Entfernen">
-                        <Trash2 size={13} strokeWidth={1.75} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
+          <div className="liste__add">
+            <input
+              className="liste__add-input"
+              placeholder="Eigene Zutat hinzufügen…"
+              value={extraName}
+              onChange={e => setExtraName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') addExtra(); }}
+            />
+            <button className="liste__add-btn" onClick={addExtra} aria-label="Hinzufügen"><Plus size={16} strokeWidth={2.5} /></button>
+          </div>
         </main>
+      )}
+
+      {!loading && items.length > 0 && (
+        <div className="liste__footer">
+          <button className="liste__footer-cta" onClick={exportList}>
+            <ShoppingBag size={18} strokeWidth={2} /> Liste teilen / exportieren
+          </button>
+        </div>
       )}
     </div>
   );
