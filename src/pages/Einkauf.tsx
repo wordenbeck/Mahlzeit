@@ -50,11 +50,18 @@ export function Einkauf() {
 
   useRealtimeReload('weekplan_slots', load, !!auth.profile);
 
-  // Tage mit verplanten Rezepten (sortiert)
-  const days = useMemo(() => {
-    const set = new Set<number>((weekplan?.slots ?? []).map(s => s.day_of_week));
-    return [...set].sort((a, b) => a - b);
-  }, [weekplan]);
+  // Tabs: Mo–Fr immer + Wochenende nur falls verplant
+  const plannedDaySet = useMemo(
+    () => new Set<number>((weekplan?.slots ?? []).map(s => s.day_of_week)),
+    [weekplan],
+  );
+  const tabDays = useMemo(() => {
+    const base = [0, 1, 2, 3, 4];
+    const weekend = [5, 6].filter(d => plannedDaySet.has(d));
+    return [...base, ...weekend];
+  }, [plannedDaySet]);
+  // Sektionen nur für Tage mit Rezepten
+  const days = useMemo(() => [...plannedDaySet].sort((a, b) => a - b), [plannedDaySet]);
 
   useEffect(() => {
     if (activeDay === null && days.length > 0) setActiveDay(days[0]);
@@ -77,7 +84,7 @@ export function Einkauf() {
           if (!Number.isNaN(d)) setActiveDay(d);
         }
       },
-      { rootMargin: '-120px 0px -60% 0px', threshold: 0 },
+      { rootMargin: '-170px 0px -55% 0px', threshold: 0 },
     );
     Object.values(sectionRefs.current).forEach(el => el && obs.observe(el));
     return () => obs.disconnect();
@@ -118,21 +125,23 @@ export function Einkauf() {
         </div>
         <h1 className="ekf__title">Einkauf prüfen</h1>
 
-        {days.length > 0 && (
-          <div className="ekf__tabs" role="tablist">
-            {days.map(d => (
+        <div className="ekf__tabs" role="tablist">
+          {tabDays.map(d => {
+            const planned = plannedDaySet.has(d);
+            return (
               <button
                 key={d}
-                className={`ekf__tab ${activeDay === d ? 'is-active' : ''}`}
-                onClick={() => jumpToDay(d)}
+                className={`ekf__tab ${planned ? 'is-planned' : ''} ${activeDay === d ? 'is-active' : ''}`}
+                onClick={() => planned && jumpToDay(d)}
                 role="tab"
                 aria-selected={activeDay === d}
+                disabled={!planned}
               >
                 {dayLabelShort(weekStart, d)}<small>{dayNum(d)}.</small>
               </button>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </header>
 
       {error && <div className="ekf__error" onClick={() => setError(null)}>{error}</div>}
