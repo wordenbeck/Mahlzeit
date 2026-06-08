@@ -211,18 +211,11 @@ export function RezeptDetail() {
             <h1>{r.titel}</h1>
             {r.beschreibung && <p className="rdet__desc">{r.beschreibung}</p>}
             <div className="rdet__meta">
-              <span className="rdet__meta-item">
-                <Clock size={16} strokeWidth={2} />
-                {r.zubereitungszeit_min != null ? `${r.zubereitungszeit_min} Min` : '—'}
-              </span>
-              <span className="rdet__meta-item">
-                <ChefHat size={16} strokeWidth={2} />
-                {r.schwierigkeit ?? '—'}
-              </span>
-              <span className="rdet__meta-item">
-                <Users size={16} strokeWidth={2} />
-                {r.portionen} Port.
-              </span>
+              <span className="rdet__meta-item"><Clock size={16} strokeWidth={2} /> {r.zubereitungszeit_min != null ? `${r.zubereitungszeit_min} Min` : '—'}</span>
+              <span className="rdet__meta-dot">·</span>
+              <span className="rdet__meta-item"><ChefHat size={16} strokeWidth={2} /> {r.schwierigkeit ?? '—'}</span>
+              <span className="rdet__meta-dot">·</span>
+              <span className="rdet__meta-item"><Users size={16} strokeWidth={2} /> {r.portionen} Port.</span>
             </div>
             {r.recipe_type && <span className="rdet__type-pill">{RECIPE_TYPE_LABELS[r.recipe_type as RecipeType] ?? r.recipe_type}</span>}
           </div>

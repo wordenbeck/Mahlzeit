@@ -93,5 +93,4 @@
 @media (max-width: 600px) {
   .rrc__body { padding: var(--space-2); gap: 4px; }
   .rrc__title { font-size: 14px; }
-  .rrc__tags { display: none; } /* am Handy Platz sparen */
 }

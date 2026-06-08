@@ -57,7 +57,7 @@ export function RecipeTypeSelector({ recipeId, initialType = 'hauptgericht', onC
             onClick={() => handleTypeChange(t.value)}
             disabled={saving}
           >
-            {t.emoji} {t.label}
+            {t.label}
           </button>
         ))}
       </div>
