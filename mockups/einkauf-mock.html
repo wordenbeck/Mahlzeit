@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Einkauf prüfen — 3 Varianten</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);
+    --r-card:16px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:600px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}.vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center}
+  .vd{font-size:12px;color:#5a6b62;text-align:center;margin:4px 0 12px;min-height:46px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:720px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}
+  .pad{padding:14px}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+  .h1{font-size:22px;font-weight:800;margin:2px 0 12px}
+
+  .days{display:flex;gap:5px;margin-bottom:12px}
+  .day{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 3px;border-radius:12px;background:var(--surface-1);border:1.5px solid var(--border)}
+  .day .n{font-size:13px;font-weight:800;color:var(--accent)}.day .d{font-size:10px;color:var(--text-3)}
+  .day.sel{background:var(--grad);border-color:var(--accent)}.day.sel .n,.day.sel .d{color:#fff}
+
+  .rec{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+  .rech{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;gap:10px}
+  .rect{font-weight:800;font-size:15px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .port{display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:99px;padding:3px}
+  .port b{width:26px;height:26px;border-radius:99px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);box-shadow:var(--sh)}
+  .port .v{font-size:13px;font-weight:700;min-width:38px;text-align:center}
+  .ing{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:0 14px 12px}
+  .ing .n{font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ing .q{font-size:13px;color:var(--text-2);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .chev{color:var(--text-3)}
+
+  /* C accordion */
+  .acch{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);margin-bottom:8px}
+  .accday{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-right:8px}
+
+  .desk{width:840px;max-width:100%;background:var(--bg);border:1px solid #d6dcd8;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.12);margin:18px auto 0}.desk .scr{height:520px}
+  .cols{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .dcol{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:10px}
+  .dcolh{font-size:13px;font-weight:800;color:var(--accent);margin-bottom:8px}
+  .drec{background:var(--surface-2);border-radius:8px;padding:8px;margin-bottom:8px}
+  .drect{font-size:12px;font-weight:700;margin-bottom:6px}
+  .ding{display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);padding:1px 0}
+  .ding .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+</style></head>
+<body>
+  <h1>Einkauf prüfen — 3 Varianten</h1>
+  <div class="sub">Portionen pro Rezept anpassen → Mengen skalieren. Desktop-Spalten fandest du gut (rechts). Fürs Handy 3 Wege:</div>
+
+  <div class="row">
+
+    <!-- A: Tag-Tabs (wie Plan) -->
+    <div class="col">
+      <div class="vh">A · Tag-Tabs (wie Plan)</div>
+      <div class="vd">Konsistent mit Plan: Tag wählen → Rezepte des Tages mit Portions-Stepper + skalierten Mengen.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkauf prüfen</div>
+        <div class="days">
+          <div class="day"><span class="n">Mo</span><span class="d">1.</span></div>
+          <div class="day"><span class="n">Di</span><span class="d">2.</span></div>
+          <div class="day sel"><span class="n">Mi</span><span class="d">3.</span></div>
+          <div class="day"><span class="n">Do</span><span class="d">4.</span></div>
+          <div class="day"><span class="n">Fr</span><span class="d">5.</span></div>
+        </div>
+        <div class="rec">
+          <div class="rech"><span class="rect">Kartoffelwürfel mit Pinienkernen…</span>
+            <span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
+          <div class="ing">
+            <span class="n">Festkochende Kartoffeln</span><span class="q">667 g</span>
+            <span class="n">Pinienkerne</span><span class="q">27 g</span>
+            <span class="n">Rapsöl</span><span class="q">1 EL</span>
+            <span class="n">Rote Zwiebel</span><span class="q">1 Stk</span>
+          </div>
+        </div>
+        <div class="rec">
+          <div class="rech"><span class="rect">Burger Buns</span>
+            <span class="port"><b>−</b><span class="v">6 P.</span><b>+</b></span></div>
+          <div class="ing">
+            <span class="n">Magerquark</span><span class="q">200 g</span>
+            <span class="n">Dinkelmehl</span><span class="q">160 g</span>
+            <span class="n">Like Hack</span><span class="q">180 g</span>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- B: alle Rezepte, Tag als Label -->
+    <div class="col">
+      <div class="vh">B · Alle Rezepte der Woche</div>
+      <div class="vd">Eine Liste aller verplanten Rezepte (Tag als Label). Kein Tab-Wechsel, alles durchscrollen.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkauf prüfen</div>
+        <div class="rec">
+          <div class="rech"><span><span class="accday">Di</span><span class="rect" style="display:inline">Penne mit Linsen-Bolognese</span></span>
+            <span class="port"><b>−</b><span class="v">2 P.</span><b>+</b></span></div>
+          <div class="ing"><span class="n">Penne</span><span class="q">250 g</span><span class="n">Tomatenmark</span><span class="q">2 EL</span></div>
+        </div>
+        <div class="rec">
+          <div class="rech"><span><span class="accday">Mi</span><span class="rect" style="display:inline">Kartoffelwürfel m. Pinien…</span></span>
+            <span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
+          <div class="ing"><span class="n">Festkochende Kartoffeln</span><span class="q">667 g</span><span class="n">Pinienkerne</span><span class="q">27 g</span></div>
+        </div>
+        <div class="rec">
+          <div class="rech"><span><span class="accday">Mi</span><span class="rect" style="display:inline">Burger Buns</span></span>
+            <span class="port"><b>−</b><span class="v">6 P.</span><b>+</b></span></div>
+          <div class="ing"><span class="n">Magerquark</span><span class="q">200 g</span><span class="n">Dinkelmehl</span><span class="q">160 g</span></div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- C: kompakt, Mengen einklappbar -->
+    <div class="col">
+      <div class="vh">C · Kompakt (Mengen einklappbar)</div>
+      <div class="vd">Nur Rezepte + Portionen sichtbar, Zutaten erst auf Tipp. Schnellster Überblick, Anpassen ohne Scroll-Wüste.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkauf prüfen</div>
+        <div class="acch"><span><span class="accday">Di</span> Penne mit Linsen-Bolognese</span><span class="port"><b>−</b><span class="v">2 P.</span><b>+</b></span></div>
+        <div class="acch"><span><span class="accday">Mi</span> Kartoffelwürfel m. Pinien…</span><span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
+        <div class="rec">
+          <div class="rech"><span><span class="accday">Mi</span> Burger Buns</span><span class="chev">▾</span></div>
+          <div class="ing"><span class="n">Magerquark</span><span class="q">200 g</span><span class="n">Dinkelmehl</span><span class="q">160 g</span><span class="n">Like Hack</span><span class="q">180 g</span></div>
+        </div>
+        <div class="acch"><span><span class="accday">Do</span> Seitangeschnetzeltes</span><span class="port"><b>−</b><span class="v">4 P.</span><b>+</b></span></div>
+      </div></div></div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:24px"><div class="vh">Desktop / iPad — Spalten pro Tag (von dir gelobt, beibehalten)</div></div>
+  <div class="desk"><div class="scr"><div class="pad" style="padding:18px">
+    <div class="eyebrow">Kalenderwoche 23</div><div class="h1">Einkauf prüfen</div>
+    <div class="cols">
+      <div class="dcol"><div class="dcolh">Mo 1.</div><div style="color:var(--text-3);font-size:11px">leer</div></div>
+      <div class="dcol"><div class="dcolh">Di 2.</div><div class="drec"><div class="drect">Penne Linsen-Bolognese</div><div class="ding"><span class="n">Penne</span><span>250 g</span></div><div class="ding"><span class="n">Tomatenmark</span><span>2 EL</span></div></div></div>
+      <div class="dcol"><div class="dcolh">Mi 3.</div>
+        <div class="drec"><div class="drect">Kartoffelwürfel m. Pinien…</div><div class="ding"><span class="n">Kartoffeln</span><span>667 g</span></div><div class="ding"><span class="n">Pinienkerne</span><span>27 g</span></div></div>
+        <div class="drec"><div class="drect">Burger Buns</div><div class="ding"><span class="n">Magerquark</span><span>200 g</span></div></div></div>
+      <div class="dcol"><div class="dcolh">Do 4.</div><div class="drec"><div class="drect">Seitangeschnetzeltes</div><div class="ding"><span class="n">Seitan</span><span>300 g</span></div></div></div>
+      <div class="dcol"><div class="dcolh">Fr 5.</div><div style="color:var(--text-3);font-size:11px">leer</div></div>
+    </div>
+  </div></div></div>
+</body></html>
