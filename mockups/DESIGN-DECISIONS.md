@@ -112,3 +112,11 @@
 - Löst doppelte Accounts + iPad/Handy-Kopplung dauerhaft.
 - Name+Code+PIN verworfen (Supabase kann anon-User nicht sauber per PIN re-authen).
 - **Eigener Sprint nach dem visuellen Redesign** — backend-lastig, sorgfältig testen.
+
+## Auth — VORERST GEPARKT (2026-06)
+
+- Entscheidung vertagt. Optionen geklärt: **E-Mail-OTP** (bestes Aufwand/Nutzen) vs.
+  Code+Name+PIN (mehr Aufwand/Risiko). Kein Build vorerst.
+- Realität: ~2 Personen, 3-4 Geräte. Duplikate (mehrere „Jacks") sind der Schmerz,
+  aber kein Blocker. Interim: nicht die PWA löschen → localStorage-Session bleibt.
+- Wenn aufgegriffen: E-Mail-OTP empfohlen (Supabase nativ, passwordless, 1× pro Gerät).
