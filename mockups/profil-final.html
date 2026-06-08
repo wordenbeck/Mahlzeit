@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profil final + Beitreten</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);
+    --grad:linear-gradient(135deg,#10B981,#006C49);--today:linear-gradient(135deg,#F0FDF4,#D1FADF);
+    --amber:#F6C27A;--sky:#9EC0DE;--r-card:16px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:560px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}.vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center;margin-bottom:10px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:700px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}.pad{padding:16px}
+  .back{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:12px;display:block}
+  .av{border-radius:99px;display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(0,0,0,.7);flex-shrink:0}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);padding:16px;margin-bottom:12px}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+  .code{font-size:26px;font-weight:800;letter-spacing:.12em;font-family:ui-monospace,monospace;color:var(--accent)}
+  .copy{background:var(--accent);color:#fff;border:none;border-radius:99px;padding:7px 11px;font-size:12px;font-weight:700}
+  .share{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;background:var(--grad);color:#fff;font-weight:700;border:none;font-size:14px;margin-top:10px}
+  .mem{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+  .mem .av{width:34px;height:34px;font-size:13px}
+  .you{margin-left:auto;font-size:11px;color:var(--accent);font-weight:700;background:var(--accent-soft);padding:2px 8px;border-radius:99px}
+  .addmem{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border);color:var(--accent);font-weight:600;font-size:13px}
+  .addmem .av{width:34px;height:34px;background:var(--accent-soft);color:var(--accent);font-size:18px}
+  .qr{width:130px;height:130px;border-radius:12px;background:repeating-conic-gradient(#006C49 0 25%,#fff 0 50%) 0/16px 16px;margin:10px auto;border:6px solid #fff;box-shadow:var(--sh)}
+  .qtoggle{font-size:12px;color:var(--accent);font-weight:700;text-align:center;margin-top:6px}
+  .link{font-size:11px;color:var(--text-3);text-align:center;margin-top:6px;word-break:break-all}
+  .pen{color:var(--text-3)}
+  .device{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);padding:9px 0;border-top:1px solid var(--border)}
+  .signout{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border-radius:99px;background:transparent;border:1px solid var(--border);color:var(--text-3);font-size:13px;font-weight:600}
+
+  /* join screen */
+  .join{text-align:center;padding:24px 8px}
+  .join .av{width:64px;height:64px;font-size:26px;background:var(--amber);margin:0 auto 12px}
+  .join h2{font-size:20px;font-weight:800}.join p{font-size:13px;color:var(--text-2);margin:6px 0 18px}
+  .jbtn{width:100%;padding:14px;border-radius:14px;font-weight:800;font-size:15px;border:none;margin-bottom:10px}
+  .jp{background:var(--grad);color:#fff}.js{background:var(--surface-1);color:var(--text-1);border:1px solid var(--border)}
+  .jor{font-size:12px;color:var(--text-3);margin:8px 0}
+  .anno{font-size:12px;color:#5a6b62;max-width:392px;margin:10px auto 0;line-height:1.5}.anno b{color:var(--accent)}
+</style></head>
+<body>
+  <h1>Profil (final, B kombiniert) + Beitreten-Screen</h1>
+  <div class="sub">Eine Karte oben: Ich + Haushalt + Mitgliederliste. QR versteckt. Rechts: was der Eingeladene sieht.</div>
+
+  <div class="row">
+
+    <!-- Profil final -->
+    <div class="col">
+      <div class="vh">Mein Profil &amp; Haushalt</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <span class="back">‹ zurück</span>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="av" style="width:56px;height:56px;font-size:24px;background:var(--amber)">T</div>
+            <div><div style="font-size:20px;font-weight:800;display:flex;align-items:center;gap:6px">Thomas <span class="pen">✎</span></div>
+              <div style="font-size:12px;color:var(--text-3)">Haushalt <b style="color:var(--text-2)">Wordenbeck</b></div></div>
+          </div>
+          <span class="eyebrow" style="display:block;margin-top:14px">Mitglieder · 2</span>
+          <div class="mem"><div class="av" style="background:var(--amber)">T</div><span>Thomas</span><span class="you">du</span></div>
+          <div class="mem"><div class="av" style="background:var(--sky)">A</div><span>Anna</span></div>
+          <div class="addmem"><div class="av">＋</div> Mitglied einladen</div>
+        </div>
+
+        <div class="card">
+          <span class="eyebrow">Einladen</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div><div style="font-size:11px;color:var(--text-3)">Code</div><div class="code">8991</div></div><button class="copy">⧉ Kopieren</button></div>
+          <button class="share">↗ Einladungslink teilen</button>
+          <div class="qtoggle">▾ QR-Code zeigen</div>
+          <div class="link">mahlzeit123.vercel.app/join/8991</div>
+        </div>
+
+        <div class="card">
+          <span class="eyebrow">Konto &amp; Geräte</span>
+          <div class="device">📱 iPhone · dieses Gerät</div>
+          <div class="device">＋ Anderes Gerät koppeln (Name + PIN)</div>
+        </div>
+
+        <button class="signout">⎋ Abmelden</button>
+      </div></div></div>
+      <div class="anno"><b>Kombiniert:</b> Ich + Haushalt + Mitgliederliste (mit „du") in einer Karte oben. Einladen separat. Neu: „Konto &amp; Geräte" für die Kopplung.</div>
+    </div>
+
+    <!-- Beitreten -->
+    <div class="col">
+      <div class="vh">Was der Eingeladene sieht (/join/8991)</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="join">
+          <div class="av">T</div>
+          <h2>Thomas lädt dich ein</h2>
+          <p>Tritt dem Haushalt <b>„Wordenbeck"</b> bei und plant gemeinsam Mahlzeiten.</p>
+          <button class="jbtn jp">✓ Haushalt „Wordenbeck" beitreten</button>
+          <div class="jor">— oder —</div>
+          <button class="jbtn js">＋ Eigenen Haushalt erstellen</button>
+        </div>
+        <div class="card" style="margin-top:8px">
+          <span class="eyebrow">Wie geht's weiter?</span>
+          <p style="font-size:13px;color:var(--text-2);margin-top:6px">Du wählst einen Namen und eine PIN — damit kommst du später auf jedem Gerät wieder rein.</p>
+        </div>
+      </div></div></div>
+      <div class="anno"><b>Einladen klärt:</b> Link öffnet diesen Screen → „Wordenbeck beitreten" (von Thomas) ODER eigenen Haushalt starten. Beim Beitreten: Name + PIN setzen.</div>
+    </div>
+
+  </div>
+</body></html>
