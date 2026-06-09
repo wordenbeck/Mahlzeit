@@ -22,8 +22,34 @@ type Item = {
 };
 
 const DELAY_BETWEEN_REQUESTS_MS = 30000;  // Groq Free TPM-Limit: 12000 TPM, ~5300 Tokens/Request → ~30s safe
-const RETRY_DELAY_MS = 60000;             // Bei Rate-Limit: 60s Pause (full minute reset) + 1× retry
-const MAX_RETRIES = 1;
+const RETRY_DELAY_MS = 60000;             // Fallback, wenn die Fehlermeldung keine Zeit nennt
+const MAX_RETRIES = 5;                    // Bei Rate-Limit so oft automatisch wiederholen
+
+// Erkennt einen Rate-Limit-Fehler anhand der Meldung
+function isRateLimitError(msg: string): boolean {
+  return /rate.?limit|rate.?mit|429|too many|TPM|RPM|später erneut/i.test(msg);
+}
+
+// Liest die in der Fehlermeldung angegebene Wartezeit aus (Groq: "Please try again in 7.456s"
+// oder "in 1m30.5s"). Gibt Millisekunden zurück, oder null wenn nichts gefunden.
+function parseRetryAfterMs(msg: string): number | null {
+  if (!msg) return null;
+  // "in 1m30s" / "in 1m 30.5s"
+  const mAndS = msg.match(/in\s+(\d+)\s*m\s*([\d.]+)\s*s/i);
+  if (mAndS) {
+    return Math.ceil((parseInt(mAndS[1], 10) * 60 + parseFloat(mAndS[2])) * 1000);
+  }
+  // "in 1m" / "in 1 min"
+  const mOnly = msg.match(/in\s+(\d+)\s*m(?:in)?\b/i);
+  if (mOnly) return parseInt(mOnly[1], 10) * 60 * 1000;
+  // "in 7.456s" / "try again in 12s"
+  const sOnly = msg.match(/in\s+([\d.]+)\s*s/i);
+  if (sOnly) return Math.ceil(parseFloat(sOnly[1]) * 1000);
+  // "retry-after: 30" (Sekunden)
+  const retryAfter = msg.match(/retry[-\s]?after[:\s]+(\d+)/i);
+  if (retryAfter) return parseInt(retryAfter[1], 10) * 1000;
+  return null;
+}
 
 const LS_KEY = (workspaceId: string) => `mahlzeit:bulk-import:${workspaceId}`;
 
@@ -87,6 +113,18 @@ export function BulkImport() {
       persist(next);
       return next;
     });
+  };
+
+  // Wartet ms Millisekunden und zeigt dabei einen Sekunden-Countdown in der Item-Message.
+  // Bricht früh ab, wenn der User abbricht (cancelRef).
+  const sleepWithCountdown = async (index: number, ms: number, label: (sec: number) => string) => {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (cancelRef.current) return;
+      const secLeft = Math.ceil((end - Date.now()) / 1000);
+      updateItem(index, { status: 'running', message: label(secLeft) });
+      await new Promise(r => setTimeout(r, 1000));
+    }
   };
 
   // Normalize Instagram-URLs (strip query params + trailing slash) für Dedup
@@ -166,25 +204,39 @@ export function BulkImport() {
 
       try {
         const url = startItems[i].url;
-        let result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
 
-        // Retry-on-Rate-Limit: wenn Groq 429 oder generic error, 1× wiederholen nach 20s
-        const isRateLimit = result.status === 'error' && /rate|429|too many|TPM|RPM/i.test(result.error ?? '');
-        if (isRateLimit && MAX_RETRIES > 0) {
-          updateItem(i, { status: 'running', message: `Rate-Limit — warte ${RETRY_DELAY_MS / 1000}s und versuche erneut…` });
-          await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        // Import mit Auto-Retry bei Rate-Limit: Fehlermeldung auslesen, angegebene
+        // Wartezeit nehmen (sonst Fallback), Countdown zeigen, erneut versuchen.
+        let result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
+        let attempt = 0;
+        while (
+          result.status === 'error' &&
+          isRateLimitError(result.error ?? '') &&
+          attempt < MAX_RETRIES &&
+          !cancelRef.current
+        ) {
+          attempt++;
+          const waitMs = parseRetryAfterMs(result.error ?? '') ?? RETRY_DELAY_MS;
+          await sleepWithCountdown(i, waitMs, sec =>
+            `Rate-Limit erreicht — neuer Versuch in ${sec}s (${attempt}/${MAX_RETRIES})…`
+          );
           if (cancelRef.current) break;
+          updateItem(i, { status: 'running', message: `Erneuter Versuch ${attempt}/${MAX_RETRIES}…` });
           result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
         }
+        if (cancelRef.current) break;
 
         if (result.status !== 'ok' || !result.result?.rezept) {
-          const msg = result.status === 'extraction_failed'
+          const rawMsg = result.status === 'extraction_failed'
             ? 'Caption konnte nicht extrahiert werden (Insta-Login-Wall?)'
             : (result.error ?? 'Parser-Fehler');
+          const msg = isRateLimitError(rawMsg)
+            ? `Rate-Limit — auch nach ${MAX_RETRIES} Versuchen nicht durchgekommen. Später erneut probieren.`
+            : rawMsg;
           updateItem(i, { status: 'error', message: msg });
-          // Wenn Rate-Limit oder Auth-Fehler erkannt → zusätzlich extra Pause
-          // damit nicht alle folgenden Items sofort kollabieren
-          if (/rate|429|TPM|auth|401|403/i.test(msg)) {
+          // Bei Auth-Fehlern zusätzlich kurz pausieren, damit nicht alle folgenden
+          // Items sofort kollabieren.
+          if (/auth|401|403/i.test(rawMsg)) {
             await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
           }
           continue;
