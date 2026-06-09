@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight, Plus,
+  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight, PlusCircle,
 } from 'lucide-react';
 import './AppMenu.css';
 import { useAuth } from '../lib/auth';
@@ -13,6 +13,7 @@ const items: { id: string; to: string; label: string; icon: typeof Home; flowSte
   { id: 'einkauf', to: '/einkauf',   label: 'Einkauf prüfen', icon: ShoppingBag, flowStep: 2 },
   { id: 'liste',   to: '/liste',     label: 'Einkaufen',      icon: ListChecks,  flowStep: 3 },
   { id: 'rezepte', to: '/rezepte',   label: 'Rezepte',        icon: ChefHat },
+  { id: 'import',  to: '/rezepte/import', label: 'Hinzufügen', icon: PlusCircle },
 ];
 
 function useScrolled(threshold = 40) {
@@ -66,14 +67,6 @@ export function AppMenu() {
       </nav>
 
       <div className="app-menu__right">
-        <Link
-          to="/rezepte/import"
-          className="app-menu__icon-link"
-          aria-label="Rezept hinzufügen"
-          title="Rezept hinzufügen"
-        >
-          <Plus size={18} strokeWidth={2.5} />
-        </Link>
         <Link
           to="/profil"
           className="app-menu__profile"
