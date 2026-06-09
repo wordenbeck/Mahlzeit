@@ -85,6 +85,15 @@
 .profile__qr canvas { border-radius: var(--radius-md); }
 
 /* Abmelden */
+.profile__export-btn {
+  width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px; background: var(--accent-soft); border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-pill); color: var(--accent);
+  font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+}
+.profile__export-btn:hover { background: var(--accent); color: #fff; }
+.profile__export-btn:disabled { opacity: 0.5; pointer-events: none; }
+
 .profile__signout {
   width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-pill);

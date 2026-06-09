@@ -1,0 +1,411 @@
+/* ============================================================
+   KOCH-MODUS — Fullscreen cooking experience
+   ============================================================ */
+
+.koch {
+  min-height: calc(100vh - 64px);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.koch__loading {
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--text-3);
+}
+
+/* ---------- Header ---------- */
+.koch__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 36px;
+  z-index: 10;
+}
+
+.koch__back {
+  width: 38px; height: 38px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  color: var(--text-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.koch__back:hover { color: var(--accent); }
+
+.koch__header-center {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.koch__recipe-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.koch__elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.koch__step-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   PHASE 1 — Zutaten-Check
+   ============================================================ */
+
+.koch__phase1 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 120px; /* Platz für sticky Footer */
+}
+
+.koch__phase1-head {
+  text-align: center;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  color: var(--accent);
+}
+.koch__phase1-head h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin: var(--space-2) 0 4px;
+  color: var(--text-1);
+}
+.koch__phase1-head p {
+  font-size: var(--fs-body);
+  color: var(--text-3);
+}
+
+.koch__zutaten {
+  list-style: none;
+  padding: 0 var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.koch__zutat {
+  display: grid;
+  grid-template-columns: 36px 24px 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 14px var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.12s, opacity 0.15s;
+  user-select: none;
+}
+.koch__zutat:active { background: var(--accent-soft); }
+.koch__zutat.is-checked {
+  opacity: 0.4;
+}
+.koch__zutat.is-checked .koch__zutat-name {
+  text-decoration: line-through;
+}
+
+.koch__zutat-check {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--surface-1);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  transition: background 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+.koch__zutat.is-checked .koch__zutat-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.koch__zutat-name {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-1);
+}
+
+.koch__zutat-menge {
+  font-size: var(--fs-body);
+  color: var(--text-3);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+.koch__phase1-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, #fff 70%, transparent);
+  display: flex;
+  justify-content: center;
+}
+
+.koch__start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 16px var(--space-6);
+  background: var(--gradient-cta);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 4px 20px rgba(6, 78, 59, 0.3);
+  width: 100%;
+  max-width: 420px;
+  justify-content: center;
+}
+
+/* ============================================================
+   PHASE 2 — Schritt-für-Schritt
+   ============================================================ */
+
+.koch__phase2 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Verlauf */
+.koch__history {
+  padding: var(--space-3) var(--space-5) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.koch__history-step {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  opacity: 0.35;
+}
+
+.koch__history-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--text-3);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.koch__history-step p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+/* Aktueller Schritt */
+.koch__step-card {
+  flex: 1;
+  margin: var(--space-4) var(--space-5);
+  padding: var(--space-6) var(--space-5);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+  z-index: 2;
+}
+
+.koch__step-badge {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-cta);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.koch__step-text {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text-1);
+  flex: 1;
+}
+
+/* Timer */
+.koch__timer {
+  margin-top: auto;
+}
+
+.koch__timer-start {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px var(--space-4);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+}
+
+.koch__countdown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-soft);
+  border-radius: var(--radius-lg);
+}
+
+.koch__countdown-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.koch__countdown-val.is-done {
+  color: var(--success, #16a34a);
+  font-size: 20px;
+}
+
+.koch__countdown-btns {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.koch__timer-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-pill);
+  background: #fff;
+  color: var(--accent);
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* Navigation */
+.koch__nav {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 2;
+}
+
+.koch__nav-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 14px var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 700;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.koch__nav-btn:active { transform: scale(0.97); }
+.koch__nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+.koch__nav-btn--back {
+  background: var(--surface-1);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  flex: 0 0 auto;
+  padding: 14px var(--space-5);
+}
+
+.koch__nav-btn--next {
+  background: var(--gradient-cta);
+  color: #fff;
+  box-shadow: 0 3px 14px rgba(6, 78, 59, 0.25);
+}
+
+.koch__nav-btn--finish {
+  background: var(--gradient-cta);
+  color: #fff;
+  box-shadow: 0 3px 14px rgba(6, 78, 59, 0.25);
+}
+
+/* iPad Tap-Zonen */
+.koch__tapzone {
+  position: fixed;
+  top: 120px; bottom: 120px;
+  width: 25%;
+  z-index: 1;
+  cursor: pointer;
+}
+.koch__tapzone--left { left: 0; }
+.koch__tapzone--right { right: 0; }
+
+/* ============================================================
+   RESPONSIVE — iPad (768px+): großer Text
+   ============================================================ */
+
+@media (min-width: 768px) {
+  .koch__step-text {
+    font-size: 26px;
+    line-height: 1.6;
+  }
+
+  .koch__step-card {
+    margin: var(--space-5) var(--space-6);
+    padding: var(--space-6) var(--space-6);
+  }
+
+  .koch__step-badge {
+    width: 52px; height: 52px;
+    font-size: 24px;
+  }
+
+  .koch__zutat {
+    padding: 18px var(--space-4);
+  }
+
+  .koch__zutat-name,
+  .koch__zutat-menge {
+    font-size: 18px;
+  }
+
+  .koch__start-btn {
+    font-size: 19px;
+    padding: 18px var(--space-6);
+  }
+
+  .koch__nav-btn {
+    font-size: 18px;
+    padding: 16px var(--space-5);
+  }
+
+  .koch__countdown-val {
+    font-size: 36px;
+  }
+}

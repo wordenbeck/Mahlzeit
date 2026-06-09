@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, Copy, Share2, LogOut, Pencil, Save, Eye, EyeOff, QrCode, Users } from 'lucide-react';
+import { ArrowLeft, Check, Copy, Share2, LogOut, Pencil, Save, Eye, EyeOff, QrCode, Users, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import './Profile.css';
 import { useAuth } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { listMembers, updateDisplayName, type Member } from '../lib/members';
+import { listRecipesFull } from '../lib/recipes';
+import { exportRecipesToExcel } from '../lib/exportRecipes';
 
 const PROFILE_COLORS = ['--profile-amber','--profile-rose','--profile-sage','--profile-sky','--profile-lavender','--profile-ochre'];
 
@@ -17,6 +19,7 @@ export function Profile() {
   const [nameDraft, setNameDraft] = useState('');
   const [savingName, setSavingName] = useState(false);
   const [pin, setPin] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -149,6 +152,26 @@ export function Profile() {
           <QrCode size={14} strokeWidth={2} /> {showQr ? 'QR-Code verbergen' : 'QR-Code zeigen'}
         </button>
         {showQr && <div className="profile__qr"><canvas ref={canvasRef} /></div>}
+      </section>
+
+      <section className="profile__card">
+        <span className="profile__section-lbl">Daten</span>
+        <button
+          className="profile__export-btn"
+          onClick={async () => {
+            setExporting(true);
+            try {
+              const all = await listRecipesFull();
+              exportRecipesToExcel(all);
+            } finally {
+              setExporting(false);
+            }
+          }}
+          disabled={exporting}
+        >
+          <Download size={14} strokeWidth={2} />
+          {exporting ? 'Wird exportiert…' : `Rezepte als Excel exportieren`}
+        </button>
       </section>
 
       <button className="profile__signout" onClick={signOut}><LogOut size={14} strokeWidth={1.75} /> Abmelden</button>

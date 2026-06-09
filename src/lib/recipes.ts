@@ -48,6 +48,16 @@ export async function listRecipes(): Promise<RecipeListItem[]> {
   return (data ?? []) as RecipeListItem[];
 }
 
+/** Alle Rezepte mit vollem Datensatz (für Export). */
+export async function listRecipesFull(): Promise<Recipe[]> {
+  const { data, error } = await supabase
+    .from('recipes')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as Recipe[];
+}
+
 export async function getRecipe(id: string): Promise<Recipe | null> {
   const { data, error } = await supabase
     .from('recipes')

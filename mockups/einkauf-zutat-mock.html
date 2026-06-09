@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Einkauf Zutat-Zeile — Varianten</title>
+<style>
+  :root {
+    --bg:#FAF7F2;--surface:#FFFFFF;--surface-2:#F2EDE5;
+    --accent:#006C49;--accent-soft:#D1FADF;--accent-mid:#059669;
+    --border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.13);
+    --text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --r-card:14px;--r-md:10px;--r-pill:99px;
+    --sh:0 1px 3px rgba(6,78,59,.06),0 4px 12px rgba(6,78,59,.07);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e6ebe8;color:var(--text-1);padding:24px 12px}
+  h1{font-size:18px;text-align:center;margin-bottom:4px}
+  .sub{text-align:center;color:#5a6b62;font-size:13px;margin-bottom:24px}
+
+  .row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:360px;max-width:100%}
+  .vh{font-weight:800;color:var(--accent);font-size:14px;text-align:center;margin-bottom:4px}
+  .vd{font-size:11px;color:#5a6b62;text-align:center;margin-bottom:12px;min-height:36px}
+
+  /* Phone frame */
+  .phone{background:var(--bg);border:7px solid #111;border-radius:30px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.2)}
+  .scr{height:560px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}
+
+  /* Recipe card */
+  .rec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh);margin:12px;overflow:hidden}
+  .rec-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)}
+  .rec-title{font-weight:800;font-size:14px;color:var(--accent);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .port{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;background:var(--surface-2);border-radius:var(--r-pill);padding:2px}
+  .port-btn{width:24px;height:24px;border-radius:var(--r-pill);background:#fff;border:1px solid var(--border-strong);color:var(--accent);font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+  .port-val{font-size:12px;font-weight:700;min-width:38px;text-align:center;color:var(--text-1)}
+  /* Frozen port */
+  .port.frozen{opacity:.45;pointer-events:none}
+
+  /* -------- VARIANTE A: Häkchen vorne -------- */
+  .ing-a{padding:0 14px 10px;display:flex;flex-direction:column;gap:4px}
+  .ing-row-a{display:grid;grid-template-columns:18px minmax(0,1fr) 72px;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+  .ing-row-a:last-child{border-bottom:none}
+  .check-a{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border-strong);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .check-a.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .check-a.on::after{content:"✓";font-size:10px;font-weight:800;line-height:1}
+  .name-a{font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qty-a{font-size:12px;font-weight:600;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+  /* checked state A */
+  .ing-row-a.done .name-a{color:var(--accent);opacity:.75}
+  .ing-row-a.done .qty-a{font-weight:400;color:var(--text-3)}
+
+  /* -------- VARIANTE B: Häkchen zwischen Name und Menge -------- */
+  .ing-b{padding:0 14px 10px;display:flex;flex-direction:column;gap:2px}
+  .ing-row-b{display:grid;grid-template-columns:minmax(0,1fr) 20px 72px;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+  .ing-row-b:last-child{border-bottom:none}
+  .name-b{font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .check-b{width:20px;height:20px;border-radius:var(--r-pill);border:1.5px solid var(--border-strong);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .check-b.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .check-b.on::after{content:"✓";font-size:9px;font-weight:800}
+  .qty-b{font-size:12px;font-weight:600;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums}
+  /* checked state B */
+  .ing-row-b.done .name-b{color:var(--accent);opacity:.75}
+  .ing-row-b.done .qty-b{font-weight:400;color:var(--text-3)}
+
+  /* -------- VARIANTE C: Zeilen gestapelt -------- */
+  .ing-c{padding:0 14px 10px;display:flex;flex-direction:column;gap:3px}
+  .ing-row-c{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+  .ing-row-c:last-child{border-bottom:none}
+  .check-c{width:20px;height:20px;border-radius:var(--r-pill);border:1.5px solid var(--border-strong);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:transparent}
+  .check-c.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .check-c.on::after{content:"✓";font-size:9px;font-weight:800}
+  .ing-c-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .name-c{font-size:13px;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qty-c{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+  /* checked state C */
+  .ing-row-c.done .name-c{color:var(--accent);opacity:.75}
+  .ing-row-c.done .qty-c{text-decoration:line-through;opacity:.5}
+
+  /* -------- Footer Button "Einkauf erledigt" -------- */
+  .footer-wrap{margin:12px;display:flex;flex-direction:column;gap:8px}
+  .btn-cta{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:var(--r-md);font-weight:800;font-size:14px;text-align:center;border:none;cursor:pointer}
+  .btn-active{background:linear-gradient(135deg,#10B981,#006C49);color:#fff}
+  .btn-done{background:#D1FADF;color:#065F46;border:1.5px solid #6EE7B7;font-weight:700}
+</style>
+</head>
+<body>
+<h1>Einkauf Zutaten-Zeile — 3 Varianten</h1>
+<div class="sub">Grün = abgehakt · Menge nicht mehr fett · Portion eingefroren · CTA dezent grün</div>
+
+<div class="row">
+
+  <!-- A: Häkchen vorne -->
+  <div class="col">
+    <div class="vh">A · Häkchen vorne</div>
+    <div class="vd">Checkbox ganz links, dann Name, dann Menge rechtsbündig. Klassisch.</div>
+    <div class="phone"><div class="scr" style="padding-top:8px">
+
+      <div class="rec">
+        <div class="rec-head">
+          <span class="rec-title">Kartoffelwürfel mit Avocado-Dip</span>
+          <div class="port frozen"><button class="port-btn">−</button><span class="port-val">👤 4</span><button class="port-btn">+</button></div>
+        </div>
+        <div class="ing-a">
+          <div class="ing-row-a done">
+            <div class="check-a on"></div>
+            <span class="name-a">🥔 Festkochende Kartoffeln</span>
+            <span class="qty-a">500 g</span>
+          </div>
+          <div class="ing-row-a done">
+            <div class="check-a on"></div>
+            <span class="name-a">🥑 Avocado</span>
+            <span class="qty-a">2 Stk</span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🧈 Rapsöl</span>
+            <span class="qty-a">2 EL</span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🌿 Pinienkerne</span>
+            <span class="qty-a">30 g</span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🧂 Salz</span>
+            <span class="qty-a"></span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🫒 Zitronensaft</span>
+            <span class="qty-a">1 EL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec">
+        <div class="rec-head">
+          <span class="rec-title">Sommerrollen</span>
+          <div class="port"><button class="port-btn">−</button><span class="port-val">👤 2</span><button class="port-btn">+</button></div>
+        </div>
+        <div class="ing-a">
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">📄 Reispapier</span>
+            <span class="qty-a">8 Blatt</span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🌶 Rote Paprika</span>
+            <span class="qty-a">1 Stk</span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🥕 Karotte</span>
+            <span class="qty-a">1 Stk</span>
+          </div>
+          <div class="ing-row-a">
+            <div class="check-a"></div>
+            <span class="name-a">🫙 Teriyaki Sauce</span>
+            <span class="qty-a">4 EL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-wrap">
+        <button class="btn-cta btn-done">✓ Einkauf erledigt</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- B: Häkchen zwischen Name und Menge -->
+  <div class="col">
+    <div class="vh">B · Häkchen in der Mitte</div>
+    <div class="vd">Name links, Häkchen-Button als Trennpunkt, Menge rechts. Modern.</div>
+    <div class="phone"><div class="scr" style="padding-top:8px">
+
+      <div class="rec">
+        <div class="rec-head">
+          <span class="rec-title">Kartoffelwürfel mit Avocado-Dip</span>
+          <div class="port frozen"><button class="port-btn">−</button><span class="port-val">👤 4</span><button class="port-btn">+</button></div>
+        </div>
+        <div class="ing-b">
+          <div class="ing-row-b done">
+            <span class="name-b">🥔 Festkochende Kartoffeln</span>
+            <div class="check-b on"></div>
+            <span class="qty-b">500 g</span>
+          </div>
+          <div class="ing-row-b done">
+            <span class="name-b">🥑 Avocado</span>
+            <div class="check-b on"></div>
+            <span class="qty-b">2 Stk</span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🧈 Rapsöl</span>
+            <div class="check-b"></div>
+            <span class="qty-b">2 EL</span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🌿 Pinienkerne</span>
+            <div class="check-b"></div>
+            <span class="qty-b">30 g</span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🧂 Salz</span>
+            <div class="check-b"></div>
+            <span class="qty-b"></span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🫒 Zitronensaft</span>
+            <div class="check-b"></div>
+            <span class="qty-b">1 EL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec">
+        <div class="rec-head">
+          <span class="rec-title">Sommerrollen</span>
+          <div class="port"><button class="port-btn">−</button><span class="port-val">👤 2</span><button class="port-btn">+</button></div>
+        </div>
+        <div class="ing-b">
+          <div class="ing-row-b">
+            <span class="name-b">📄 Reispapier</span>
+            <div class="check-b"></div>
+            <span class="qty-b">8 Blatt</span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🌶 Rote Paprika</span>
+            <div class="check-b"></div>
+            <span class="qty-b">1 Stk</span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🥕 Karotte</span>
+            <div class="check-b"></div>
+            <span class="qty-b">1 Stk</span>
+          </div>
+          <div class="ing-row-b">
+            <span class="name-b">🫙 Teriyaki Sauce</span>
+            <div class="check-b"></div>
+            <span class="qty-b">4 EL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-wrap">
+        <button class="btn-cta btn-done">✓ Einkauf erledigt</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- C: Name + Menge gestapelt -->
+  <div class="col">
+    <div class="vh">C · Name + Menge gestapelt</div>
+    <div class="vd">Häkchen links, daneben Name oben + Menge darunter in klein. Mehr Info auf einen Blick.</div>
+    <div class="phone"><div class="scr" style="padding-top:8px">
+
+      <div class="rec">
+        <div class="rec-head">
+          <span class="rec-title">Kartoffelwürfel mit Avocado-Dip</span>
+          <div class="port frozen"><button class="port-btn">−</button><span class="port-val">👤 4</span><button class="port-btn">+</button></div>
+        </div>
+        <div class="ing-c">
+          <div class="ing-row-c done">
+            <div class="check-c on"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🥔 Festkochende Kartoffeln</span>
+              <span class="qty-c">500 g</span>
+            </div>
+          </div>
+          <div class="ing-row-c done">
+            <div class="check-c on"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🥑 Avocado</span>
+              <span class="qty-c">2 Stk</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🧈 Rapsöl</span>
+              <span class="qty-c">2 EL</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🌿 Pinienkerne</span>
+              <span class="qty-c">30 g</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🧂 Salz</span>
+              <span class="qty-c">nach Geschmack</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🫒 Zitronensaft</span>
+              <span class="qty-c">1 EL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec">
+        <div class="rec-head">
+          <span class="rec-title">Sommerrollen</span>
+          <div class="port"><button class="port-btn">−</button><span class="port-val">👤 2</span><button class="port-btn">+</button></div>
+        </div>
+        <div class="ing-c">
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">📄 Reispapier</span>
+              <span class="qty-c">8 Blatt</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🌶 Rote Paprika</span>
+              <span class="qty-c">1 Stk</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🥕 Karotte</span>
+              <span class="qty-c">1 Stk</span>
+            </div>
+          </div>
+          <div class="ing-row-c">
+            <div class="check-c"></div>
+            <div class="ing-c-body">
+              <span class="name-c">🫙 Teriyaki Sauce</span>
+              <span class="qty-c">4 EL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-wrap">
+        <button class="btn-cta btn-done">✓ Einkauf erledigt</button>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;text-align:center;font-size:12px;color:#666;max-width:700px;margin-left:auto;margin-right:auto">
+  <strong>Hinweise:</strong> Erste 2 Zutaten sind abgehakt (grüner Name, Menge nicht mehr fett, Portion eingefroren) ·
+  Gewürze (Salz) erscheinen in C ohne Menge — je nach Variante zeigen oder weglassen ·
+  Footer-Button: dezentes Hellgrün statt CTA-Grün
+</div>
+</body></html>

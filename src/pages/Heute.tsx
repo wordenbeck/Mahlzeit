@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, ChefHat, Clock, Plus, ShoppingBag, BookOpen } from 'lucide-react';
+import { ArrowRight, Calendar, ChefHat, Clock, Plus, ShoppingBag, BookOpen, UtensilsCrossed } from 'lucide-react';
 import './Heute.css';
 import { useAuth } from '../lib/auth';
 import { isoWeekStart, getOrCreateWeekplan, type Slot } from '../lib/weekplan';
@@ -119,7 +119,7 @@ export function Heute() {
       {!loading && (
         <main className="heute__main">
           {heroRecipe ? (
-            <Link to={`/rezepte/${heroRecipe.id}`} className="heute__hero">
+            <div className="heute__hero">
               <div
                 className="heute__hero-img"
                 style={heroRecipe.bild_url ? { backgroundImage: `url(${heroRecipe.bild_url})` } : undefined}
@@ -145,13 +145,22 @@ export function Heute() {
                 </div>
               </div>
               <div className="heute__hero-body">
-                <h2>{heroRecipe.titel}</h2>
+                <Link to={`/rezepte/${heroRecipe.id}`} className="heute__hero-title-link">
+                  <h2>{heroRecipe.titel}</h2>
+                </Link>
                 {restToday.length > 0 && (
                   <p className="heute__also">Auch heute geplant: {restToday.join(', ')}</p>
                 )}
-                <span className="heute__cook">Jetzt kochen <ArrowRight size={16} strokeWidth={2.5} /></span>
+                <div className="heute__hero-actions">
+                  <Link to={`/rezepte/${heroRecipe.id}/kochen`} className="heute__cook-btn">
+                    <UtensilsCrossed size={16} strokeWidth={2} /> Jetzt kochen
+                  </Link>
+                  <Link to={`/rezepte/${heroRecipe.id}`} className="heute__detail-btn">
+                    Rezept <ArrowRight size={14} strokeWidth={2.5} />
+                  </Link>
+                </div>
               </div>
-            </Link>
+            </div>
           ) : (
             <div className="heute__empty">
               <span className="heute__empty-badge">Heute · noch nichts geplant</span>

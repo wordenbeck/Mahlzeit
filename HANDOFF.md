@@ -53,6 +53,11 @@
 
 - **Plan-Grid asymmetrisch** — „links nicht so breit wie rechts", tritt oft nach Import auf. Vermutlich `auto-fill minmax(200px, 1fr)` und ein breites Card-Element zieht die Spalte. Nicht analysiert, nicht deployed-Fix.
 
+## ✅ Fixes dieser Session (2026-06-09)
+
+- **Volltextsuche** — `zutaten` + `beschreibung` in `listRecipes()` + Filter in `Rezepte.tsx` (commit 0682101)
+- **RezeptDetail Zutaten** — „nach Geschmack"/„n.G." ausgeblendet, `hinweis`-Feld (geschnitten, zum Braten etc.) ausgeblendet (commit 88f1f3e)
+
 ---
 
 ## 📋 Priorisierter Backlog
