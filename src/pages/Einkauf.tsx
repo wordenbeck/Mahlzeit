@@ -206,14 +206,14 @@ export function Einkauf() {
                     {recipe.zutaten.map((z, i) => {
                       const menge = z.menge != null ? Math.round(z.menge * factor * 10) / 10 : null;
                       const checked = shoppingDone > 0 && isIngredientChecked(z.name, checkedKeys);
-                      // Menge: immer anzeigen — auch Gewürze ohne Menge als leere qty-Zelle
+                      // Menge: Gewürze ohne Menge zeigen (leere Zelle), "nach Geschmack" ausblenden
                       const qtyText = menge != null
                         ? `${menge}${z.einheit ? ' ' + z.einheit : ''}`
-                        : (z.einheit || null);
+                        : (z.einheit && !/geschmack|n\.?\s*g\.?/i.test(z.einheit) ? z.einheit : null);
                       return (
                         <li key={i} className={`ekf__ing-row ${checked ? 'is-checked' : ''}`}>
+                          <span className="ekf__ing-check" aria-hidden="true">{checked ? '✓' : ''}</span>
                           <span className="ekf__ing-name"><ZutatIcon name={z.name} size={15} /> {z.name}</span>
-                          <span className="ekf__ing-check">{checked ? '✓' : ''}</span>
                           <span className="ekf__ing-qty">{qtyText ?? ''}</span>
                         </li>
                       );
@@ -228,10 +228,10 @@ export function Einkauf() {
 
       {totalSlots > 0 && (
         <div className="ekf__footer">
-          <Link to="/liste" className={`ekf__footer-cta ${shoppingDone > 0 ? 'is-done' : ''}`}>
-            <ShoppingBag size={18} strokeWidth={2} />
-            {shoppingDone > 0 ? 'Einkauf erledigt' : 'Zur Einkaufsliste'}
-          </Link>
+          {shoppingDone > 0
+            ? <span className="ekf__footer-cta is-done"><ShoppingBag size={18} strokeWidth={2} /> Einkauf erledigt</span>
+            : <Link to="/liste" className="ekf__footer-cta"><ShoppingBag size={18} strokeWidth={2} /> Zur Einkaufsliste</Link>
+          }
         </div>
       )}
     </div>

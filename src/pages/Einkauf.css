@@ -99,29 +99,32 @@
 }
 
 .ekf__ing { padding: 0 var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: 4px; }
-/* Variante B: Name · ✓ · Menge */
+
+/* ✓-vorne Layout: check · name · menge
+   check-Spalte ist immer 16px — leer wenn nicht abgehakt → Icons bleiben auf einer Linie */
 .ekf__ing-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 16px 80px;
+  grid-template-columns: 16px minmax(0, 1fr) 80px;
   align-items: center;
   gap: var(--space-2);
 }
+.ekf__ing-check {
+  width: 16px; text-align: center; flex-shrink: 0;
+  font-size: 12px; font-weight: 800; color: var(--accent);
+  opacity: 0; transition: opacity 0.15s;
+}
+.ekf__ing-row.is-checked .ekf__ing-check { opacity: 1; }
 .ekf__ing-name {
   display: inline-flex; align-items: center; gap: 6px; min-width: 0;
   font-size: var(--fs-body); color: var(--text-1);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.ekf__ing-check {
-  font-size: 13px; font-weight: 700; color: var(--accent);
-  text-align: center; flex-shrink: 0; opacity: 0; transition: opacity 0.15s;
-}
-.ekf__ing-row.is-checked .ekf__ing-check { opacity: 1; }
 .ekf__ing-qty {
   text-align: right; flex-shrink: 0;
   font-size: var(--fs-body); color: var(--text-2); font-weight: var(--fw-semibold);
   font-variant-numeric: tabular-nums;
 }
-/* Abgehakt: Name grün, Menge normal (nicht fett) */
+/* Abgehakt: Name grün gedimmt, Menge normal (nicht fett) */
 .ekf__ing-row.is-checked .ekf__ing-name { color: var(--accent); opacity: 0.75; }
 .ekf__ing-row.is-checked .ekf__ing-qty  { font-weight: 400; color: var(--text-3); }
 
@@ -153,21 +156,44 @@
 .ekf__ing-row.is-checked .ekf__ing-name { color: var(--accent); }
 
 /* ============================================================
-   RESPONSIVE: Tablet/Desktop (≥ 768px)
-   Tages-Sektionen in Grid statt vertikaler Liste
+   RESPONSIVE: Tablet (768px–1100px)
+   Tages-Sektionen 2-spaltig, Tabs bleiben für Scroll-Navigation
    ============================================================ */
 @media (min-width: 768px) {
-  .ekf__top { max-width: 1200px; margin: 0 auto; padding-left: var(--space-6); padding-right: var(--space-6); }
+  .ekf { padding-bottom: 100px; }
+  .ekf__top {
+    max-width: 1200px; margin: 0 auto;
+    padding-left: var(--space-6); padding-right: var(--space-6);
+  }
+  /* Scroll-Tabs auf Tablet etwas größer */
+  .ekf__tab { padding: 8px 8px; font-size: 14px; min-width: 56px; }
   .ekf__sections {
-    max-width: 1200px;
-    padding-left: var(--space-6);
-    padding-right: var(--space-6);
+    max-width: 1200px; margin: 0 auto;
+    padding: var(--space-5) var(--space-6) 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-5);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
     align-items: start;
   }
-  .ekf__section { margin-bottom: 0; scroll-margin-top: 140px; }
+  .ekf__section { margin-bottom: 0; scroll-margin-top: 160px; }
+  .ekf__footer { max-width: 1200px; }
+  .ekf__footer-cta { max-width: 480px; }
+}
+
+/* ============================================================
+   RESPONSIVE: Desktop (≥ 1100px)
+   Alle 5 Tage nebeneinander sichtbar, Tabs versteckt
+   ============================================================ */
+@media (min-width: 1100px) {
+  .ekf__tabs { display: none; } /* unnötig wenn alle Tage sichtbar */
+  .ekf__sections {
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-4);
+  }
+  /* Rezept-Karten kompakter auf Desktop */
+  .ekf__rec-head { padding: var(--space-2) var(--space-3); }
+  .ekf__ing { padding: 0 var(--space-3) var(--space-2); }
+  .ekf__ing-row { gap: 6px; }
 }
 
 @media (max-width: 600px) {
