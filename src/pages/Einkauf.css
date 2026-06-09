@@ -129,13 +129,8 @@
   box-shadow: 0 4px 16px rgba(5,150,105,0.35);
 }
 
-/* Abgehakte Zutat: grüner Name, dezentes Häkchen */
-.ekf__ing-row.is-checked .ekf__ing-name { color: var(--accent); opacity: 0.7; }
-.ekf__ing-row.is-checked .ekf__ing-qty  { color: var(--accent); opacity: 0.7; }
-.ekf__ing-row.is-checked .ekf__ing-name::before {
-  content: "✓"; font-size: 11px; font-weight: 800;
-  color: var(--accent); margin-right: 4px;
-}
+/* Abgehakte Zutat: nur Name grün, Menge bleibt normal */
+.ekf__ing-row.is-checked .ekf__ing-name { color: var(--accent); }
 
 /* ============================================================
    RESPONSIVE: Tablet/Desktop (≥ 768px)

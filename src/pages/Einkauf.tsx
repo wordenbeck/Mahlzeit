@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Minus, Plus, Users, ShoppingBag, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Users, ShoppingBag } from 'lucide-react';
 import './Einkauf.css';
 import { useAuth } from '../lib/auth';
 import {
@@ -145,14 +145,7 @@ export function Einkauf() {
             <button className="ekf__nav-btn" onClick={() => setWeekStart(shiftWeek(weekStart, 1))} aria-label="Nächste Woche"><ChevronRight size={18} strokeWidth={2} /></button>
           </div>
         </div>
-        <div className="ekf__title-row">
-          <h1 className="ekf__title">Einkauf prüfen</h1>
-          {shoppingDone > 0 && (
-            <span className="ekf__done-badge">
-              <CheckCircle2 size={14} strokeWidth={2} /> {shoppingDone} eingekauft
-            </span>
-          )}
-        </div>
+        <h1 className="ekf__title">Einkauf prüfen</h1>
 
         <div className="ekf__tabs" role="tablist">
           {tabDays.map(d => {
@@ -211,10 +204,14 @@ export function Einkauf() {
                     {recipe.zutaten.map((z, i) => {
                       const menge = z.menge != null ? Math.round(z.menge * factor * 10) / 10 : null;
                       const checked = shoppingDone > 0 && isIngredientChecked(z.name, checkedKeys);
+                      // Mengenangabe: nur wenn sinnvoll — kein "nach Geschmack" / leere Einheit ohne Menge
+                      const qtyText = menge != null
+                        ? `${menge}${z.einheit ? ' ' + z.einheit : ''}`
+                        : (z.einheit && !/geschmack|n\.?\s*g\.?/i.test(z.einheit) ? z.einheit : null);
                       return (
                         <li key={i} className={`ekf__ing-row ${checked ? 'is-checked' : ''}`}>
                           <span className="ekf__ing-name"><ZutatIcon name={z.name} size={15} /> {z.name}</span>
-                          <span className="ekf__ing-qty">{menge != null ? `${menge} ${z.einheit ?? ''}` : (z.einheit || 'n. Geschm.')}</span>
+                          {qtyText && <span className="ekf__ing-qty">{qtyText}</span>}
                         </li>
                       );
                     })}
