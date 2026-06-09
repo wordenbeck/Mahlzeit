@@ -98,17 +98,35 @@
   font-size: 13px; font-weight: 700; color: var(--text-1); min-width: 40px; justify-content: center;
 }
 
-.ekf__ing { padding: 0 var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: 5px; }
-.ekf__ing-row { display: grid; grid-template-columns: minmax(0, 1fr) 92px; align-items: center; gap: var(--space-3); }
+.ekf__ing { padding: 0 var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: 4px; }
+/* Variante B: Name · ✓ · Menge */
+.ekf__ing-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px 80px;
+  align-items: center;
+  gap: var(--space-2);
+}
 .ekf__ing-name {
   display: inline-flex; align-items: center; gap: 6px; min-width: 0;
   font-size: var(--fs-body); color: var(--text-1);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.ekf__ing-check {
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  text-align: center; flex-shrink: 0; opacity: 0; transition: opacity 0.15s;
+}
+.ekf__ing-row.is-checked .ekf__ing-check { opacity: 1; }
 .ekf__ing-qty {
-  flex-shrink: 0; font-size: var(--fs-body); color: var(--text-2); font-weight: var(--fw-semibold);
+  text-align: right; flex-shrink: 0;
+  font-size: var(--fs-body); color: var(--text-2); font-weight: var(--fw-semibold);
   font-variant-numeric: tabular-nums;
 }
+/* Abgehakt: Name grün, Menge normal (nicht fett) */
+.ekf__ing-row.is-checked .ekf__ing-name { color: var(--accent); opacity: 0.75; }
+.ekf__ing-row.is-checked .ekf__ing-qty  { font-weight: 400; color: var(--text-3); }
+
+/* Portion eingefroren */
+.ekf__port.is-frozen { opacity: 0.4; pointer-events: none; }
 
 /* ---------- Footer ---------- */
 .ekf__footer {
@@ -125,8 +143,10 @@
   transition: background 0.2s, box-shadow 0.2s;
 }
 .ekf__footer-cta.is-done {
-  background: linear-gradient(135deg, #059669, #006C49);
-  box-shadow: 0 4px 16px rgba(5,150,105,0.35);
+  background: var(--accent-soft);
+  color: #065F46;
+  box-shadow: none;
+  border: 1.5px solid #6EE7B7;
 }
 
 /* Abgehakte Zutat: nur Name grün, Menge bleibt normal */

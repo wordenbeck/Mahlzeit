@@ -190,28 +190,31 @@ export function Einkauf() {
               if (!recipe) return null;
               const portionen = slot.portionen_override ?? recipe.portionen;
               const factor = recipe.portionen > 0 ? portionen / recipe.portionen : 1;
+              // Portion einfrieren wenn alle Zutaten abgehakt
+              const allChecked = shoppingDone > 0 && recipe.zutaten.every(z => isIngredientChecked(z.name, checkedKeys));
               return (
                 <article key={slot.id} className="ekf__rec">
                   <header className="ekf__rec-head">
                     <Link to={`/rezepte/${recipe.id}`} className="ekf__rec-title">{recipe.titel}</Link>
-                    <div className="ekf__port" aria-label="Portionen">
-                      <button className="ekf__port-btn" onClick={() => handlePortionen(slot, portionen - 1)} aria-label="Weniger"><Minus size={13} strokeWidth={2.5} /></button>
+                    <div className={`ekf__port${allChecked ? ' is-frozen' : ''}`} aria-label="Portionen">
+                      <button className="ekf__port-btn" onClick={() => handlePortionen(slot, portionen - 1)} aria-label="Weniger" disabled={allChecked}><Minus size={13} strokeWidth={2.5} /></button>
                       <span className="ekf__port-val"><Users size={12} strokeWidth={2} /> {portionen}</span>
-                      <button className="ekf__port-btn" onClick={() => handlePortionen(slot, portionen + 1)} aria-label="Mehr"><Plus size={13} strokeWidth={2.5} /></button>
+                      <button className="ekf__port-btn" onClick={() => handlePortionen(slot, portionen + 1)} aria-label="Mehr" disabled={allChecked}><Plus size={13} strokeWidth={2.5} /></button>
                     </div>
                   </header>
                   <ul className="ekf__ing">
                     {recipe.zutaten.map((z, i) => {
                       const menge = z.menge != null ? Math.round(z.menge * factor * 10) / 10 : null;
                       const checked = shoppingDone > 0 && isIngredientChecked(z.name, checkedKeys);
-                      // Mengenangabe: nur wenn sinnvoll — kein "nach Geschmack" / leere Einheit ohne Menge
+                      // Menge: immer anzeigen — auch Gewürze ohne Menge als leere qty-Zelle
                       const qtyText = menge != null
                         ? `${menge}${z.einheit ? ' ' + z.einheit : ''}`
-                        : (z.einheit && !/geschmack|n\.?\s*g\.?/i.test(z.einheit) ? z.einheit : null);
+                        : (z.einheit || null);
                       return (
                         <li key={i} className={`ekf__ing-row ${checked ? 'is-checked' : ''}`}>
                           <span className="ekf__ing-name"><ZutatIcon name={z.name} size={15} /> {z.name}</span>
-                          {qtyText && <span className="ekf__ing-qty">{qtyText}</span>}
+                          <span className="ekf__ing-check">{checked ? '✓' : ''}</span>
+                          <span className="ekf__ing-qty">{qtyText ?? ''}</span>
                         </li>
                       );
                     })}
