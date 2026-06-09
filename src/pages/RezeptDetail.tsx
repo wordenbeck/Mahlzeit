@@ -290,13 +290,13 @@ export function RezeptDetail() {
                 {r.zutaten.map((z, i) => (
                   <li key={i}>
                     <ZutatIcon name={z.name} size={18} />
+                    <span className="rdet__name">{z.name}</span>
                     <span className="rdet__menge">
                       {z.menge != null
                         ? `${z.menge}${z.einheit ? ' ' + z.einheit : ''}`
                         : (z.einheit && !/geschmack|n\.?\s*g\.?/i.test(z.einheit) ? z.einheit : null)
                       }
                     </span>
-                    <span className="rdet__name">{z.name}</span>
                   </li>
                 ))}
               </ul>

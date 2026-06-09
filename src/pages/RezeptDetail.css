@@ -120,8 +120,8 @@
 }
 .rdet__zutaten ul { display: flex; flex-direction: column; gap: var(--space-2); }
 .rdet__zutaten li { list-style: none; display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-body); }
-.rdet__menge { color: var(--text-2); font-variant-numeric: tabular-nums; font-weight: var(--fw-medium); min-width: 64px; }
-.rdet__name { color: var(--text-1); }
+.rdet__name { color: var(--text-1); flex: 1; min-width: 0; }
+.rdet__menge { color: var(--text-2); font-variant-numeric: tabular-nums; font-weight: var(--fw-medium); white-space: nowrap; text-align: right; }
 .rdet__zutaten em { font-size: var(--fs-caption); color: var(--text-3); font-style: italic; margin-left: auto; }
 
 .rdet__zubereitung { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-card); padding: var(--space-4); }
