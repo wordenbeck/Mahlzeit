@@ -3,6 +3,17 @@
 > Letzte Aktualisierung: 2026-06-09
 > Status: **Produktionsreif für Testnutzung im Haushalt**
 
+## 📄 Aktive Docs (immer aktuell halten)
+
+| Datei | Wann aktualisieren |
+|---|---|
+| `HANDOFF.md` | Jede Session — Stand, Bugs, Backlog, Pitfalls |
+| `CLAUDE.md` | Bei neuen Arbeitsregeln, Conventions, Gotchas |
+| `mockups/DESIGN-DECISIONS.md` | Bei verbindlichen Design-Entscheidungen |
+| `PROJECT-SPEC.md` | Bei Architektur-Änderungen (seltener) |
+
+Archiviert (nicht mehr pflegen): `.archive/`
+
 ---
 
 ## 🚀 App & Infra

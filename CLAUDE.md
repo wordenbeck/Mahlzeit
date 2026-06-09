@@ -2,6 +2,19 @@
 
 > Arbeitsregeln für Claude Code in diesem Projekt. Wird automatisch geladen.
 
+## 📄 Docs-Übersicht — welche Dateien gibt es, welche pflegen wir
+
+| Datei | Zweck | Wann aktualisieren |
+|---|---|---|
+| `HANDOFF.md` | Sprint-Stand, Backlog, Bugs, Pitfalls, DB-State | **Jede Session** — am Ende oder bei Milestone |
+| `CLAUDE.md` | Arbeitsregeln, Conventions, Gotchas | Bei neuen Patterns / gelernten Lektionen |
+| `mockups/DESIGN-DECISIONS.md` | Verbindliche Design-Entscheidungen | Bei Design-Änderungen |
+| `PROJECT-SPEC.md` | Vollständige Architektur-Referenz | Bei größeren Architektur-Änderungen |
+
+**Archiviert** (nie anfassen): `.archive/` — SETUP.md, PRODUCTION.md, README.md, alte Backlogs
+
+**Regel:** Wenn etwas wichtiges gelernt oder entschieden wurde → sofort in die richtige Datei schreiben, nicht im Chat lassen.
+
 ## Project Context
 
 MealPlanner ist eine **iPad-first PWA für Wochenplanung**. Hobby-Projekt von Thomas Wordenbeck (Product-orientiert, Coding-Anfänger). Familie/Haushalt-tauglich. Komplett kostenlos zu betreiben (Supabase Free + Vercel Free + Groq Free).
