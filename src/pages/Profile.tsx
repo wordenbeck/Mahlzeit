@@ -170,8 +170,20 @@ export function Profile() {
           disabled={exporting}
         >
           <Download size={14} strokeWidth={2} />
-          {exporting ? 'Wird exportiert…' : `Rezepte als Excel exportieren`}
+          {exporting ? 'Wird exportiert…' : 'Rezepte als Excel exportieren'}
         </button>
+        <div className="profile__export-info">
+          <p className="profile__export-info-title">So funktioniert der Export/Import-Workflow:</p>
+          <ol className="profile__export-info-steps">
+            <li><strong>Exportieren</strong> — Button oben drücken → Excel-Datei wird heruntergeladen</li>
+            <li><strong>Bearbeiten</strong> — Titel, Mengen, Schritte in Excel korrigieren. <em>ID-Spalte nicht anfassen.</em></li>
+            <li><strong>Script ausführen</strong> — im Projektordner:
+              <code>node scripts/import-from-excel.mjs ~/Downloads/mahlzeit-rezepte-DATUM.xlsx</code>
+            </li>
+            <li><strong>SQL einfügen</strong> — generierte Datei <code>scripts/output/recipe-updates.sql</code> in den Supabase SQL-Editor kopieren → Run</li>
+          </ol>
+          <p className="profile__export-info-note">Bilder, Quell-URLs und IDs bleiben unverändert.</p>
+        </div>
       </section>
 
       <button className="profile__signout" onClick={signOut}><LogOut size={14} strokeWidth={1.75} /> Abmelden</button>

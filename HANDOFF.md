@@ -60,60 +60,38 @@
 
 ---
 
-## 📋 Priorisierter Backlog
+## 📋 Priorisierter Backlog (Stand 2026-06-09)
 
-### 1 — Volltextsuche
-**Was:** Suche über Zutaten + Beschreibung (aktuell nur Titel + Tags in `listRecipes()`).
-**Technisch:** Zwei Optionen:
-- *Clientseitig* (einfacher, reicht für 90-200 Rezepte): alle Rezepte laden, dann per JS filtern über `titel + tags + zutaten[].name + beschreibung`
-- *Supabase ilike* (serverseitig): `ilike '%query%'` in SQL — besser bei 1000+ Rezepten, aber mehr Aufwand
-**Empfehlung:** Clientseitig starten (reicht für privaten Haushalt), später bei Bedarf auf Supabase umstellen.
-**Akzeptanzkriterium:** Eingabe „Avocado" findet alle Rezepte die Avocado als Zutat enthalten.
+### ✅ Erledigt diese Session
+- Volltextsuche (Zutaten + Beschreibung)
+- Koch-Modus (Timeline, Dark/Light, Timer, Nav fix)
+- Excel-Export + Import-Script
+- Gewürze in Einkaufsliste + Sortierung in Detail
 
-### 1.5 — Koch-Modus
-**Was:** Geführter Kochprozess direkt aus der App.
-**Einstieg:** `Heute`-Hero-Karte → „Jetzt kochen"-Button → Route `/rezepte/:id/kochen`
-**Phase 1 — Zutaten-Check:**
-- Liste aller Zutaten mit Checkbox (aus geplantem Rezept, Portionen angepasst)
-- Abgehakt = durchgestrichen + leicht in Hintergrund (dezent, nicht gelöscht)
-- Aktuell offene Zutat ist hervorgehoben
-- Button „Kochen starten" wird aktiv sobald alle abgehakt (oder Skip möglich)
-**Phase 2 — Schritt-für-Schritt:**
-- Je ein Zubereitungsschritt pro Bildschirm (große Karte)
-- Aktueller Schritt: groß, fett, volle Breite — vorherige Schritte: klein, ausgegraut oben als Verlauf
-- Navigation: Tippen/Swipe-right = nächster Schritt, Swipe-left = zurück
-- iPad: großer Text, gut lesbar auf Küchenabstand (~50cm)
-- iPhone: dezenter (normaler Scroll statt Schritt-für-Schritt, da Screen zu klein)
-**Abbruch:** Session bleibt in localStorage gespeichert (aktueller Schritt). Heute-Seite zeigt „Fortsetzen" wenn unvollendeter Koch-Session vorhanden.
-**Akzeptanzkriterium:** Auf iPad kann man von Zutaten-Check bis letztem Schritt ohne Tippen auf kleine Elemente durchkochen.
+### 1 — Bulk-Import Serverside
+Bulk-Import läuft aktuell im Browser (iPhone muss wach bleiben). Supabase Edge Function würde das serverside laufen lassen — User startet Import, kann App schließen.
 
-### 2A — KI-Scraping (Serverside)
-Statt User gibt URLs ein: Serverside Job der periodisch Instagram-Accounts / Chefkoch / andere Quellen crawlt und Rezepte importiert. Aufwand: groß (Edge Function + Cron + evtl. Scraping-Proxy).
+### 2 — KI-Scraping (Serverside)
+Serverside Job der periodisch Instagram-Accounts / Chefkoch / andere Quellen crawlt und Rezepte importiert. Aufwand: groß (Edge Function + Cron + Scraping-Proxy).
 
-### 2A2 — Bulk-Import Serverside (low prio)
-Bulk-Import läuft aktuell im Browser (iPhone muss wach bleiben). Supabase Edge Function oder Queue würde das serverside laufen lassen.
+### 3 — Nährwerte / Makros
+Kalorien/Makros pro Rezept aus Zutaten berechnen. Braucht Nährwert-Datenbank (z.B. OpenFoodFacts API). Aufwand: groß.
 
-### 2B — Rezept-Entdeckung
-Basierend auf gescrapten Quellen: "Neu in deiner Gegend", "Trending", ähnliche Rezepte zu deinen Favoriten.
-
-### 2C — Magic Fill
-Woche automatisch füllen basierend auf:
-- `recipe_history` (was wann gekocht)
-- `recipe_ratings` (Sterne)
+### 4 — Magic Fill
+Woche automatisch füllen per KI aus vorhandenen Rezepten:
+- Basis: `recipe_history` (was wann gekocht) + `recipe_ratings` (Sterne)
 - Wochentag-Präferenzen (Di = schnell, Sa = aufwendig)
-- KI wählt aus *vorhandenen* Rezepten → keine Halluzinationen
-- Button "✨ Woche füllen" auf Plan-Seite
+- KI wählt nur aus vorhandenen Rezepten → keine Halluzinationen
+- Button „✨ Woche füllen" auf Plan-Seite
 
-### 2D — Rezept-Vorschläge
-"Weil dir X gefallen hat", "Diese Woche noch nicht gehabt", saisonal.
+### 5 — Rezept-Vorschläge
+„Weil dir X gefallen hat", „Diese Woche noch nicht gehabt", saisonal.
 
-### 3 — Nährwerte
-Kalorien/Makros pro Rezept aus Zutaten berechnen. Aufwand: groß (braucht Nährwert-Datenbank).
+### 6 — Bildersuche
+Automatische Bildsuche für Rezepte ohne Bild (z.B. Openverse, Unsplash).
 
-### Nice-to-have
-- Kategorien in Einkaufsliste (Gemüse / Fleisch / Milch…)
-- Bildersuche für Rezepte
-- Jack-Duplikat aufräumen / Auth (Email-OTP empfohlen, geparkt)
+### 7 — Kategorien in Einkaufsliste
+Zutaten in der Einkaufsliste gruppiert nach Kategorie (Gemüse / Fleisch / Milch / Gewürze…).
 
 ---
 

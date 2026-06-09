@@ -94,6 +94,37 @@
 .profile__export-btn:hover { background: var(--accent); color: #fff; }
 .profile__export-btn:disabled { opacity: 0.5; pointer-events: none; }
 
+.profile__export-info {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+.profile__export-info-title {
+  font-size: 12px; font-weight: var(--fw-semibold);
+  color: var(--text-2); margin-bottom: var(--space-2);
+}
+.profile__export-info-steps {
+  padding-left: 18px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.profile__export-info-steps li {
+  font-size: 12px; color: var(--text-2); line-height: 1.5;
+}
+.profile__export-info-steps code {
+  display: block; margin-top: 3px;
+  padding: 4px 8px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 6px; font-size: 11px; color: var(--accent);
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+.profile__export-info-note {
+  margin-top: var(--space-2);
+  font-size: 11px; color: var(--text-3); font-style: italic;
+}
+
 .profile__signout {
   width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-pill);
