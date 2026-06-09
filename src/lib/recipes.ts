@@ -16,6 +16,7 @@ export type RecipeListItem = Pick<
   | 'schwierigkeit'
   | 'kategorie'
   | 'tags'
+  | 'zutaten'
   | 'bild_url'
   | 'is_favorite'
   | 'created_by'
@@ -40,7 +41,7 @@ export async function listRecipes(): Promise<RecipeListItem[]> {
   const { data, error } = await supabase
     .from('recipes')
     .select(
-      'id, titel, beschreibung, portionen, zubereitungszeit_min, schwierigkeit, kategorie, tags, bild_url, is_favorite, created_by, created_at, source, recipe_type'
+      'id, titel, beschreibung, portionen, zubereitungszeit_min, schwierigkeit, kategorie, tags, zutaten, bild_url, is_favorite, created_by, created_at, source, recipe_type'
     )
     .order('created_at', { ascending: false });
   if (error) throw error;

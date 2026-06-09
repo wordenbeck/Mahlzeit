@@ -41,8 +41,10 @@ export function Rezepte() {
       const q = query.toLowerCase();
       list = list.filter(r =>
         r.titel.toLowerCase().includes(q)
+        || (r.beschreibung ?? '').toLowerCase().includes(q)
         || r.tags.some(t => t.toLowerCase().includes(q))
         || r.kategorie.some(k => k.toLowerCase().includes(q))
+        || r.zutaten.some(z => z.name.toLowerCase().includes(q))
       );
     }
     return list;
@@ -73,7 +75,7 @@ export function Rezepte() {
           <Search size={16} strokeWidth={1.75} className="rezepte__search-icon" />
           <input
             className="rezepte__search"
-            placeholder="Suchen — Titel, Tag, Kategorie…"
+            placeholder="Suchen — Titel, Zutat, Tag…"
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
