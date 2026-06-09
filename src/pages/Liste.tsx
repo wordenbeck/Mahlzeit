@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Plus, Share2, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Check, Plus, Share2, ShoppingBag, ShoppingCart } from 'lucide-react';
 import './Liste.css';
 import { useAuth } from '../lib/auth';
 import {
@@ -58,6 +58,16 @@ export function Liste() {
 
   const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(1);
 
+  const exportToBring = () => {
+    const unchecked = items.filter(i => !i.checked);
+    if (unchecked.length === 0) return;
+    const payload = unchecked.map(i => ({ n: i.name, m: i.menge, e: i.einheit }));
+    const encoded = encodeURIComponent(btoa(JSON.stringify(payload)));
+    const myUrl = `https://mahlzeit123.vercel.app/api/bring?items=${encoded}`;
+    const bringUrl = `https://api.getbring.com/rest/bringrecipes/deeplink?url=${encodeURIComponent(myUrl)}&source=web`;
+    window.open(bringUrl, '_blank');
+  };
+
   const exportList = async () => {
     const lines = items.filter(i => !i.checked).map(i => `${fmt(i.menge)} ${i.einheit} ${i.name}`);
     const text = `Mahlzeit Einkaufsliste · ${isoWeekRangeLabel(weekStart)}\n\n${lines.join('\n')}`;
@@ -81,9 +91,14 @@ export function Liste() {
             <span className="liste__eyebrow">Einkaufsliste</span>
             <h1>{isoWeekRangeLabel(weekStart)}</h1>
           </div>
-          <button className="liste__export" onClick={exportList} disabled={remaining === 0}>
-            <Share2 size={15} strokeWidth={2} /> Export
-          </button>
+          <div className="liste__header-actions">
+            <button className="liste__bring" onClick={exportToBring} disabled={remaining === 0}>
+              <ShoppingCart size={15} strokeWidth={2} /> Bring
+            </button>
+            <button className="liste__export" onClick={exportList} disabled={remaining === 0}>
+              <Share2 size={15} strokeWidth={2} /> Teilen
+            </button>
+          </div>
         </div>
         <p className="liste__count">{remaining} {remaining === 1 ? 'Zutat offen' : 'Zutaten offen'}</p>
       </header>
@@ -141,8 +156,11 @@ export function Liste() {
 
       {!loading && items.length > 0 && (
         <div className="liste__footer">
+          <button className="liste__footer-bring" onClick={exportToBring} disabled={remaining === 0}>
+            <ShoppingCart size={18} strokeWidth={2} /> In Bring! importieren
+          </button>
           <button className="liste__footer-cta" onClick={exportList}>
-            <ShoppingBag size={18} strokeWidth={2} /> Liste teilen / exportieren
+            <ShoppingBag size={18} strokeWidth={2} /> Liste teilen
           </button>
         </div>
       )}
