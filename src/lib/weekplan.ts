@@ -214,6 +214,7 @@ export type ShoppingItem = {
   einheit: string;
   sources: ShoppingSource[];
   isExtra?: boolean;
+  isGewuerz?: boolean;
   checked?: boolean;
 };
 
@@ -237,15 +238,36 @@ export async function consolidateFromSlots(slots: Slot[]): Promise<ShoppingItem[
     const overrides = (slot.zutaten_override ?? {}) as Record<string, number>;
 
     for (const z of recipe.zutaten as Zutat[]) {
-      if (z.menge == null) continue; // "nach Geschmack" überspringen
       const overrideKey = z.name.toLowerCase();
-      const skaliert = overrides[overrideKey] ?? Math.round(z.menge * factor * 10) / 10;
-
-      const groupKey = `${overrideKey}__${z.einheit}`;
       const newSource: ShoppingSource = {
         recipeTitle: recipe.titel,
         dayOfWeek: slot.day_of_week,
       };
+
+      if (z.menge == null) {
+        // Gewürze / "nach Geschmack" — ohne Menge, dedupliziert nach Name
+        const groupKey = `ng__${overrideKey}`;
+        const existing = map.get(groupKey);
+        if (existing) {
+          const dup = existing.sources.find(
+            s => s.recipeTitle === newSource.recipeTitle && s.dayOfWeek === newSource.dayOfWeek
+          );
+          if (!dup) existing.sources.push(newSource);
+        } else {
+          map.set(groupKey, {
+            key: groupKey,
+            name: z.name,
+            menge: 0,
+            einheit: '',
+            sources: [newSource],
+            isGewuerz: true,
+          });
+        }
+        continue;
+      }
+
+      const skaliert = overrides[overrideKey] ?? Math.round(z.menge * factor * 10) / 10;
+      const groupKey = `${overrideKey}__${z.einheit}`;
       const existing = map.get(groupKey);
       if (existing) {
         existing.menge = Math.round((existing.menge + skaliert) * 10) / 10;
@@ -265,7 +287,10 @@ export async function consolidateFromSlots(slots: Slot[]): Promise<ShoppingItem[
     }
   }
 
-  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const all = Array.from(map.values());
+  const normal = all.filter(i => !i.isGewuerz).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const gewuerze = all.filter(i => i.isGewuerz).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  return [...normal, ...gewuerze];
 }
 
 export function formatMenge(menge: number, einheit: string): string {

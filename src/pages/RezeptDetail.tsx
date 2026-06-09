@@ -287,7 +287,9 @@ export function RezeptDetail() {
               </ul>
             ) : (
               <ul>
-                {r.zutaten.map((z, i) => (
+                {[...r.zutaten]
+                  .sort((a, b) => (a.menge == null ? 1 : 0) - (b.menge == null ? 1 : 0))
+                  .map((z, i) => (
                   <li key={i}>
                     <ZutatIcon name={z.name} size={18} />
                     <span className="rdet__name">{z.name}</span>

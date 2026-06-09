@@ -135,15 +135,21 @@ export function Liste() {
         </button>
         <span className="liste__name"><ZutatIcon name={item.name} size={16} /> {item.name}</span>
         <span className="liste__qty">
-          <input
-            className="liste__qty-input"
-            type="text"
-            inputMode="decimal"
-            value={fmt(item.menge)}
-            onChange={e => setMenge(item.key, e.target.value)}
-            aria-label={`Menge ${item.name}`}
-          />
-          <span className="liste__einheit">{item.einheit}</span>
+          {item.isGewuerz ? (
+            <span className="liste__qty-ng">n.G.</span>
+          ) : (
+            <>
+              <input
+                className="liste__qty-input"
+                type="text"
+                inputMode="decimal"
+                value={fmt(item.menge)}
+                onChange={e => setMenge(item.key, e.target.value)}
+                aria-label={`Menge ${item.name}`}
+              />
+              <span className="liste__einheit">{item.einheit}</span>
+            </>
+          )}
         </span>
         <span className="liste__day-pill">{days || (item.isExtra ? 'extra' : '')}</span>
       </div>

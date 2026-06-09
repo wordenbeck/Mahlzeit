@@ -117,5 +117,5 @@
   .plan__day { padding: 10px 2px; }
   .plan__day-name { font-size: 13px; }
   .plan__libhead, .plan__lib { padding-left: var(--space-4); padding-right: var(--space-4); }
-  .plan__lib { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+  .plan__lib { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2); }
 }

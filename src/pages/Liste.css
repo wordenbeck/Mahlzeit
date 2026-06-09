@@ -74,6 +74,7 @@
 }
 .liste__qty-input:focus { border-color: var(--accent); }
 .liste__einheit { font-size: var(--fs-caption); color: var(--text-3); min-width: 28px; }
+.liste__qty-ng { font-size: var(--fs-caption); color: var(--text-3); font-style: italic; min-width: 56px; text-align: right; }
 .liste__day-pill {
   justify-self: end; font-size: 10px; font-weight: 700; white-space: nowrap;
   padding: 3px 8px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--text-2);
