@@ -194,6 +194,16 @@
 .rdet__tags-view { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-3); }
 .rdet__tags-view .rdet__type-pill { margin-top: 0; text-transform: lowercase; }
 
+.rdet__cook-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: var(--space-4);
+  padding: 13px;
+  background: var(--gradient-cta); color: #fff;
+  border-radius: var(--radius-md); font-weight: 800; font-size: 15px;
+  text-decoration: none;
+  width: 100%;
+}
+
 .rdet__edit-lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); font-weight: var(--fw-semibold); margin-bottom: var(--space-2); }
 .rdet__tags-edit { margin-top: var(--space-1); }
 .rdet__tags-active { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }

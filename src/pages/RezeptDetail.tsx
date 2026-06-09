@@ -266,6 +266,9 @@ export function RezeptDetail() {
                 {r.tags.map(t => <span key={t} className="rdet__type-pill">{t}</span>)}
               </div>
             )}
+            <Link to={`/rezepte/${r.id}/kochen`} className="rdet__cook-btn">
+              <UtensilsCrossed size={16} strokeWidth={2} /> Kochen starten
+            </Link>
           </div>
         )}
 

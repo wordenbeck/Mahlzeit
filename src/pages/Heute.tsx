@@ -120,8 +120,7 @@ export function Heute() {
         <main className="heute__main">
           {heroRecipe ? (
             <div className="heute__hero">
-              <div
-                className="heute__hero-img"
+              <Link to={`/rezepte/${heroRecipe.id}`} className="heute__hero-img"
                 style={heroRecipe.bild_url ? { backgroundImage: `url(${heroRecipe.bild_url})` } : undefined}
               >
                 <div className="heute__hero-tags">
@@ -143,22 +142,15 @@ export function Heute() {
                     <span className="heute__chip heute__chip--stars">{'★'.repeat(heroStars)}{'☆'.repeat(5 - heroStars)}</span>
                   )}
                 </div>
-              </div>
+              </Link>
               <div className="heute__hero-body">
-                <Link to={`/rezepte/${heroRecipe.id}`} className="heute__hero-title-link">
-                  <h2>{heroRecipe.titel}</h2>
-                </Link>
+                <h2>{heroRecipe.titel}</h2>
                 {restToday.length > 0 && (
                   <p className="heute__also">Auch heute geplant: {restToday.join(', ')}</p>
                 )}
-                <div className="heute__hero-actions">
-                  <Link to={`/rezepte/${heroRecipe.id}/kochen`} className="heute__cook-btn">
-                    <UtensilsCrossed size={16} strokeWidth={2} /> Jetzt kochen
-                  </Link>
-                  <Link to={`/rezepte/${heroRecipe.id}`} className="heute__detail-btn">
-                    Rezept <ArrowRight size={14} strokeWidth={2.5} />
-                  </Link>
-                </div>
+                <Link to={`/rezepte/${heroRecipe.id}/kochen`} className="heute__cook-btn">
+                  <UtensilsCrossed size={16} strokeWidth={2} /> Jetzt kochen
+                </Link>
               </div>
             </div>
           ) : (
