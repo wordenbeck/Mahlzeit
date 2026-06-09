@@ -175,14 +175,24 @@
   line-height: 1.5;
 }
 
+/* ============================================================
+   RESPONSIVE: Tablet/Desktop (≥ 768px)
+   ============================================================ */
+@media (min-width: 768px) {
+  .rezepte { padding: var(--space-6) var(--space-7); }
+  .rezepte__grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-4); }
+  .rezepte__search-wrap { max-width: 600px; }
+  .rezepte__row-img { width: 80px; height: 80px; }
+}
+
+@media (min-width: 1100px) {
+  .rezepte__grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+}
+
 @media (max-width: 600px) {
   .rezepte { padding: var(--space-3); }
-  .rezepte__header { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
   .rezepte__header h1 { font-size: 22px; }
-  .rezepte__grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2);
-  }
+  .rezepte__grid { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 }
 
 .rezepte__type-filter {

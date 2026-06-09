@@ -127,6 +127,23 @@
 .heute__tile strong { font-size: 14px; }
 .heute__tile small { font-size: 11px; color: var(--text-3); }
 
+/* ============================================================
+   RESPONSIVE: Tablet/Desktop (≥ 768px)
+   Hero links, Tiles rechts
+   ============================================================ */
+@media (min-width: 768px) {
+  .heute { max-width: 1200px; padding: var(--space-6) var(--space-7); }
+  .heute__main { flex-direction: row; align-items: flex-start; gap: var(--space-6); }
+  .heute__hero, .heute__empty { flex: 1.4; }
+  .heute__tiles { flex: 1; grid-template-columns: 1fr; gap: var(--space-3); }
+  .heute__hero-img { height: 280px; }
+}
+
+@media (min-width: 1100px) {
+  .heute__hero-img { height: 340px; }
+  .heute__tiles { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 600px) {
   .heute { padding: var(--space-4); }
   .heute__tiles { gap: var(--space-2); }

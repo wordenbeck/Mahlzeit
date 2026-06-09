@@ -13,20 +13,30 @@ import type { Recipe } from '../lib/types/recipe';
 import { ZutatIcon } from '../components/ZutatIcon';
 import { useRealtimeReload } from '../lib/realtime';
 
-// Liest aus dem Liste-localStorage ob heute schon eingekauft wurde
-function getShoppingDoneCount(): number {
+// Liest aus dem Liste-localStorage die heute abgehakten Zutaten-Keys
+function getCheckedKeys(): Set<string> {
   try {
     const raw = localStorage.getItem('mahlzeit:liste:checked');
-    if (!raw) return 0;
+    if (!raw) return new Set();
     const { date, keys } = JSON.parse(raw);
     const today = new Date().toISOString().slice(0, 10);
-    return date === today ? (keys as string[]).length : 0;
-  } catch { return 0; }
+    return date === today ? new Set(keys as string[]) : new Set();
+  } catch { return new Set(); }
+}
+
+// Prüft ob ein Zutat-Name in den abgehakten Keys steckt (fuzzy: lowercase-Vergleich)
+function isIngredientChecked(name: string, checkedKeys: Set<string>): boolean {
+  const n = name.toLowerCase().trim();
+  for (const k of checkedKeys) {
+    if (k.toLowerCase().includes(n) || n.includes(k.toLowerCase().split('-')[0])) return true;
+  }
+  return false;
 }
 
 export function Einkauf() {
   const auth = useAuth();
-  const shoppingDone = getShoppingDoneCount();
+  const checkedKeys = getCheckedKeys();
+  const shoppingDone = checkedKeys.size;
   const [weekStart, setWeekStart] = useState(() => isoWeekStart(new Date()));
   const [weekplan, setWeekplan] = useState<WeekplanWithSlots | null>(null);
   const [recipesById, setRecipesById] = useState<Record<string, Recipe>>({});
@@ -200,8 +210,9 @@ export function Einkauf() {
                   <ul className="ekf__ing">
                     {recipe.zutaten.map((z, i) => {
                       const menge = z.menge != null ? Math.round(z.menge * factor * 10) / 10 : null;
+                      const checked = shoppingDone > 0 && isIngredientChecked(z.name, checkedKeys);
                       return (
-                        <li key={i} className="ekf__ing-row">
+                        <li key={i} className={`ekf__ing-row ${checked ? 'is-checked' : ''}`}>
                           <span className="ekf__ing-name"><ZutatIcon name={z.name} size={15} /> {z.name}</span>
                           <span className="ekf__ing-qty">{menge != null ? `${menge} ${z.einheit ?? ''}` : (z.einheit || 'n. Geschm.')}</span>
                         </li>
@@ -217,7 +228,10 @@ export function Einkauf() {
 
       {totalSlots > 0 && (
         <div className="ekf__footer">
-          <Link to="/liste" className="ekf__footer-cta"><ShoppingBag size={18} strokeWidth={2} /> Zur Einkaufsliste</Link>
+          <Link to="/liste" className={`ekf__footer-cta ${shoppingDone > 0 ? 'is-done' : ''}`}>
+            <ShoppingBag size={18} strokeWidth={2} />
+            {shoppingDone > 0 ? 'Einkauf erledigt' : 'Zur Einkaufsliste'}
+          </Link>
         </div>
       )}
     </div>

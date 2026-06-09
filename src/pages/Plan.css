@@ -46,7 +46,7 @@
   color: var(--text-3); display: inline-flex; align-items: center; justify-content: center;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.plan__fav-filter.is-active { background: #FEF9C3; color: #B45309; border-color: #FDE68A; }
+.plan__fav-filter.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 .plan__lib { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); padding: var(--space-2) var(--space-5) var(--space-6); }
 @media (max-width: 600px) {
@@ -87,6 +87,28 @@
 .plan__dayview-link { flex: 1; min-width: 0; text-decoration: none; color: var(--text-1); font-weight: var(--fw-medium); font-size: var(--fs-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .plan__dayview-del { width: 34px; height: 34px; border-radius: var(--radius-pill); color: var(--text-3); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .plan__dayview-del:hover { color: var(--danger); background: var(--surface-1); }
+
+/* ============================================================
+   RESPONSIVE: Tablet/Desktop (≥ 768px)
+   Wochentage links als Sidebar, Bibliothek rechts
+   ============================================================ */
+@media (min-width: 768px) {
+  .plan { display: grid; grid-template-columns: 260px 1fr; max-width: 1400px; margin: 0 auto; }
+  .plan__header { grid-column: 1 / -1; }
+  .plan__error { grid-column: 1 / -1; }
+  .plan__loading, .plan__empty { grid-column: 2; }
+  .plan__week {
+    grid-column: 1; grid-row: 2 / 99;
+    flex-direction: column; padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+    gap: 6px; align-self: start; position: sticky; top: 36px; border-right: 1px solid var(--border);
+  }
+  .plan__day { flex-direction: row; justify-content: space-between; padding: 12px var(--space-4); min-width: 0; }
+  .plan__day-name { font-size: 15px; }
+  .plan__day-date { font-size: 13px; color: rgba(255,255,255,0.8); }
+  .plan__day:not(.is-planned) .plan__day-date { color: var(--text-3); }
+  .plan__libhead { grid-column: 2; padding-left: var(--space-5); padding-right: var(--space-6); }
+  .plan__lib { grid-column: 2; padding-left: var(--space-5); padding-right: var(--space-6); grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
 
 @media (max-width: 600px) {
   .plan__header { padding: var(--space-3) var(--space-4) var(--space-2); }
