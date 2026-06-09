@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rezept bearbeiten — 3 Varianten</title>
+<style>
+  :root{
+    --bg:#FAF7F2;--surface-1:#FFFFFF;--surface-2:#F2EDE5;--text-1:#2A2620;--text-2:#5C544A;--text-3:#9A9080;
+    --accent:#006C49;--accent-soft:#D1FADF;--border:rgba(0,0,0,.06);--border-strong:rgba(0,0,0,.12);--danger:#DC2626;
+    --grad:linear-gradient(135deg,#10B981,#006C49);
+    --r-card:16px;--r-md:12px;--r-sm:8px;--sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+    --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:#e8ebe9;color:var(--text-1);padding:24px 12px}
+  h1{font-size:20px;text-align:center}.sub{text-align:center;color:#5a6b62;font-size:13px;margin:4px auto 22px;max-width:560px}
+  .row{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .col{width:392px;max-width:100%}.vh{font-weight:800;color:var(--accent);font-size:15px;text-align:center}
+  .vd{font-size:12px;color:#5a6b62;text-align:center;margin:4px 0 12px;min-height:54px}
+  .phone{background:var(--bg);border:8px solid #111;border-radius:34px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+  .scr{height:760px;overflow-y:auto}.scr::-webkit-scrollbar{display:none}.pad{padding:14px}
+  input,textarea,select{font:inherit;outline:none}
+  .inp{width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:var(--r-sm);font-size:14px;background:#fff}
+  .inp:focus{border-color:var(--accent)}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;margin-bottom:4px;display:block}
+  .seclbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;margin:16px 0 8px;display:block}
+  .actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px}
+  .cancel{padding:9px 14px;border-radius:99px;background:var(--surface-2);color:var(--text-2);border:none;font-size:12px;font-weight:700;display:inline-flex;gap:5px;align-items:center}
+  .save{padding:9px 16px;border-radius:99px;background:var(--grad);color:#fff;border:none;font-size:12px;font-weight:700;display:inline-flex;gap:5px;align-items:center}
+  .imgband{height:140px;background:linear-gradient(135deg,#D4E8D5,#9DBF9E);border-radius:var(--r-card);position:relative;margin-bottom:12px}
+  .imgband .ch{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;padding:7px 13px;border-radius:99px;font-size:12px;font-weight:700}
+  .meta3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+  .pills{display:flex;flex-wrap:wrap;gap:6px}
+  .pill{padding:6px 12px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);font-size:12px;font-weight:600}
+  .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  /* tags */
+  .tagrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:600}
+  .tag b{cursor:pointer;opacity:.7}
+  .taginp{flex:1;min-width:100px;padding:7px 10px;border:1px dashed var(--border-strong);border-radius:99px;font-size:12px;background:#fff}
+
+  /* A: 2-Zeilen-Zutat */
+  .zA{background:#fff;border:1px solid var(--border);border-radius:var(--r-md);padding:10px;margin-bottom:8px}
+  .zA .top{display:flex;gap:8px;align-items:center}
+  .zA .top .name{flex:1}
+  .zA .del{width:34px;height:34px;border-radius:99px;color:var(--text-3);background:var(--surface-2);border:none;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+  .zA .bot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .addrow{width:100%;padding:10px;border:1px dashed var(--accent);border-radius:var(--r-md);color:var(--accent);background:transparent;font-size:13px;font-weight:700;margin-top:2px}
+  .step{display:grid;grid-template-columns:26px 1fr 34px;gap:8px;align-items:start;margin-bottom:8px}
+  .num{width:24px;height:24px;border-radius:99px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:8px}
+  .step textarea{min-height:58px;resize:vertical}
+  .step .del{width:34px;height:34px;border-radius:99px;color:var(--text-3);background:var(--surface-2);border:none;display:inline-flex;align-items:center;justify-content:center;margin-top:6px}
+
+  /* B: accordion */
+  .acc{border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:8px;overflow:hidden;background:#fff}
+  .acch{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;font-weight:700;font-size:14px}
+  .acch.open{color:var(--accent)}
+  .accb{padding:0 14px 14px}
+
+  /* C: labeled card grid */
+  .zC{background:#fff;border:1px solid var(--border);border-radius:var(--r-md);padding:10px;margin-bottom:8px;display:grid;grid-template-columns:80px 80px 1fr 34px;gap:8px;align-items:end}
+  .field{display:flex;flex-direction:column}
+  .desk{width:760px;max-width:100%;margin:18px auto 0}
+</style></head>
+<body>
+  <h1>Rezept bearbeiten — 3 Varianten (sauberes Layout + Tags)</h1>
+  <div class="sub">Echtes Rezept. Fokus: Zutaten/Schritte sollen am iPhone nicht „aus den Fugen" laufen, und Tags hinzufügbar.</div>
+
+  <div class="row">
+
+    <!-- A -->
+    <div class="col">
+      <div class="vh">A · 2-Zeilen-Zutat</div>
+      <div class="vd">Zutat: Zeile 1 Name (+🗑), Zeile 2 Menge + Einheit. Große Felder, nichts quetscht. Tags als Chips mit + .</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="actions"><button class="cancel">✕ Abbrechen</button><button class="save">✓ Speichern</button></div>
+        <div class="imgband"><div class="ch">Bild ändern</div></div>
+        <span class="lbl">Titel</span><input class="inp" value="Kartoffelwürfel mit Pinienkernen und Avocado-Dip">
+        <span class="lbl" style="margin-top:10px">Beschreibung</span><textarea class="inp" rows="2">Knusprige Kartoffelwürfel mit cremigem Avocado-Dip</textarea>
+        <div class="meta3">
+          <div><span class="lbl">Min</span><input class="inp" value="20"></div>
+          <div><span class="lbl">Portionen</span><input class="inp" value="4"></div>
+          <div><span class="lbl">Aufwand</span><select class="inp"><option>mittel</option></select></div>
+        </div>
+        <span class="seclbl">Rezept-Typ</span>
+        <div class="pills"><span class="pill on">Hauptgericht</span><span class="pill">Beilage</span><span class="pill">Snack</span></div>
+        <span class="seclbl">Tags</span>
+        <div class="tagrow"><span class="tag">schnell <b>✕</b></span><span class="tag">vegetarisch <b>✕</b></span><input class="taginp" placeholder="+ Tag"></div>
+        <span class="seclbl">Zutaten</span>
+        <div class="zA"><div class="top"><input class="inp name" value="Festkochende Kartoffeln"><button class="del">🗑</button></div><div class="bot"><input class="inp" value="500"><input class="inp" value="g"></div></div>
+        <div class="zA"><div class="top"><input class="inp name" value="Rapsöl"><button class="del">🗑</button></div><div class="bot"><input class="inp" value="1"><input class="inp" value="EL"></div></div>
+        <div class="zA"><div class="top"><input class="inp name" value="Avocado"><button class="del">🗑</button></div><div class="bot"><input class="inp" value="1"><input class="inp" value="Stk"></div></div>
+        <button class="addrow">+ Zutat</button>
+        <span class="seclbl">Zubereitung</span>
+        <div class="step"><span class="num">1</span><textarea class="inp">Kartoffeln würfeln und in Rapsöl knusprig braten.</textarea><button class="del">🗑</button></div>
+        <div class="step"><span class="num">2</span><textarea class="inp">Avocado zerdrücken, mit Zitronensaft & Salz verrühren.</textarea><button class="del">🗑</button></div>
+        <button class="addrow">+ Schritt</button>
+      </div></div></div>
+    </div>
+
+    <!-- B -->
+    <div class="col">
+      <div class="vh">B · Abschnitte (Akkordeon)</div>
+      <div class="vd">Eckdaten / Zutaten / Zubereitung / Tags klappbar, eins offen. Reduziert Überforderung, kurzer Screen.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="actions"><button class="cancel">✕</button><button class="save">✓ Speichern</button></div>
+        <div class="acc"><div class="acch open">Eckdaten &amp; Bild <span>▾</span></div><div class="accb">
+          <span class="lbl">Titel</span><input class="inp" value="Kartoffelwürfel mit Pinien…">
+          <div class="meta3"><div><span class="lbl">Min</span><input class="inp" value="20"></div><div><span class="lbl">Port.</span><input class="inp" value="4"></div><div><span class="lbl">Aufwand</span><select class="inp"><option>mittel</option></select></div></div>
+          <span class="seclbl">Typ</span><div class="pills"><span class="pill on">Hauptgericht</span><span class="pill">Beilage</span></div>
+        </div></div>
+        <div class="acc"><div class="acch">Zutaten · 6 <span>›</span></div></div>
+        <div class="acc"><div class="acch">Zubereitung · 4 Schritte <span>›</span></div></div>
+        <div class="acc"><div class="acch open">Tags <span>▾</span></div><div class="accb">
+          <div class="tagrow"><span class="tag">schnell <b>✕</b></span><span class="tag">vegetarisch <b>✕</b></span><input class="taginp" placeholder="+ Tag"></div>
+        </div></div>
+      </div></div></div>
+    </div>
+
+    <!-- C -->
+    <div class="col">
+      <div class="vh">C · Beschriftete Felder</div>
+      <div class="vd">Jede Zutat eine Karte mit Labels Menge/Einheit/Name. Am Desktop tabellarisch, am iPhone gestapelt.</div>
+      <div class="phone"><div class="scr"><div class="pad">
+        <div class="actions"><button class="cancel">✕</button><button class="save">✓ Speichern</button></div>
+        <span class="lbl">Titel</span><input class="inp" value="Kartoffelwürfel mit Pinien…">
+        <span class="seclbl">Tags</span><div class="tagrow"><span class="tag">schnell <b>✕</b></span><input class="taginp" placeholder="+ Tag"></div>
+        <span class="seclbl">Zutaten</span>
+        <div class="zC" style="grid-template-columns:1fr 1fr;grid-template-areas:'m e' 'n n' 'd d'">
+          <div class="field" style="grid-area:m"><span class="lbl">Menge</span><input class="inp" value="500"></div>
+          <div class="field" style="grid-area:e"><span class="lbl">Einheit</span><input class="inp" value="g"></div>
+          <div class="field" style="grid-area:n"><span class="lbl">Zutat</span><input class="inp" value="Festkochende Kartoffeln"></div>
+          <button class="del" style="grid-area:d;width:100%;height:36px;border-radius:8px">🗑 entfernen</button>
+        </div>
+        <button class="addrow">+ Zutat</button>
+      </div></div></div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:24px"><div class="vh">Desktop / iPad (Variante A — Zutaten/Schritte 1-zeilig, mehr Breite)</div></div>
+  <div class="desk"><div style="background:var(--bg);border:1px solid #d6dcd8;border-radius:14px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.12)">
+    <div class="actions"><button class="cancel">✕ Abbrechen</button><button class="save">✓ Speichern</button></div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start">
+      <div class="imgband" style="height:180px;margin:0"><div class="ch">Bild ändern</div></div>
+      <div>
+        <span class="lbl">Titel</span><input class="inp" value="Kartoffelwürfel mit Pinienkernen und Avocado-Dip">
+        <div class="meta3" style="grid-template-columns:1fr 1fr 1fr"><div><span class="lbl">Min</span><input class="inp" value="20"></div><div><span class="lbl">Portionen</span><input class="inp" value="4"></div><div><span class="lbl">Aufwand</span><select class="inp"><option>mittel</option></select></div></div>
+        <span class="seclbl">Tags</span><div class="tagrow"><span class="tag">schnell <b>✕</b></span><span class="tag">vegetarisch <b>✕</b></span><input class="taginp" placeholder="+ Tag"></div>
+      </div>
+    </div>
+    <span class="seclbl">Zutaten</span>
+    <div style="display:grid;grid-template-columns:1fr 90px 90px 36px;gap:8px;align-items:center;margin-bottom:6px"><input class="inp" value="Festkochende Kartoffeln"><input class="inp" value="500"><input class="inp" value="g"><button class="del" style="width:36px;height:36px;border-radius:8px">🗑</button></div>
+    <div style="display:grid;grid-template-columns:1fr 90px 90px 36px;gap:8px;align-items:center;margin-bottom:6px"><input class="inp" value="Avocado"><input class="inp" value="1"><input class="inp" value="Stk"><button class="del" style="width:36px;height:36px;border-radius:8px">🗑</button></div>
+    <button class="addrow" style="margin-top:2px">+ Zutat</button>
+  </div></div>
+</body></html>
