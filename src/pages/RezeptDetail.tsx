@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Clock, ChefHat, Users, Star, Trash2, ExternalLink, Pencil, Save, X, Plus,
   Bookmark, UtensilsCrossed,
@@ -15,6 +15,10 @@ import type { Recipe, Schwierigkeit, Zutat } from '../lib/types/recipe';
 export function RezeptDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromPlan = (location.state as { from?: string } | null)?.from === 'plan';
+  const backTo = fromPlan ? '/plan' : '/rezepte';
+  const backLabel = fromPlan ? '← zurück zum Plan' : '← zurück zu Rezepten';
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -152,7 +156,7 @@ export function RezeptDetail() {
   if (loading) return <div className="rdet"><p className="rdet__loading">Lade…</p></div>;
   if (!recipe) return (
     <div className="rdet"><p className="rdet__loading">Rezept nicht gefunden.</p>
-      <Link to="/rezepte" className="rdet__back">← zurück zu Rezepten</Link></div>
+      <Link to={backTo} className="rdet__back">{backLabel}</Link></div>
   );
 
   const r = editing && draft ? draft : recipe;
@@ -167,7 +171,7 @@ export function RezeptDetail() {
           ? <img src={r.bild_url} alt={r.titel} className="rdet__banner-img" />
           : <div className="rdet__banner-img rdet__banner-img--ph"><ChefHat size={56} /></div>}
 
-        <Link to="/rezepte" className="rdet__banner-back"><ArrowLeft size={16} strokeWidth={2} /> zurück</Link>
+        <Link to={backTo} className="rdet__banner-back"><ArrowLeft size={16} strokeWidth={2} /> zurück</Link>
 
         {!editing && (
           <div className="rdet__banner-actions">
@@ -350,6 +354,18 @@ export function RezeptDetail() {
             <button className="rdet__sheet-save" onClick={saveCooked} disabled={cookSaving}>{cookSaving ? 'Speichere…' : '✓ Als gekocht speichern'}</button>
           </div>
         </>
+      )}
+
+      {/* FAB: nur sichtbar wenn von Plan navigiert, nicht im Edit-Modus */}
+      {fromPlan && !editing && (
+        <button
+          className="rdet__fab"
+          onClick={() => navigate(`/plan?assign=${id}`)}
+          aria-label="Zum Plan hinzufügen"
+          title="Zum Plan hinzufügen"
+        >
+          <Plus size={26} strokeWidth={2.5} />
+        </button>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Plus, Search, Trash2, X } from 'lucide-react';
 import './Plan.css';
 import { useAuth } from '../lib/auth';
@@ -19,6 +19,7 @@ const MEAL_ORDER: MealType[] = ['mittag', 'abendessen'];
 
 export function Plan() {
   const auth = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [weekStart, setWeekStart] = useState(() => isoWeekStart(new Date()));
   const [weekplan, setWeekplan] = useState<WeekplanWithSlots | null>(null);
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
@@ -50,6 +51,17 @@ export function Plan() {
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekStart, auth.profile?.id]);
+
+  // ?assign=recipeId → Sheet direkt öffnen (kommt von FAB im RezeptDetail)
+  useEffect(() => {
+    const assignId = searchParams.get('assign');
+    if (!assignId || recipes.length === 0) return;
+    const recipe = recipes.find(r => r.id === assignId);
+    if (recipe) {
+      setAssignRecipe(recipe);
+      setSearchParams({}, { replace: true }); // param sauber entfernen
+    }
+  }, [searchParams, recipes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useRealtimeReload('weekplan_slots', reload, !!auth.profile);
   useRealtimeReload('recipes', reload, !!auth.profile);
@@ -140,7 +152,7 @@ export function Plan() {
       <div className="plan__lib">
         {filtered.map(r => (
           <div key={r.id} className="plan__lib-item">
-            <RealRecipeCard recipe={r} />
+            <RealRecipeCard recipe={r} linkState={{ from: 'plan' }} />
             <button className="plan__lib-add" onClick={() => setAssignRecipe(r)} aria-label={`${r.titel} einplanen`}>
               <Plus size={18} strokeWidth={2.5} />
             </button>
@@ -182,7 +194,7 @@ export function Plan() {
                 const r = recipeFor(s);
                 return (
                   <div key={s.id} className="plan__dayview-item">
-                    <Link to={r ? `/rezepte/${r.id}` : '#'} className="plan__dayview-link" onClick={() => setViewDay(null)}>{r?.titel ?? '—'}</Link>
+                    <Link to={r ? `/rezepte/${r.id}` : '#'} state={{ from: 'plan' }} className="plan__dayview-link" onClick={() => setViewDay(null)}>{r?.titel ?? '—'}</Link>
                     <button className="plan__dayview-del" onClick={() => handleDeleteSlot(s)} aria-label="Entfernen"><Trash2 size={15} strokeWidth={1.75} /></button>
                   </div>
                 );

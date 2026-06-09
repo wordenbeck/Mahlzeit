@@ -10,6 +10,7 @@ import type { Schwierigkeit } from '../mocks/recipes';
 type Props = {
   recipe: RecipeListItem;
   onClick?: () => void;     // Wenn gesetzt: Card wird Button (für Modal-Trigger statt Navigation)
+  linkState?: Record<string, unknown>; // Optionaler Router-State beim Navigieren
 };
 
 function fallbackGradient(id: string): string {
@@ -22,7 +23,7 @@ function fallbackGradient(id: string): string {
   return gradients[Math.abs(hash) % gradients.length];
 }
 
-export function RealRecipeCard({ recipe, onClick }: Props) {
+export function RealRecipeCard({ recipe, onClick, linkState }: Props) {
   const hasImage = Boolean(recipe.bild_url);
   const gradientVar = fallbackGradient(recipe.id);
 
@@ -72,5 +73,5 @@ export function RealRecipeCard({ recipe, onClick }: Props) {
       </button>
     );
   }
-  return <Link to={`/rezepte/${recipe.id}`} className="rrc">{inner}</Link>;
+  return <Link to={`/rezepte/${recipe.id}`} state={linkState} className="rrc">{inner}</Link>;
 }

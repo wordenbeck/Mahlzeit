@@ -223,3 +223,23 @@
 .rdet__edit-actions { display: flex; gap: var(--space-2); margin-top: var(--space-5); }
 .rdet__edit-actions .rdet__cancel { flex: 0 0 auto; }
 .rdet__edit-actions .rdet__save { flex: 1; justify-content: center; padding: 13px; font-size: var(--fs-body); }
+
+/* Floating Action Button — "+" zum Einplanen (nur wenn von Plan navigiert) */
+.rdet__fab {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  right: 20px;
+  z-index: 50;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--gradient-cta);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 108, 73, 0.45);
+  transition: transform 0.15s var(--ease-ios), box-shadow 0.15s var(--ease-ios);
+}
+.rdet__fab:active { transform: scale(0.94); box-shadow: 0 2px 8px rgba(0,108,73,0.3); }
