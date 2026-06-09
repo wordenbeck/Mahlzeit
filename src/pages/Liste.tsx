@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Plus, Share2, ShoppingBag, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Check, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import './Liste.css';
 import { useAuth } from '../lib/auth';
 import {
@@ -65,7 +65,12 @@ export function Liste() {
     const encoded = encodeURIComponent(btoa(JSON.stringify(payload)));
     const myUrl = `https://mahlzeit123.vercel.app/api/bring?items=${encoded}`;
     const bringUrl = `https://api.getbring.com/rest/bringrecipes/deeplink?url=${encodeURIComponent(myUrl)}&source=web`;
-    window.open(bringUrl, '_blank');
+    // window.location.href statt window.open → kein leerer Safari-Tab auf iOS
+    window.location.href = bringUrl;
+  };
+
+  const clearList = () => {
+    setItems(prev => prev.map(i => ({ ...i, checked: true })));
   };
 
   const exportList = async () => {
@@ -91,14 +96,9 @@ export function Liste() {
             <span className="liste__eyebrow">Einkaufsliste</span>
             <h1>{isoWeekRangeLabel(weekStart)}</h1>
           </div>
-          <div className="liste__header-actions">
-            <button className="liste__bring" onClick={exportToBring} disabled={remaining === 0}>
-              <ShoppingCart size={15} strokeWidth={2} /> Bring
-            </button>
-            <button className="liste__export" onClick={exportList} disabled={remaining === 0}>
-              <Share2 size={15} strokeWidth={2} /> Teilen
-            </button>
-          </div>
+          <button className="liste__bring" onClick={exportToBring} disabled={remaining === 0}>
+            <ShoppingCart size={15} strokeWidth={2} /> Bring
+          </button>
         </div>
         <p className="liste__count">{remaining} {remaining === 1 ? 'Zutat offen' : 'Zutaten offen'}</p>
       </header>
@@ -159,8 +159,8 @@ export function Liste() {
           <button className="liste__footer-bring" onClick={exportToBring} disabled={remaining === 0}>
             <ShoppingCart size={18} strokeWidth={2} /> In Bring! importieren
           </button>
-          <button className="liste__footer-cta" onClick={exportList}>
-            <ShoppingBag size={18} strokeWidth={2} /> Liste teilen
+          <button className="liste__footer-cta" onClick={clearList} disabled={remaining === 0}>
+            <Trash2 size={18} strokeWidth={2} /> Einkaufswagen leeren
           </button>
         </div>
       )}
