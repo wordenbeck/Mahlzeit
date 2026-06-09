@@ -59,7 +59,7 @@ export function KochModus() {
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<KochSession>({ phase: 1, checkedZutaten: [], currentStep: 0, startedAt: null });
+  const [session, setSession] = useState<KochSession>({ phase: 2, checkedZutaten: [], currentStep: 0, startedAt: null });
 
   // Stopwatch
   const [elapsed, setElapsed] = useState(0);
@@ -76,7 +76,14 @@ export function KochModus() {
   useEffect(() => {
     if (!id) return;
     getRecipe(id)
-      .then(r => { setRecipe(r); if (r) setSession(loadSession(r.id)); })
+      .then(r => {
+        setRecipe(r);
+        if (r) {
+          const saved = loadSession(r.id);
+          // Immer Phase 2 — Zutaten-Check entfernt
+          setSession({ ...saved, phase: 2, startedAt: saved.startedAt ?? Date.now() });
+        }
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
