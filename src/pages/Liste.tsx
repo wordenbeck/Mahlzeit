@@ -115,7 +115,6 @@ export function Liste() {
   // Alle offenen Items als eingekauft markieren
   const clearList = () => {
     applyItems(items.map(i => ({ ...i, checked: true })));
-    setCheckedOpen(true); // "Eingekauft"-Bereich aufklappen
   };
 
   const renderRow = (item: ShoppingItem) => {
