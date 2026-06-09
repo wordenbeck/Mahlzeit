@@ -348,3 +348,15 @@ form.rimp__field {
   padding: 0;
   border: 0;
 }
+
+/* URL-Feld mit Löschen-X + Auto-Add-Hinweis */
+.rimp__url-wrap { position: relative; }
+.rimp__url-wrap input { width: 100%; padding-right: 40px; }
+.rimp__url-clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: var(--radius-pill);
+  background: var(--surface-2); color: var(--text-2); border: none;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.rimp__url-clear:hover { color: var(--danger); }
+.rimp__hint { font-size: var(--fs-caption); color: var(--accent); font-weight: var(--fw-medium); margin-top: var(--space-2); }

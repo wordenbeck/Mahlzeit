@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight,
+  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight, Plus,
 } from 'lucide-react';
 import './AppMenu.css';
 import { useAuth } from '../lib/auth';
@@ -66,6 +66,14 @@ export function AppMenu() {
       </nav>
 
       <div className="app-menu__right">
+        <Link
+          to="/rezepte/import"
+          className="app-menu__icon-link"
+          aria-label="Rezept hinzufügen"
+          title="Rezept hinzufügen"
+        >
+          <Plus size={18} strokeWidth={2.5} />
+        </Link>
         <Link
           to="/profil"
           className="app-menu__profile"
