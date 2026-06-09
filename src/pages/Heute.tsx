@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, ChefHat, Clock, Plus, ShoppingBag, BookOpen, UtensilsCrossed } from 'lucide-react';
+import { ArrowRight, Calendar, ChefHat, Clock, ShoppingBag, ClipboardPlus, UtensilsCrossed } from 'lucide-react';
 import './Heute.css';
 import { useAuth } from '../lib/auth';
 import { isoWeekStart, getOrCreateWeekplan, type Slot } from '../lib/weekplan';
@@ -97,11 +97,11 @@ export function Heute() {
         <span><strong>Einkauf</strong><small>Mengen prüfen</small></span>
       </Link>
       <Link to="/rezepte/import" className="heute__tile">
-        <Plus size={20} strokeWidth={2} />
+        <ClipboardPlus size={20} strokeWidth={2} />
         <span><strong>Neues Rezept</strong><small>Insta, URL oder manuell</small></span>
       </Link>
       <Link to="/rezepte" className="heute__tile">
-        <BookOpen size={20} strokeWidth={2} />
+        <ChefHat size={20} strokeWidth={2} />
         <span><strong>Rezepte</strong><small>{recipeCount} in Sammlung</small></span>
       </Link>
     </div>
