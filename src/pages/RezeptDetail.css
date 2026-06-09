@@ -86,8 +86,13 @@
 .rdet__meta-edit { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
 .rdet__meta-field { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--text-3); font-weight: var(--fw-medium); text-transform: uppercase; letter-spacing: 0.04em; }
 .rdet__meta-field input, .rdet__meta-field select {
-  width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--accent-soft); border-radius: var(--radius-md);
+  width: 100%; height: 42px; padding: 0 var(--space-3); border: 1px solid var(--accent-soft); border-radius: var(--radius-md);
   background: var(--surface-1); font: inherit; font-size: var(--fs-body); outline: none; text-transform: none; color: var(--text-1); font-weight: var(--fw-medium);
+  -webkit-appearance: none; appearance: none;
+}
+.rdet__meta-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235C544A' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 28px;
 }
 .rdet__meta-field input:focus, .rdet__meta-field select:focus { border-color: var(--accent); }
 .rdet__type-edit { margin-top: var(--space-1); }
@@ -102,9 +107,8 @@
 }
 .rdet__save:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
-/* ===== Zutaten | Zubereitung ===== */
+/* ===== Zutaten | Zubereitung (auch im Edit 2-spaltig ab Tablet) ===== */
 .rdet__main { display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--space-5); margin-top: var(--space-5); }
-.rdet__main.is-editing { grid-template-columns: 1fr; }
 @media (max-width: 800px) { .rdet__main { grid-template-columns: 1fr; } }
 .rdet__main h2 {
   font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 0.06em;
@@ -128,9 +132,12 @@
 
 /* Edit-Zeilen */
 .rdet__zutaten-edit, .rdet__steps-edit { list-style: none; }
-.rdet__zutat-row { display: grid; grid-template-columns: 24px 1fr 80px 80px 28px; align-items: center; gap: var(--space-2); padding: var(--space-2); background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 4px; }
-.rdet__zutat-name-input, .rdet__zutat-menge-input, .rdet__zutat-einheit-input { padding: 4px var(--space-2); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-1); font-size: var(--fs-caption); outline: none; }
-.rdet__zutat-menge-input { text-align: right; }
+/* Einzeilig: Name breit · Menge klein · Einheit winzig · Löschen */
+.rdet__zutat-row { display: grid; grid-template-columns: minmax(0, 1fr) 56px 50px 32px; align-items: center; gap: 6px; padding: 6px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 4px; }
+.rdet__zutat-name-input, .rdet__zutat-menge-input, .rdet__zutat-einheit-input { min-width: 0; height: 36px; padding: 0 8px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-1); font-size: var(--fs-caption); outline: none; }
+.rdet__zutat-name-input:focus, .rdet__zutat-menge-input:focus, .rdet__zutat-einheit-input:focus { border-color: var(--accent); }
+.rdet__zutat-menge-input { text-align: right; -moz-appearance: textfield; }
+.rdet__zutat-menge-input::-webkit-outer-spin-button, .rdet__zutat-menge-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .rdet__row-del { width: 28px; height: 28px; border-radius: var(--radius-pill); color: var(--text-3); display: inline-flex; align-items: center; justify-content: center; }
 .rdet__row-del:hover { color: var(--danger); background: var(--surface-2); }
 .rdet__add-row { width: 100%; padding: var(--space-2); display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-md); font-size: var(--fs-caption); font-weight: var(--fw-medium); margin-top: 4px; }
@@ -180,5 +187,39 @@
   .rdet__body { padding: var(--space-4); }
   .rdet__meta { padding: var(--space-3); }
   .rdet__meta-item { font-size: 14px; }
-  .rdet__zutat-row { grid-template-columns: 24px 1fr 60px 60px 28px; }
+  .rdet__zutat-row { grid-template-columns: minmax(0, 1fr) 50px 46px 30px; }
 }
+
+/* ===== Tags (View + Edit) ===== */
+.rdet__tags-view { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-3); }
+.rdet__tags-view .rdet__type-pill { margin-top: 0; text-transform: lowercase; }
+
+.rdet__edit-lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); font-weight: var(--fw-semibold); margin-bottom: var(--space-2); }
+.rdet__tags-edit { margin-top: var(--space-1); }
+.rdet__tags-active { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.rdet__tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 10px; border-radius: var(--radius-pill);
+  background: var(--accent); color: #fff; border: none;
+  font-size: var(--fs-caption); font-weight: var(--fw-semibold); text-transform: lowercase;
+}
+.rdet__tag svg { opacity: 0.85; }
+.rdet__tag-input {
+  flex: 1; min-width: 90px; padding: 7px 12px;
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-pill);
+  font: inherit; font-size: var(--fs-caption); background: var(--surface-1); outline: none;
+}
+.rdet__tag-input:focus { border-color: var(--accent); border-style: solid; }
+.rdet__tag-suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
+.rdet__tag-sug {
+  padding: 6px 11px; border-radius: var(--radius-pill);
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text-2);
+  font-size: var(--fs-caption); font-weight: var(--fw-medium); text-transform: lowercase;
+}
+.rdet__tag-sug:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.rdet__tag-more { padding: 6px 4px; background: none; border: none; color: var(--accent); font-size: var(--fs-caption); font-weight: 700; }
+
+/* Edit-Aktionen unten: volle Breite, Speichern dominant */
+.rdet__edit-actions { display: flex; gap: var(--space-2); margin-top: var(--space-5); }
+.rdet__edit-actions .rdet__cancel { flex: 0 0 auto; }
+.rdet__edit-actions .rdet__save { flex: 1; justify-content: center; padding: 13px; font-size: var(--fs-body); }

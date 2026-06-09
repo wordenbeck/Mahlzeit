@@ -7,12 +7,10 @@ import {
 import './RezeptDetail.css';
 import { ZutatIcon } from '../components/ZutatIcon';
 import { RecipeNotes } from '../components/RecipeNotes';
-import { RecipeTypeSelector } from '../components/RecipeTypeSelector';
 import { ImageSelectorModal } from '../components/ImageSelectorModal';
-import { getRecipe, deleteRecipe, toggleFavorite, updateRecipe } from '../lib/recipes';
+import { getRecipe, deleteRecipe, toggleFavorite, updateRecipe, listRecipes } from '../lib/recipes';
 import { supabase } from '../lib/supabase';
-import type { Recipe, Schwierigkeit, Zutat, RecipeType } from '../lib/types/recipe';
-import { RECIPE_TYPE_LABELS } from '../lib/types/recipe';
+import type { Recipe, Schwierigkeit, Zutat } from '../lib/types/recipe';
 
 export function RezeptDetail() {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +31,11 @@ export function RezeptDetail() {
   const [myNote, setMyNote] = useState('');
   const [showCook, setShowCook] = useState(false);
   const [cookSaving, setCookSaving] = useState(false);
+
+  // Tags-Editor
+  const [tagInput, setTagInput] = useState('');
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [showAllTags, setShowAllTags] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -100,7 +103,21 @@ export function RezeptDetail() {
     if (!recipe) return;
     setDraft({ ...recipe, zutaten: [...recipe.zutaten], zubereitung: [...recipe.zubereitung] });
     setEditing(true);
+    // Alle bisher genutzten Tags laden (nach Häufigkeit sortiert)
+    listRecipes().then(rs => {
+      const freq = new Map<string, number>();
+      for (const r of rs) for (const t of r.tags) freq.set(t, (freq.get(t) ?? 0) + 1);
+      setAllTags([...freq.entries()].sort((a, b) => b[1] - a[1]).map(e => e[0]));
+    }).catch(() => {});
   };
+
+  const addTag = (t: string) => {
+    const tag = t.trim().toLowerCase();
+    if (!draft || !tag || draft.tags.includes(tag)) return;
+    setDraft({ ...draft, tags: [...draft.tags, tag] });
+    setTagInput('');
+  };
+  const removeTag = (t: string) => draft && setDraft({ ...draft, tags: draft.tags.filter(x => x !== t) });
   const cancelEdit = () => { setEditing(false); setDraft(null); };
   const saveEdit = async () => {
     if (!draft) return;
@@ -200,10 +217,33 @@ export function RezeptDetail() {
                   <option value="">—</option><option value="einfach">einfach</option><option value="mittel">mittel</option><option value="aufwendig">aufwendig</option>
                 </select></label>
             </div>
-            {recipe && <div className="rdet__type-edit"><RecipeTypeSelector recipeId={recipe.id} initialType={(recipe.recipe_type as any) || 'hauptgericht'} /></div>}
-            <div className="rdet__edit-actions">
-              <button className="rdet__cancel" onClick={cancelEdit}><X size={16} /> Abbrechen</button>
-              <button className="rdet__save" onClick={saveEdit} disabled={saving || !isDirty}><Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}</button>
+            <div className="rdet__tags-edit">
+              <span className="rdet__edit-lbl">Tags</span>
+              <div className="rdet__tags-active">
+                {draft.tags.map(t => (
+                  <button key={t} className="rdet__tag" onClick={() => removeTag(t)}>{t} <X size={12} strokeWidth={2.5} /></button>
+                ))}
+                <input
+                  className="rdet__tag-input"
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput); } }}
+                  placeholder="+ Tag"
+                />
+              </div>
+              {(() => {
+                const avail = allTags.filter(t => !draft.tags.includes(t));
+                if (avail.length === 0) return null;
+                const shown = showAllTags ? avail : avail.slice(0, 6);
+                return (
+                  <div className="rdet__tag-suggest">
+                    {shown.map(t => <button key={t} className="rdet__tag-sug" onClick={() => addTag(t)}>{t}</button>)}
+                    {avail.length > 6 && (
+                      <button className="rdet__tag-more" onClick={() => setShowAllTags(v => !v)}>{showAllTags ? 'weniger' : `alle (${avail.length})`}</button>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         ) : (
@@ -217,7 +257,11 @@ export function RezeptDetail() {
               <span className="rdet__meta-dot">·</span>
               <span className="rdet__meta-item"><Users size={16} strokeWidth={2} /> {r.portionen} Port.</span>
             </div>
-            {r.recipe_type && <span className="rdet__type-pill">{RECIPE_TYPE_LABELS[r.recipe_type as RecipeType] ?? r.recipe_type}</span>}
+            {r.tags.length > 0 && (
+              <div className="rdet__tags-view">
+                {r.tags.map(t => <span key={t} className="rdet__type-pill">{t}</span>)}
+              </div>
+            )}
           </div>
         )}
 
@@ -229,11 +273,10 @@ export function RezeptDetail() {
               <ul className="rdet__zutaten-edit">
                 {draft.zutaten.map((z, i) => (
                   <li key={i} className="rdet__zutat-row">
-                    <ZutatIcon name={z.name} size={20} />
-                    <input className="rdet__zutat-name-input" placeholder="Name" value={z.name} onChange={e => patchZutat(i, { name: e.target.value })} />
+                    <input className="rdet__zutat-name-input" placeholder="Zutat" value={z.name} onChange={e => patchZutat(i, { name: e.target.value })} />
                     <input className="rdet__zutat-menge-input" type="number" step="0.5" min="0" placeholder="Menge" value={z.menge ?? ''} onChange={e => patchZutat(i, { menge: e.target.value ? parseFloat(e.target.value) : null })} />
-                    <input className="rdet__zutat-einheit-input" placeholder="Einheit" value={z.einheit} onChange={e => patchZutat(i, { einheit: e.target.value })} />
-                    <button className="rdet__row-del" onClick={() => removeZutat(i)} aria-label="Zutat entfernen"><Trash2 size={13} /></button>
+                    <input className="rdet__zutat-einheit-input" placeholder="g" value={z.einheit} onChange={e => patchZutat(i, { einheit: e.target.value })} />
+                    <button className="rdet__row-del" onClick={() => removeZutat(i)} aria-label="Zutat entfernen"><Trash2 size={14} /></button>
                   </li>
                 ))}
                 <li><button className="rdet__add-row" onClick={addZutat}><Plus size={14} strokeWidth={2} /> Zutat</button></li>
@@ -270,6 +313,14 @@ export function RezeptDetail() {
             )}
           </section>
         </main>
+
+        {/* Edit: Speichern/Abbrechen unten */}
+        {editing && (
+          <div className="rdet__edit-actions">
+            <button className="rdet__cancel" onClick={cancelEdit}><X size={16} /> Abbrechen</button>
+            <button className="rdet__save" onClick={saveEdit} disabled={saving || !isDirty}><Save size={16} strokeWidth={2} /> {saving ? 'Speichere…' : 'Speichern'}</button>
+          </div>
+        )}
 
         {/* ===== Notizen + Löschen ===== */}
         {!editing && recipe && userId && workspaceId && (
