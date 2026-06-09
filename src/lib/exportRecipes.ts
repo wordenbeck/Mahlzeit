@@ -7,6 +7,7 @@ import type { Recipe } from './types/recipe';
  */
 export function exportRecipesToExcel(recipes: Recipe[]): void {
   const rows = recipes.map(r => ({
+    'ID': r.id,
     'Titel': r.titel,
     'Beschreibung': r.beschreibung ?? '',
     'Portionen': r.portionen,
@@ -33,6 +34,7 @@ export function exportRecipesToExcel(recipes: Recipe[]): void {
 
   // Spaltenbreiten
   ws['!cols'] = [
+    { wch: 36 },  // ID
     { wch: 35 },  // Titel
     { wch: 50 },  // Beschreibung
     { wch: 10 },  // Portionen
