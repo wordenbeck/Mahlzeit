@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import './Liste.css';
 import { useAuth } from '../lib/auth';
 import {
@@ -12,6 +12,35 @@ import { ZutatIcon } from '../components/ZutatIcon';
 
 const DAY_SHORT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
+// localStorage: checked Keys pro Datum — nach Tageswechsel automatisch weg
+const CHECKED_KEY = 'mahlzeit:liste:checked';
+type CheckedStore = { date: string; keys: string[] };
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10); // "2026-06-10"
+}
+
+function loadChecked(): Set<string> {
+  try {
+    const raw = localStorage.getItem(CHECKED_KEY);
+    if (!raw) return new Set();
+    const stored: CheckedStore = JSON.parse(raw);
+    // Anderer Tag → frisch starten (auto-clear nach 1 Tag)
+    if (stored.date !== todayStr()) {
+      localStorage.removeItem(CHECKED_KEY);
+      return new Set();
+    }
+    return new Set(stored.keys);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveChecked(keys: string[]) {
+  const payload: CheckedStore = { date: todayStr(), keys };
+  localStorage.setItem(CHECKED_KEY, JSON.stringify(payload));
+}
+
 export function Liste() {
   const auth = useAuth();
   const [weekStart] = useState(() => isoWeekStart(new Date()));
@@ -19,6 +48,8 @@ export function Liste() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [extraName, setExtraName] = useState('');
+  const [checkedOpen, setCheckedOpen] = useState(false);
+  const checkedKeysRef = useRef<Set<string>>(loadChecked());
 
   useEffect(() => {
     let cancelled = false;
@@ -28,7 +59,12 @@ export function Liste() {
       try {
         const wp = await getOrCreateWeekplan(weekStart);
         const list = await consolidateFromSlots(wp.slots);
-        if (!cancelled) setItems(list);
+        if (!cancelled) {
+          // Gespeicherte checked-Keys auf geladene Items anwenden
+          const saved = loadChecked();
+          checkedKeysRef.current = saved;
+          setItems(list.map(i => ({ ...i, checked: saved.has(i.key) })));
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Fehler beim Laden');
       } finally {
@@ -39,17 +75,26 @@ export function Liste() {
     return () => { cancelled = true; };
   }, [weekStart, auth.profile?.id]);
 
-  const remaining = items.filter(i => !i.checked).length;
+  // Checked-State in localStorage synchron halten
+  const applyItems = (next: ShoppingItem[]) => {
+    setItems(next);
+    saveChecked(next.filter(i => i.checked).map(i => i.key));
+  };
+
+  const unchecked = items.filter(i => !i.checked);
+  const checked   = items.filter(i => i.checked);
+  const remaining = unchecked.length;
 
   const toggle = (key: string) =>
-    setItems(items.map(i => i.key === key ? { ...i, checked: !i.checked } : i));
+    applyItems(items.map(i => i.key === key ? { ...i, checked: !i.checked } : i));
+
   const setMenge = (key: string, raw: string) =>
-    setItems(items.map(i => i.key === key ? { ...i, menge: parseFloat(raw.replace(',', '.')) || 0 } : i));
+    applyItems(items.map(i => i.key === key ? { ...i, menge: parseFloat(raw.replace(',', '.')) || 0 } : i));
 
   const addExtra = () => {
     const name = extraName.trim();
     if (!name) return;
-    setItems([...items, { key: `extra-${Date.now()}`, name, menge: 1, einheit: 'Stk', sources: [], isExtra: true }]);
+    applyItems([...items, { key: `extra-${Date.now()}`, name, menge: 1, einheit: 'Stk', sources: [], isExtra: true }]);
     setExtraName('');
   };
 
@@ -59,32 +104,42 @@ export function Liste() {
   const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(1);
 
   const exportToBring = () => {
-    const unchecked = items.filter(i => !i.checked);
     if (unchecked.length === 0) return;
     const payload = unchecked.map(i => ({ n: i.name, m: i.menge, e: i.einheit }));
     const encoded = encodeURIComponent(btoa(JSON.stringify(payload)));
     const myUrl = `https://mahlzeit123.vercel.app/api/bring?items=${encoded}`;
     const bringUrl = `https://api.getbring.com/rest/bringrecipes/deeplink?url=${encodeURIComponent(myUrl)}&source=web`;
-    // window.location.href statt window.open → kein leerer Safari-Tab auf iOS
     window.location.href = bringUrl;
   };
 
+  // Alle offenen Items als eingekauft markieren
   const clearList = () => {
-    setItems(prev => prev.map(i => ({ ...i, checked: true })));
+    applyItems(items.map(i => ({ ...i, checked: true })));
+    setCheckedOpen(true); // "Eingekauft"-Bereich aufklappen
   };
 
-  const exportList = async () => {
-    const lines = items.filter(i => !i.checked).map(i => `${fmt(i.menge)} ${i.einheit} ${i.name}`);
-    const text = `Mahlzeit Einkaufsliste · ${isoWeekRangeLabel(weekStart)}\n\n${lines.join('\n')}`;
-    const isTouch = window.matchMedia('(pointer: coarse)').matches;
-    // Auf Touch/Handy: System-Share-Sheet. Sonst (Desktop): direkt in die
-    // Zwischenablage — zuverlässiger und ohne Browser-Extension-Konflikte.
-    if (isTouch && navigator.share) {
-      try { await navigator.share({ title: 'Einkaufsliste', text }); return; }
-      catch (e) { if ((e as Error)?.name === 'AbortError') return; /* sonst: Clipboard-Fallback */ }
-    }
-    try { await navigator.clipboard.writeText(text); alert('Einkaufsliste in die Zwischenablage kopiert.'); }
-    catch { alert('Konnte nicht exportieren — bitte Liste manuell markieren & kopieren.'); }
+  const renderRow = (item: ShoppingItem) => {
+    const days = daysOf(item);
+    return (
+      <div key={item.key} className={`liste__row ${item.checked ? 'is-checked' : ''}`}>
+        <button className="liste__check" onClick={() => toggle(item.key)} aria-label={item.checked ? 'Nicht gekauft' : 'Gekauft'}>
+          {item.checked && <Check size={14} strokeWidth={3} />}
+        </button>
+        <span className="liste__name"><ZutatIcon name={item.name} size={16} /> {item.name}</span>
+        <span className="liste__qty">
+          <input
+            className="liste__qty-input"
+            type="text"
+            inputMode="decimal"
+            value={fmt(item.menge)}
+            onChange={e => setMenge(item.key, e.target.value)}
+            aria-label={`Menge ${item.name}`}
+          />
+          <span className="liste__einheit">{item.einheit}</span>
+        </span>
+        <span className="liste__day-pill">{days || (item.isExtra ? 'extra' : '')}</span>
+      </div>
+    );
   };
 
   return (
@@ -100,7 +155,12 @@ export function Liste() {
             <ShoppingCart size={15} strokeWidth={2} /> Bring
           </button>
         </div>
-        <p className="liste__count">{remaining} {remaining === 1 ? 'Zutat offen' : 'Zutaten offen'}</p>
+        <div className="liste__counts">
+          <span>{remaining} {remaining === 1 ? 'Zutat offen' : 'Zutaten offen'}</span>
+          {checked.length > 0 && (
+            <span className="liste__counts-done">· {checked.length} eingekauft</span>
+          )}
+        </div>
       </header>
 
       {error && <div className="liste__error">{error}</div>}
@@ -116,7 +176,9 @@ export function Liste() {
               onChange={e => setExtraName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') addExtra(); }}
             />
-            <button className="liste__add-btn" onClick={addExtra} aria-label="Hinzufügen"><Plus size={16} strokeWidth={2.5} /></button>
+            <button className="liste__add-btn" onClick={addExtra} aria-label="Hinzufügen">
+              <Plus size={16} strokeWidth={2.5} />
+            </button>
           </div>
 
           {items.length === 0 ? (
@@ -125,31 +187,32 @@ export function Liste() {
               <Link to="/plan" className="liste__cta-link">→ Jetzt planen</Link>
             </div>
           ) : (
-            <div className="liste__table">
-              {items.map(item => {
-                const days = daysOf(item);
-                return (
-                  <div key={item.key} className={`liste__row ${item.checked ? 'is-checked' : ''}`}>
-                    <button className="liste__check" onClick={() => toggle(item.key)} aria-label={item.checked ? 'Nicht gekauft' : 'Gekauft'}>
-                      {item.checked && <Check size={14} strokeWidth={3} />}
-                    </button>
-                    <span className="liste__name"><ZutatIcon name={item.name} size={16} /> {item.name}</span>
-                    <span className="liste__qty">
-                      <input
-                        className="liste__qty-input"
-                        type="text"
-                        inputMode="decimal"
-                        value={fmt(item.menge)}
-                        onChange={e => setMenge(item.key, e.target.value)}
-                        aria-label={`Menge ${item.name}`}
-                      />
-                      <span className="liste__einheit">{item.einheit}</span>
-                    </span>
-                    <span className="liste__day-pill">{days || (item.isExtra ? 'extra' : '')}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <>
+              {/* Offene Zutaten */}
+              {unchecked.length > 0 && (
+                <div className="liste__table">
+                  {unchecked.map(renderRow)}
+                </div>
+              )}
+
+              {/* Eingekauft — aufklappbar */}
+              {checked.length > 0 && (
+                <div className="liste__checked-section">
+                  <button
+                    className={`liste__checked-toggle ${checkedOpen ? 'is-open' : ''}`}
+                    onClick={() => setCheckedOpen(o => !o)}
+                  >
+                    <span>{checked.length} eingekauft</span>
+                    <ChevronDown size={16} strokeWidth={2} />
+                  </button>
+                  {checkedOpen && (
+                    <div className="liste__table liste__table--done">
+                      {checked.map(renderRow)}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </main>
       )}
