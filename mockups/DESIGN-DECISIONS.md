@@ -72,14 +72,20 @@
 - Aktionen die Text überlappen (absolut positioniert über Body).
 - Mehrere konkurrierende Komponenten mit eigenem Look (→ gewürfelt). Einheitliche Panels.
 
-## Einkauf prüfen (ENTSCHIEDEN)
+## Einkauf prüfen (ENTSCHIEDEN — aktualisiert 2026-06)
 
 - **Tag-Tabs sticky oben.** Darunter EINE durchgehende Liste aller verplanten Rezepte,
   **nach Tagen gruppiert mit dezenten Trennern**.
 - **Scroll-Spy:** Beim Scrollen wechselt der aktive Tab automatisch mit. Tab-Klick **springt**
-  zum jeweiligen Tag in der Liste. Tabs bleiben stehen.
-- Pro Rezept: Portions-Stepper + skalierte Mengen (Name links, Menge rechts, tabellarisch).
-- Desktop: Spalten pro Tag (bewährt, beibehalten).
+  zum jeweiligen Tag. Tabs bleiben stehen. **Ab Desktop (1100px): Tabs ausgeblendet** (alle Tage sichtbar).
+- Pro Rezept: Portions-Stepper + skalierte Mengen.
+- **Zutat-Zeile Layout B (verbindlich):** Grid `16px / 1fr / 80px` → `[✓] Name · Menge`.
+  - 16px-Spalte immer vorhanden → kein Layout-Shift beim Abhaken
+  - Abgehakt: Name grün gedimmt, Menge wird normal (nicht fett), ✓ blendet sich ein (opacity-Transition)
+  - Gewürze ohne Menge: erscheinen in der Liste, qty-Zelle leer (`nach Geschmack` gefiltert)
+  - Portion einfrieren wenn alle Zutaten eines Rezepts abgehakt (disabled + opacity: 0.4)
+- **„Einkauf erledigt"-Button:** dezentes Hellgrün (`--accent-soft` Hintergrund), `<span>` statt `<Link>` — nicht klickbar.
+- Responsive: iPhone = Tabs + vertikale Liste · Tablet (768px) = 2-Spalten-Grid · Desktop (1100px) = 5 Spalten (ein Rezept pro Tag).
 
 ## Einkaufsliste (ENTSCHIEDEN)
 
@@ -90,6 +96,26 @@
 - **Menge editierbar als freies Textfeld** (kein Stepper, keine ±-Icons).
 - **Export** als Aktion (oben rechts + große Aktion unten): Teilen/Kopieren/PDF.
 - Einkauf prüfen: Tab-Klick scrollt die gewählte Tag-Sektion an den **oberen Rand**.
+
+## Responsive Breakpoints (VERBINDLICH ab 2026-06)
+
+Sauber trennen — nie mehr reaktiv patchen:
+
+| Breakpoint | Ziel | Was sich ändert |
+|---|---|---|
+| `< 640px` | iPhone | Default — alles für Touch optimiert |
+| `≥ 768px` | iPad | 2-Spalten-Layouts, sticky Sidebars, mehr Padding |
+| `≥ 1100px` | Desktop | 3-5-Spalten, Tabs ausgeblendet wo sinnlos |
+
+**Pitfall:** `overflow-x: hidden` auf einem Container bricht `position: sticky` von Kind-Elementen. Nie setzen.
+
+## Dezenz-Skala (ENTSCHIEDEN)
+
+Thomas bevorzugt konsistent **dezente Kommunikation**:
+- Active State: `--accent` gefüllt (nicht Fremdfarbe)
+- „Fertig/Erledigt": `--accent-soft` Hintergrund, dunkler Text — kein CTA-Gradient
+- Abgehakt: `opacity: 0.75` + Farbwechsel, kein Durchstreichen (zu laut)
+- Buttons die „schon erledigt" zeigen: nicht klickbar + leises Design
 
 ## Mockup-Regeln
 
