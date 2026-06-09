@@ -58,14 +58,29 @@
 ## 📋 Priorisierter Backlog
 
 ### 1 — Volltextsuche
-Suche über Zutaten + Beschreibung (aktuell nur Titel + Tags). Einfach in `listRecipes()` + Supabase `ilike` oder clientseitiger Filter.
+**Was:** Suche über Zutaten + Beschreibung (aktuell nur Titel + Tags in `listRecipes()`).
+**Technisch:** Zwei Optionen:
+- *Clientseitig* (einfacher, reicht für 90-200 Rezepte): alle Rezepte laden, dann per JS filtern über `titel + tags + zutaten[].name + beschreibung`
+- *Supabase ilike* (serverseitig): `ilike '%query%'` in SQL — besser bei 1000+ Rezepten, aber mehr Aufwand
+**Empfehlung:** Clientseitig starten (reicht für privaten Haushalt), später bei Bedarf auf Supabase umstellen.
+**Akzeptanzkriterium:** Eingabe „Avocado" findet alle Rezepte die Avocado als Zutat enthalten.
 
 ### 1.5 — Koch-Modus
-Wenn User via Heute → "Jetzt kochen" kommt:
-- Zuerst: Zutaten-Checkliste (aus dem geplanten Rezept, mit Portionsanpassung)
-- Dann: Schritt-für-Schritt-View (eine Karte pro Zubereitungsschritt, swipeable)
-- iPad-first, großer Text, Hände-frei
-- Einstieg: von `Heute`-Hero-Karte, Button "Jetzt kochen" → `/rezepte/:id/kochen`
+**Was:** Geführter Kochprozess direkt aus der App.
+**Einstieg:** `Heute`-Hero-Karte → „Jetzt kochen"-Button → Route `/rezepte/:id/kochen`
+**Phase 1 — Zutaten-Check:**
+- Liste aller Zutaten mit Checkbox (aus geplantem Rezept, Portionen angepasst)
+- Abgehakt = durchgestrichen + leicht in Hintergrund (dezent, nicht gelöscht)
+- Aktuell offene Zutat ist hervorgehoben
+- Button „Kochen starten" wird aktiv sobald alle abgehakt (oder Skip möglich)
+**Phase 2 — Schritt-für-Schritt:**
+- Je ein Zubereitungsschritt pro Bildschirm (große Karte)
+- Aktueller Schritt: groß, fett, volle Breite — vorherige Schritte: klein, ausgegraut oben als Verlauf
+- Navigation: Tippen/Swipe-right = nächster Schritt, Swipe-left = zurück
+- iPad: großer Text, gut lesbar auf Küchenabstand (~50cm)
+- iPhone: dezenter (normaler Scroll statt Schritt-für-Schritt, da Screen zu klein)
+**Abbruch:** Session bleibt in localStorage gespeichert (aktueller Schritt). Heute-Seite zeigt „Fortsetzen" wenn unvollendeter Koch-Session vorhanden.
+**Akzeptanzkriterium:** Auf iPad kann man von Zutaten-Check bis letztem Schritt ohne Tippen auf kleine Elemente durchkochen.
 
 ### 2A — KI-Scraping (Serverside)
 Statt User gibt URLs ein: Serverside Job der periodisch Instagram-Accounts / Chefkoch / andere Quellen crawlt und Rezepte importiert. Aufwand: groß (Edge Function + Cron + evtl. Scraping-Proxy).
@@ -132,6 +147,51 @@ Kalorien/Makros pro Rezept aus Zutaten berechnen. Aufwand: groß (braucht Nährw
 | `src/lib/prompts/recipeParserPrompt.ts` | Groq System-Prompt + Few-Shots |
 | `supabase/functions/import-recipe-from-url/` | Edge Fn: Insta-oEmbed + LLM-Parser |
 | `public/share-handler.js` | Web-Share-Target Handler (importiert in SW) |
+
+---
+
+## 🗃️ DB-State (Stand 2026-06-09)
+
+| Was | Wert |
+|---|---|
+| Rezepte gesamt | ~90 (66 Instagram + ~24 SanaMana) |
+| Workspace ID | `e7f25de4-4fce-4aba-b1ce-70f9fe20f47d` |
+| Created-by ID | `39b427ea-645c-4845-89a6-1c5a591aba17` |
+| Bilder | ~80% haben `bild_url` (Supabase Storage + externe URLs) |
+
+**Gelaufene Migrations (alle applied):**
+- `20260508120000_initial_schema.sql` — Basis-Schema
+- `20260605120000_fix_empty_name_einheit.sql` — Avocado-als-Einheit Bug fix
+- `20260605140000_profiles_pin.sql` — `profiles.pin` Spalte hinzugefügt
+
+---
+
+## 🖼️ Mockup-Dateien
+
+| Datei | Was zeigt sie |
+|---|---|
+| `mockups/design-system.html` | Tokens, Farben, Komponenten-Referenz |
+| `mockups/DESIGN-DECISIONS.md` | Verbindliche Entscheidungen (immer lesen vor neuer Seite) |
+| `mockups/edit-mock.html` | Rezept-Edit 3 Varianten (A gewählt + umgesetzt) |
+| `mockups/einkauf-zutat-mock.html` | Einkauf Zutatenzeile 3 Varianten (B gewählt + umgesetzt) |
+| `mockups/detail-banner-mock.html` | Rezept-Detail Banner-Hero |
+| `mockups/plan-mock.html` | Plan-Seite |
+| `mockups/rezepte-mock.html` | Rezepte-Seite |
+| `mockups/einkauf-mock.html` | Einkauf-Seite |
+| `mockups/liste-mock.html` | Einkaufsliste |
+| `mockups/profil-final.html` | Profil-Seite |
+
+---
+
+## 📅 Letzte 5 Entscheidungen (mit Datum)
+
+| Datum | Entscheidung |
+|---|---|
+| 2026-06-09 | Einkauf Zutatenzeile: Variante B (`[✓] Name · Menge`), Häkchen als opacity-Transition |
+| 2026-06-09 | Responsive Breakpoints verbindlich: 640 / 768 / 1100px |
+| 2026-06-09 | Bring-Export: `window.location.href` statt `window.open()` (kein leerer Tab iOS) |
+| 2026-06-09 | „Einkauf erledigt" = `<span>` nicht `<Link>`, dezentes Hellgrün |
+| 2026-06-09 | Bulk-Import: serverside on hold, user macht das 1-3x im Leben, reicht so |
 
 ---
 

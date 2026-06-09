@@ -29,6 +29,44 @@ Thomas hat starkes Produkt-Verständnis aber wenig Coding-Erfahrung.
 - **Ehrliches Feedback** bei kritischen Punkten (kein "ja klar geht das" wenn's nicht geht)
 - Nicht in Kalo-Projekt arbeiten, das ist ein **separates** Projekt
 
+## Thomas-Kommunikations-Muster (aus 40+ h Zusammenarbeit gelernt)
+
+| Thomas sagt | Bedeutung | Reaktion |
+|---|---|---|
+| „top" | Feature fertig, zufrieden | Nicht weitermachen, nächsten Punkt |
+| „unschön aber nicht kritisch" | Backlog, NICHT jetzt fixen | Kurz notieren, weitermachen |
+| „lass das erstmal so" / „parken" | Bewusste Entscheidung zu warten | Ins Backlog, nie von selbst aufgreifen |
+| „fix it" / „das muss raus" | Sofort erledigen, kein Mockup nötig | Direkt coden |
+| „gib mir mal Optionen" / „Varianten" | Mockup mit 3 Varianten bauen | Immer 3, nie nur 1 |
+| Feedback-Liste mit mehreren Punkten | Alle auf einmal umsetzen, 1 Commit | Nicht punkt-für-punkt einzeln committen |
+| „einfach machen" | Aufhören zu fragen, coden | Keine Rückfragen mehr |
+
+## Arbeitsregeln (Token-Effizienz)
+
+### 🚦 Mockup-Gate — PFLICHT
+Wenn Thomas Layout, Aussehen oder UX anspricht → **erst Mockup, dann Code**.
+- Immer **3 Varianten** in einer HTML-Datei unter `mockups/`
+- Echter Inhalt (echte Rezeptnamen/Zutaten), echte Design-Tokens
+- Erst nach expliziter Auswahl ("A gefällt mir") → Code schreiben
+- **Ausnahme:** Thomas sagt explizit „fix it" oder „einfach machen" → direkt coden
+
+### 📦 Kein Micro-Patching
+- 3+ Änderungen aus einer Nachricht → **alle auf einmal** implementieren und **1 Commit**
+- Nicht: Fix A → commit → Fix B → commit → Fix C → commit
+- Ja: alle Fixes → build → 1 commit mit vollständiger Message
+
+### 🔕 Explain-Counter — bereits bekannte Konzepte nicht nochmal erklären
+Thomas kennt und versteht bereits:
+- Wie Supabase RLS funktioniert
+- Wie der Vercel Build-Deploy-Zyklus läuft
+- Was ein Service Worker ist und tut
+- Was Anonymous Auth bedeutet
+- Was Supabase Edge Functions sind
+- Grundprinzip von React Hooks (useState, useEffect)
+- Was PWA bedeutet und wie Manifest/SW zusammenhängen
+- Den Unterschied zwischen `vite build` und `tsc`
+- Was `localStorage` ist und tut
+
 ## Code-Konventionen
 
 - TypeScript strict mode
