@@ -228,75 +228,91 @@ export function KochModus() {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          {/* Verlauf vorheriger Schritte */}
-          {session.currentStep > 0 && (
-            <div className="koch__history">
+          <div className="koch__body">
+            {/* ── Timeline Sidebar: alle Schritte ── */}
+            <nav className="koch__timeline" aria-label="Schritte">
+              {recipe.zubereitung.map((_, i) => {
+                const isDone = i < session.currentStep;
+                const isCurrent = i === session.currentStep;
+                const isLast = i === recipe.zubereitung.length - 1;
+                const dotClass = isDone
+                  ? 'koch__tl-dot--done'
+                  : isCurrent
+                  ? 'koch__tl-dot--current'
+                  : 'koch__tl-dot--future';
+                return (
+                  <div key={i} className="koch__tl-item">
+                    <div className={`koch__tl-dot ${dotClass}`}>{i + 1}</div>
+                    {!isLast && (
+                      <div className={`koch__tl-line ${isDone ? 'koch__tl-line--done' : ''}`} />
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+
+            {/* ── Schritt-Bereich: vergangen + aktuell + zukünftig ── */}
+            <div className="koch__step-area">
+              {/* Vergangene Schritte dezent im Hintergrund */}
               {recipe.zubereitung.slice(0, session.currentStep).map((s, i) => (
-                <div key={i} className="koch__history-step">
-                  <span className="koch__history-num">{i + 1}</span>
+                <div key={i} className="koch__hist-step">
                   <p>{s}</p>
                 </div>
               ))}
-            </div>
-          )}
 
-          {/* Aktueller Schritt */}
-          <div className="koch__step-card">
-            <span className="koch__step-badge">{session.currentStep + 1}</span>
-            <p className="koch__step-text">{step}</p>
+              {/* Aktueller Schritt */}
+              <div className="koch__step-card">
+                <span className="koch__step-badge">{session.currentStep + 1}</span>
+                <p className="koch__step-text">{step}</p>
 
-            {/* Timer-Bereich */}
-            {(suggestedMin || countdown !== null) && (
-              <div className="koch__timer">
-                {countdown !== null ? (
-                  <div className="koch__countdown">
-                    <span className={`koch__countdown-val ${countdown === 0 ? 'is-done' : ''}`}>
-                      {countdown === 0 ? '✓ Fertig!' : formatCountdown(countdown)}
-                    </span>
-                    <div className="koch__countdown-btns">
-                      <button
-                        className="koch__timer-btn"
-                        onClick={() => setCountdownRunning(r => !r)}
-                        aria-label={countdownRunning ? 'Pause' : 'Starten'}
-                      >
-                        {countdownRunning ? <Pause size={16} strokeWidth={2} /> : <Play size={16} strokeWidth={2} />}
+                {/* Timer */}
+                {(suggestedMin || countdown !== null) && (
+                  <div className="koch__timer">
+                    {countdown !== null ? (
+                      <div className="koch__countdown">
+                        <span className={`koch__countdown-val ${countdown === 0 ? 'is-done' : ''}`}>
+                          {countdown === 0 ? '✓ Fertig!' : formatCountdown(countdown)}
+                        </span>
+                        <div className="koch__countdown-btns">
+                          <button className="koch__timer-btn" onClick={() => setCountdownRunning(r => !r)} aria-label={countdownRunning ? 'Pause' : 'Starten'}>
+                            {countdownRunning ? <Pause size={16} strokeWidth={2} /> : <Play size={16} strokeWidth={2} />}
+                          </button>
+                          <button className="koch__timer-btn" onClick={() => { setCountdown(suggestedMin ? suggestedMin * 60 : null); setCountdownRunning(false); }} aria-label="Zurücksetzen">
+                            <RotateCcw size={16} strokeWidth={2} />
+                          </button>
+                          <button className="koch__timer-btn" onClick={() => { setCountdown(null); setCountdownRunning(false); }} aria-label="Schließen">
+                            <X size={16} strokeWidth={2} />
+                          </button>
+                        </div>
+                      </div>
+                    ) : suggestedMin ? (
+                      <button className="koch__timer-start" onClick={() => { setCountdown(suggestedMin * 60); setCountdownRunning(true); }}>
+                        <Timer size={15} strokeWidth={2} /> {suggestedMin} Min Timer starten
                       </button>
-                      <button
-                        className="koch__timer-btn"
-                        onClick={() => { setCountdown(suggestedMin ? suggestedMin * 60 : null); setCountdownRunning(false); }}
-                        aria-label="Zurücksetzen"
-                      >
-                        <RotateCcw size={16} strokeWidth={2} />
-                      </button>
-                      <button
-                        className="koch__timer-btn"
-                        onClick={() => { setCountdown(null); setCountdownRunning(false); }}
-                        aria-label="Timer schließen"
-                      >
-                        <X size={16} strokeWidth={2} />
-                      </button>
-                    </div>
+                    ) : null}
                   </div>
-                ) : suggestedMin ? (
-                  <button
-                    className="koch__timer-start"
-                    onClick={() => { setCountdown(suggestedMin * 60); setCountdownRunning(true); }}
-                  >
-                    <Timer size={15} strokeWidth={2} /> {suggestedMin} Min Timer starten
-                  </button>
-                ) : null}
+                )}
               </div>
-            )}
+
+              {/* Zukünftige Schritte dezent angedeutet */}
+              {recipe.zubereitung.slice(session.currentStep + 1).map((s, i) => (
+                <div key={i} className="koch__future-step">
+                  <p>{s}</p>
+                </div>
+              ))}
+
+              <div className="koch__step-spacer" />
+            </div>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation — gleich groß, Weiter CTA */}
           <div className="koch__nav">
             <button
               className="koch__nav-btn koch__nav-btn--back"
               onClick={() => goStep(-1)}
               disabled={session.currentStep === 0}
             >
-              <ArrowLeft size={20} strokeWidth={2} /> Zurück
+              <ArrowLeft size={18} strokeWidth={2} /> Zurück
             </button>
 
             {isLast ? (
@@ -310,9 +326,6 @@ export function KochModus() {
             )}
           </div>
 
-          {/* iPad tap-zones (unsichtbar, volle Höhe) */}
-          <div className="koch__tapzone koch__tapzone--left" onClick={() => goStep(-1)} aria-hidden="true" />
-          <div className="koch__tapzone koch__tapzone--right" onClick={() => goStep(1)} aria-hidden="true" />
         </div>
       )}
     </div>

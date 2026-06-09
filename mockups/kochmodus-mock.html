@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koch-Modus — 3 Varianten</title>
+<style>
+  :root {
+    --accent: #006C49;
+    --accent-soft: #ECFDF5;
+    --bg: #F5F7F5;
+    --surface-1: #fff;
+    --text-1: #0F1A14;
+    --text-2: #3D5249;
+    --text-3: #7A9488;
+    --border: #D9E5DF;
+    --radius-pill: 999px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-card: 0 2px 12px rgba(6,40,28,0.08);
+    --gradient-cta: linear-gradient(135deg, #006C49 0%, #00855A 100%);
+    --fs-caption: 12px;
+    --fw-semibold: 600;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E8EDE9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px 16px; }
+
+  h1 { text-align: center; font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 32px; }
+
+  .variants { display: grid; grid-template-columns: repeat(3, 360px); gap: 32px; justify-content: center; align-items: start; }
+
+  .variant-label {
+    text-align: center; margin-bottom: 12px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #888; font-weight: 700;
+  }
+  .variant-label strong { display: block; font-size: 15px; color: #333; text-transform: none; letter-spacing: 0; margin-bottom: 2px; }
+
+  /* ── Shared Phone Shell ── */
+  .phone {
+    background: var(--bg);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+
+  /* AppMenu-Stub */
+  .appmenu {
+    height: 36px; background: #fff; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px; gap: 20px;
+  }
+  .appmenu-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--accent-soft); }
+
+  /* Koch-Header */
+  .khead {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: #fff; border-bottom: 1px solid var(--border);
+  }
+  .khead-back {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-2); font-size: 16px; flex-shrink: 0;
+  }
+  .khead-center { flex: 1; min-width: 0; }
+  .khead-title { font-size: 14px; font-weight: 700; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .khead-elapsed { font-size: 12px; color: var(--accent); font-weight: 600; display: flex; align-items: center; gap: 3px; }
+  .khead-count { font-size: 13px; font-weight: 700; color: var(--text-3); }
+
+
+  /* ============================================================
+     VARIANTE A — Karte zentriert, große Schrift, minimale Nav
+     ============================================================ */
+
+  /* Phase 1 */
+  .a-phase1 { padding: 12px; }
+  .a-phase1-head { text-align: center; padding: 12px 0 16px; }
+  .a-phase1-head .icon { font-size: 28px; margin-bottom: 6px; }
+  .a-phase1-head h2 { font-size: 18px; font-weight: 800; color: var(--text-1); }
+  .a-phase1-head p { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+  .a-zutaten { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .a-zutat {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 10px; border-radius: 10px;
+    cursor: pointer;
+  }
+  .a-zutat.checked { opacity: 0.35; }
+  .a-zutat.checked .a-z-name { text-decoration: line-through; }
+  .a-check {
+    width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--border);
+    background: #fff; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 13px;
+  }
+  .a-zutat.checked .a-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .a-z-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--text-1); }
+  .a-z-menge { font-size: 13px; color: var(--text-3); font-weight: 600; white-space: nowrap; }
+
+  .a-start {
+    margin: 14px 0 4px;
+    width: 100%; padding: 14px;
+    background: var(--gradient-cta); color: #fff;
+    border: none; border-radius: var(--radius-pill);
+    font-size: 16px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* Phase 2 Variante A */
+  .a-phase2 { display: flex; flex-direction: column; min-height: 500px; }
+  .a-history { padding: 10px 14px 0; display: flex; flex-direction: column; gap: 6px; }
+  .a-hist-row { display: flex; gap: 8px; align-items: flex-start; opacity: 0.3; }
+  .a-hist-num { width: 18px; height: 18px; border-radius: 50%; background: var(--text-3); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .a-hist-text { font-size: 12px; color: var(--text-2); line-height: 1.4; }
+
+  .a-step-card {
+    margin: 12px; flex: 1;
+    background: #fff; border-radius: 18px; box-shadow: var(--shadow-card);
+    padding: 20px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .a-step-badge {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--gradient-cta); color: #fff;
+    font-size: 18px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .a-step-text {
+    font-size: 17px; font-weight: 500; line-height: 1.6; color: var(--text-1); flex: 1;
+  }
+  .a-timer-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; background: var(--accent-soft);
+    border-radius: var(--radius-pill); color: var(--accent);
+    font-size: 13px; font-weight: 600;
+  }
+  .a-nav { display: flex; gap: 8px; padding: 10px 12px 14px; }
+  .a-nav-back {
+    padding: 12px 16px; border-radius: var(--radius-pill);
+    background: #fff; border: 1px solid var(--border); color: var(--text-2);
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .a-nav-next {
+    flex: 1; padding: 12px;
+    background: var(--gradient-cta); color: #fff;
+    border-radius: var(--radius-pill); font-size: 15px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* ============================================================
+     VARIANTE B — Timeline links, Schritt rechts, immersiv
+     ============================================================ */
+
+  .b-phase2 { display: flex; flex-direction: column; min-height: 500px; background: var(--bg); }
+
+  .b-content { flex: 1; display: flex; gap: 0; }
+  .b-timeline {
+    width: 40px; flex-shrink: 0;
+    padding: 14px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    border-right: 1px solid var(--border);
+    background: #fff;
+  }
+  .b-tl-item {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; padding: 4px 0;
+  }
+  .b-tl-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--border); color: var(--text-3);
+    font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+  }
+  .b-tl-dot.is-done { background: var(--accent); color: #fff; }
+  .b-tl-dot.is-current { background: var(--gradient-cta); color: #fff; width: 26px; height: 26px; font-size: 11px; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .b-tl-line { width: 2px; height: 18px; background: var(--border); }
+  .b-tl-line.is-done { background: var(--accent); }
+
+  .b-step-area { flex: 1; padding: 14px 14px 0; display: flex; flex-direction: column; gap: 10px; }
+
+  .b-hist-item { opacity: 0.3; }
+  .b-hist-item p { font-size: 11px; color: var(--text-2); line-height: 1.4; margin-bottom: 8px; }
+
+  .b-current-card {
+    background: #fff; border-radius: 14px; box-shadow: var(--shadow-card);
+    padding: 16px; flex: 1;
+  }
+  .b-current-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+  .b-current-text { font-size: 16px; font-weight: 500; line-height: 1.6; color: var(--text-1); }
+
+  .b-countdown {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding: 10px 12px;
+    background: var(--accent-soft); border-radius: 10px;
+  }
+  .b-countdown-val { font-size: 24px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .b-countdown-btns { display: flex; gap: 6px; }
+  .b-cd-btn {
+    width: 30px; height: 30px; border-radius: 50%; background: #fff;
+    color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+
+  .b-nav { display: flex; gap: 8px; padding: 10px 12px 14px; }
+  .b-nav-back { padding: 12px 14px; border-radius: var(--radius-pill); background: #fff; border: 1px solid var(--border); color: var(--text-2); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .b-nav-next { flex: 1; padding: 12px; background: var(--gradient-cta); color: #fff; border-radius: var(--radius-pill); font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+
+  /* ============================================================
+     VARIANTE C — Fullscreen, dunkler Modus, Slide-Feeling
+     ============================================================ */
+
+  .c-phase2 {
+    background: #0F1A14;
+    min-height: 540px;
+    display: flex; flex-direction: column;
+    color: #fff;
+  }
+  .c-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px;
+  }
+  .c-back { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.12); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .c-elapsed { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .c-count { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 700; }
+
+  .c-progress {
+    height: 3px; background: rgba(255,255,255,0.12);
+    margin: 0 14px;
+  }
+  .c-progress-bar { height: 100%; background: var(--accent); width: 40%; border-radius: 99px; }
+
+  .c-hist { padding: 14px 16px 0; opacity: 0.3; }
+  .c-hist p { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.5; margin-bottom: 6px; border-left: 2px solid rgba(255,255,255,0.2); padding-left: 8px; }
+
+  .c-step {
+    flex: 1; padding: 20px 16px 10px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .c-step-badge {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 20px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c-step-text { font-size: 19px; font-weight: 500; line-height: 1.6; color: #fff; flex: 1; }
+
+  .c-timer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; background: rgba(0,108,73,0.35);
+    border-radius: 12px; border: 1px solid rgba(0,108,73,0.5);
+  }
+  .c-timer-val { font-size: 28px; font-weight: 800; color: #4ade80; font-variant-numeric: tabular-nums; }
+  .c-timer-btns { display: flex; gap: 8px; }
+  .c-t-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+  .c-nav { display: flex; gap: 8px; padding: 10px 12px 16px; }
+  .c-nav-back { padding: 13px 16px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(255,255,255,0.12); }
+  .c-nav-next { flex: 1; padding: 13px; background: var(--accent); color: #fff; border-radius: var(--radius-pill); font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+  .legend { text-align: center; margin-top: 32px; font-size: 12px; color: #888; }
+  .legend span { display: inline-block; margin: 0 8px; }
+
+  @media (max-width: 1200px) {
+    .variants { grid-template-columns: 360px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Koch-Modus — 3 Varianten (Phase 1 + Phase 2)</h1>
+
+<div class="variants">
+
+  <!-- ══════════════════════════════════════
+       VARIANTE A — Hell, Karte, klassisch
+       ══════════════════════════════════════ -->
+  <div>
+    <div class="variant-label"><strong>A — Hell &amp; Karte</strong>Klassisch, vertraute App-Sprache</div>
+    <div class="phone">
+      <div class="appmenu"><div class="appmenu-dot"></div></div>
+      <!-- Header Phase 1 -->
+      <div class="khead">
+        <div class="khead-back">←</div>
+        <div class="khead-center"><div class="khead-title">Caesar-Halloumi-Salat</div></div>
+      </div>
+      <!-- Phase 1 -->
+      <div class="a-phase1">
+        <div class="a-phase1-head">
+          <div class="icon">🧑‍🍳</div>
+          <h2>Zutaten bereitstellen</h2>
+          <p>4 Portionen · 25 Min</p>
+        </div>
+        <ul class="a-zutaten">
+          <li class="a-zutat checked">
+            <div class="a-check">✓</div>
+            <span class="a-z-name">Joghurt</span>
+            <span class="a-z-menge">200 g</span>
+          </li>
+          <li class="a-zutat checked">
+            <div class="a-check">✓</div>
+            <span class="a-z-name">Halloumi</span>
+            <span class="a-z-menge">200 g</span>
+          </li>
+          <li class="a-zutat">
+            <div class="a-check"></div>
+            <span class="a-z-name">Romanasalat</span>
+            <span class="a-z-menge">3 Köpfe</span>
+          </li>
+          <li class="a-zutat">
+            <div class="a-check"></div>
+            <span class="a-z-name">Sardellen</span>
+            <span class="a-z-menge">3 Stk</span>
+          </li>
+          <li class="a-zutat" style="opacity:0.5">
+            <div class="a-check"></div>
+            <span class="a-z-name">Olivenöl</span>
+            <span class="a-z-menge">n.G.</span>
+          </li>
+        </ul>
+        <button class="a-start">Trotzdem starten →</button>
+      </div>
+    </div>
+
+    <br>
+
+    <!-- Phase 2 Variante A -->
+    <div class="phone">
+      <div class="appmenu"><div class="appmenu-dot"></div></div>
+      <div class="khead">
+        <div class="khead-back">←</div>
+        <div class="khead-center">
+          <div class="khead-title">Caesar-Halloumi-Salat</div>
+          <div class="khead-elapsed">⏱ 4:32</div>
+        </div>
+        <div class="khead-count">2 / 4</div>
+      </div>
+      <div class="a-phase2">
+        <div class="a-history">
+          <div class="a-hist-row">
+            <div class="a-hist-num">1</div>
+            <div class="a-hist-text">Joghurt, Senf, Sardellen, Zitronensaft glatt rühren.</div>
+          </div>
+        </div>
+        <div class="a-step-card">
+          <div class="a-step-badge">2</div>
+          <div class="a-step-text">Halloumi in Olivenöl goldbraun anbraten, Chili dazugeben und zum Schluss mit Honig glasieren.</div>
+          <div class="a-timer-pill">⏱ 8 Min Timer starten</div>
+        </div>
+        <div class="a-nav">
+          <button class="a-nav-back">← Zurück</button>
+          <button class="a-nav-next">Weiter →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       VARIANTE B — Timeline + Karte
+       ══════════════════════════════════════ -->
+  <div>
+    <div class="variant-label"><strong>B — Timeline + Countdown</strong>Fortschritt sichtbar, Timer prominent</div>
+
+    <!-- Phase 1 identisch wie A -->
+    <div class="phone">
+      <div class="appmenu"><div class="appmenu-dot"></div></div>
+      <div class="khead">
+        <div class="khead-back">←</div>
+        <div class="khead-center"><div class="khead-title">Caesar-Halloumi-Salat</div></div>
+      </div>
+      <div class="a-phase1">
+        <div class="a-phase1-head">
+          <div class="icon">🧑‍🍳</div>
+          <h2>Zutaten bereitstellen</h2>
+          <p>4 Portionen · 25 Min</p>
+        </div>
+        <ul class="a-zutaten">
+          <li class="a-zutat checked"><div class="a-check">✓</div><span class="a-z-name">Joghurt</span><span class="a-z-menge">200 g</span></li>
+          <li class="a-zutat checked"><div class="a-check">✓</div><span class="a-z-name">Halloumi</span><span class="a-z-menge">200 g</span></li>
+          <li class="a-zutat"><div class="a-check"></div><span class="a-z-name">Romanasalat</span><span class="a-z-menge">3 Köpfe</span></li>
+          <li class="a-zutat"><div class="a-check"></div><span class="a-z-name">Sardellen</span><span class="a-z-menge">3 Stk</span></li>
+          <li class="a-zutat" style="opacity:0.5"><div class="a-check"></div><span class="a-z-name">Olivenöl</span><span class="a-z-menge">n.G.</span></li>
+        </ul>
+        <button class="a-start">Trotzdem starten →</button>
+      </div>
+    </div>
+
+    <br>
+
+    <!-- Phase 2 Variante B -->
+    <div class="phone">
+      <div class="appmenu"><div class="appmenu-dot"></div></div>
+      <div class="khead">
+        <div class="khead-back">←</div>
+        <div class="khead-center">
+          <div class="khead-title">Caesar-Halloumi-Salat</div>
+          <div class="khead-elapsed">⏱ 4:32</div>
+        </div>
+        <div class="khead-count">2 / 4</div>
+      </div>
+      <div class="b-phase2">
+        <div class="b-content">
+          <!-- Timeline -->
+          <div class="b-timeline">
+            <div class="b-tl-item">
+              <div class="b-tl-dot is-done">1</div>
+              <div class="b-tl-line is-done"></div>
+            </div>
+            <div class="b-tl-item">
+              <div class="b-tl-dot is-current">2</div>
+              <div class="b-tl-line"></div>
+            </div>
+            <div class="b-tl-item">
+              <div class="b-tl-dot">3</div>
+              <div class="b-tl-line"></div>
+            </div>
+            <div class="b-tl-item">
+              <div class="b-tl-dot">4</div>
+            </div>
+          </div>
+          <!-- Inhalt -->
+          <div class="b-step-area">
+            <div class="b-hist-item">
+              <p>Joghurt, Senf, Sardellen und Zitronensaft glatt rühren.</p>
+            </div>
+            <div class="b-current-card">
+              <div class="b-current-label">Aktuell</div>
+              <div class="b-current-text">Halloumi in Olivenöl goldbraun anbraten, Chili dazugeben und mit Honig glasieren.</div>
+              <div class="b-countdown">
+                <div class="b-countdown-val">7:43</div>
+                <div class="b-countdown-btns">
+                  <div class="b-cd-btn">⏸</div>
+                  <div class="b-cd-btn">↺</div>
+                  <div class="b-cd-btn">✕</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="b-nav">
+          <button class="b-nav-back">← Zurück</button>
+          <button class="b-nav-next">Weiter →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       VARIANTE C — Dark Mode, immersiv
+       ══════════════════════════════════════ -->
+  <div>
+    <div class="variant-label"><strong>C — Dark &amp; Immersiv</strong>Küchenabstand, kein Augenstressen</div>
+
+    <!-- Phase 1 auf Dark -->
+    <div class="phone" style="background:#0F1A14">
+      <div class="appmenu" style="background:#1A2E22; border-color:#2A4035"><div class="appmenu-dot" style="background:#2A4035"></div></div>
+      <div class="khead" style="background:#1A2E22; border-color:#2A4035">
+        <div class="khead-back" style="background:#2A4035; color:#fff">←</div>
+        <div class="khead-center"><div class="khead-title" style="color:#fff">Caesar-Halloumi-Salat</div></div>
+      </div>
+      <div style="padding:12px; color:#fff">
+        <div style="text-align:center; padding:14px 0 18px">
+          <div style="font-size:28px; margin-bottom:8px">🧑‍🍳</div>
+          <div style="font-size:18px; font-weight:800">Zutaten bereitstellen</div>
+          <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:3px">4 Portionen · 25 Min</div>
+        </div>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:2px;">
+          <li style="display:flex; align-items:center; gap:10px; padding:11px 8px; opacity:0.35;">
+            <div style="width:24px;height:24px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">✓</div>
+            <span style="flex:1;font-size:14px;font-weight:500;text-decoration:line-through;">Joghurt</span>
+            <span style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:600;">200 g</span>
+          </li>
+          <li style="display:flex; align-items:center; gap:10px; padding:11px 8px;">
+            <div style="width:24px;height:24px;border-radius:6px;border:2px solid rgba(255,255,255,0.2);flex-shrink:0;"></div>
+            <span style="flex:1;font-size:14px;font-weight:500;">Halloumi</span>
+            <span style="font-size:13px;color:rgba(255,255,255,0.5);font-weight:600;">200 g</span>
+          </li>
+          <li style="display:flex; align-items:center; gap:10px; padding:11px 8px;">
+            <div style="width:24px;height:24px;border-radius:6px;border:2px solid rgba(255,255,255,0.2);flex-shrink:0;"></div>
+            <span style="flex:1;font-size:14px;font-weight:500;">Romanasalat</span>
+            <span style="font-size:13px;color:rgba(255,255,255,0.5);font-weight:600;">3 Köpfe</span>
+          </li>
+        </ul>
+        <button style="margin-top:14px; width:100%; padding:14px; background:var(--gradient-cta); color:#fff; border:none; border-radius:999px; font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px;">Kochen starten →</button>
+      </div>
+    </div>
+
+    <br>
+
+    <!-- Phase 2 Variante C -->
+    <div class="phone">
+      <div class="appmenu" style="background:#1A2E22; border-color:#2A4035"><div class="appmenu-dot" style="background:#2A4035"></div></div>
+      <div class="c-phase2">
+        <div class="c-header">
+          <div class="c-back">←</div>
+          <div class="c-elapsed">⏱ 4:32</div>
+          <div class="c-count">2 / 4</div>
+        </div>
+        <div class="c-progress"><div class="c-progress-bar"></div></div>
+
+        <div class="c-hist">
+          <p>Joghurt, Senf, Sardellen und Zitronensaft glatt rühren.</p>
+        </div>
+
+        <div class="c-step">
+          <div class="c-step-badge">2</div>
+          <div class="c-step-text">Halloumi in Olivenöl goldbraun anbraten, Chili dazugeben und zum Schluss mit Honig glasieren.</div>
+          <div class="c-timer">
+            <div class="c-timer-val">7:43</div>
+            <div class="c-timer-btns">
+              <div class="c-t-btn">⏸</div>
+              <div class="c-t-btn">↺</div>
+              <div class="c-t-btn">✕</div>
+            </div>
+          </div>
+        </div>
+        <div class="c-nav">
+          <button class="c-nav-back">← Zurück</button>
+          <button class="c-nav-next">Weiter →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <span>A — Hell, klassisch, vertraut</span>
+  <span>·</span>
+  <span>B — Timeline + Countdown sichtbar</span>
+  <span>·</span>
+  <span>C — Dark, immersiv, küchenabstand-tauglich</span>
+</div>
+
+</body>
+</html>
