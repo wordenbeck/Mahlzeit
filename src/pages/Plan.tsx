@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus, Search, Trash2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Search, Star, Trash2, X } from 'lucide-react';
 import './Plan.css';
 import { useAuth } from '../lib/auth';
 import { listRecipes, type RecipeListItem } from '../lib/recipes';
@@ -26,6 +26,7 @@ export function Plan() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [favOnly, setFavOnly] = useState(false);
 
   // Sheets
   const [assignRecipe, setAssignRecipe] = useState<RecipeListItem | null>(null); // + → Tag wählen
@@ -67,10 +68,14 @@ export function Plan() {
   useRealtimeReload('recipes', reload, !!auth.profile);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return recipes;
-    const q = query.toLowerCase();
-    return recipes.filter(r => r.titel.toLowerCase().includes(q) || r.tags.some(t => t.toLowerCase().includes(q)));
-  }, [recipes, query]);
+    let list = recipes;
+    if (favOnly) list = list.filter(r => r.is_favorite);
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      list = list.filter(r => r.titel.toLowerCase().includes(q) || r.tags.some(t => t.toLowerCase().includes(q)));
+    }
+    return list;
+  }, [recipes, query, favOnly]);
 
   const slotsForDay = (day: number): Slot[] =>
     (weekplan?.slots.filter(s => s.day_of_week === day) ?? [])
@@ -134,10 +139,24 @@ export function Plan() {
 
       {/* Bibliothek: Klick = Detail · + = Tag wählen */}
       <div className="plan__libhead">
-        <span className="plan__lib-eyebrow">🍳 Rezepte · {recipes.length}</span>
-        <div className="plan__search-wrap">
-          <Search size={16} strokeWidth={1.75} className="plan__search-icon" />
-          <input className="plan__search" placeholder="Suchen — Titel, Tag…" value={query} onChange={e => setQuery(e.target.value)} />
+        <div className="plan__search-row">
+          <div className="plan__search-wrap">
+            <Search size={16} strokeWidth={1.75} className="plan__search-icon" />
+            <input
+              className="plan__search"
+              placeholder={`${recipes.length} Rezepte durchsuchen…`}
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+          </div>
+          <button
+            className={`plan__fav-filter ${favOnly ? 'is-active' : ''}`}
+            onClick={() => setFavOnly(f => !f)}
+            aria-label="Nur Favoriten"
+            title="Nur Favoriten"
+          >
+            <Star size={16} strokeWidth={2} fill={favOnly ? 'currentColor' : 'none'} />
+          </button>
         </div>
       </div>
 

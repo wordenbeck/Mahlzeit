@@ -35,11 +35,18 @@
 
 /* ---------- Bibliothek ---------- */
 .plan__libhead { position: sticky; top: 36px; z-index: 5; background: var(--bg); padding: var(--space-3) var(--space-5) var(--space-2); border-top: 1px solid var(--border); }
-.plan__lib-eyebrow { display: block; font-size: var(--fs-caption); color: var(--text-3); font-weight: var(--fw-semibold); margin-bottom: var(--space-2); }
-.plan__search-wrap { position: relative; }
+.plan__search-row { display: flex; gap: var(--space-2); align-items: center; }
+.plan__search-wrap { position: relative; flex: 1; }
 .plan__search-icon { position: absolute; left: var(--space-3); top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
 .plan__search { width: 100%; padding: var(--space-3) var(--space-3) var(--space-3) calc(var(--space-3) + 24px); border-radius: var(--radius-pill); background: var(--surface-1); border: 1px solid var(--accent-soft); font-size: var(--fs-body); outline: none; }
 .plan__search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.plan__fav-filter {
+  width: 42px; height: 42px; flex-shrink: 0; border-radius: var(--radius-pill);
+  background: var(--surface-1); border: 1px solid var(--border);
+  color: var(--text-3); display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.plan__fav-filter.is-active { background: #FEF9C3; color: #B45309; border-color: #FDE68A; }
 
 .plan__lib { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); padding: var(--space-2) var(--space-5) var(--space-6); }
 @media (max-width: 600px) {

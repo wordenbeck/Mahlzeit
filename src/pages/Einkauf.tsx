@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Minus, Plus, Users, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Users, ShoppingBag, CheckCircle2 } from 'lucide-react';
 import './Einkauf.css';
 import { useAuth } from '../lib/auth';
 import {
@@ -13,8 +13,20 @@ import type { Recipe } from '../lib/types/recipe';
 import { ZutatIcon } from '../components/ZutatIcon';
 import { useRealtimeReload } from '../lib/realtime';
 
+// Liest aus dem Liste-localStorage ob heute schon eingekauft wurde
+function getShoppingDoneCount(): number {
+  try {
+    const raw = localStorage.getItem('mahlzeit:liste:checked');
+    if (!raw) return 0;
+    const { date, keys } = JSON.parse(raw);
+    const today = new Date().toISOString().slice(0, 10);
+    return date === today ? (keys as string[]).length : 0;
+  } catch { return 0; }
+}
+
 export function Einkauf() {
   const auth = useAuth();
+  const shoppingDone = getShoppingDoneCount();
   const [weekStart, setWeekStart] = useState(() => isoWeekStart(new Date()));
   const [weekplan, setWeekplan] = useState<WeekplanWithSlots | null>(null);
   const [recipesById, setRecipesById] = useState<Record<string, Recipe>>({});
@@ -123,7 +135,14 @@ export function Einkauf() {
             <button className="ekf__nav-btn" onClick={() => setWeekStart(shiftWeek(weekStart, 1))} aria-label="Nächste Woche"><ChevronRight size={18} strokeWidth={2} /></button>
           </div>
         </div>
-        <h1 className="ekf__title">Einkauf prüfen</h1>
+        <div className="ekf__title-row">
+          <h1 className="ekf__title">Einkauf prüfen</h1>
+          {shoppingDone > 0 && (
+            <span className="ekf__done-badge">
+              <CheckCircle2 size={14} strokeWidth={2} /> {shoppingDone} eingekauft
+            </span>
+          )}
+        </div>
 
         <div className="ekf__tabs" role="tablist">
           {tabDays.map(d => {

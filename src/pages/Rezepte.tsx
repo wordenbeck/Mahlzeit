@@ -59,13 +59,13 @@ export function Rezepte() {
   return (
     <div className="rezepte">
       <header className="rezepte__header">
-        <div>
-          <span className="rezepte__eyebrow">Mahlzeit · Sammlung</span>
+        <span className="rezepte__eyebrow">Mahlzeit · Sammlung</span>
+        <div className="rezepte__headline-row">
           <h1>Rezepte</h1>
+          <Link to="/rezepte/import" className="rezepte__cta">
+            <Plus size={16} strokeWidth={2.5} /> Neu
+          </Link>
         </div>
-        <Link to="/rezepte/import" className="rezepte__cta">
-          <Plus size={16} strokeWidth={2.5} /> Neu
-        </Link>
       </header>
 
       <div className="rezepte__toolbar">

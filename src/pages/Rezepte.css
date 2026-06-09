@@ -7,11 +7,14 @@
 }
 
 .rezepte__header {
+  margin-bottom: var(--space-4);
+}
+.rezepte__headline-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+  margin-top: 2px;
 }
 
 .rezepte__eyebrow {
