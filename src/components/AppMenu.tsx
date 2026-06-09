@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight, PlusCircle,
+  Calendar, ChefHat, ShoppingBag, ListChecks, Home, ChevronRight, ClipboardPlus,
 } from 'lucide-react';
 import './AppMenu.css';
 import { useAuth } from '../lib/auth';
@@ -13,7 +13,7 @@ const items: { id: string; to: string; label: string; icon: typeof Home; flowSte
   { id: 'einkauf', to: '/einkauf',   label: 'Einkauf prüfen', icon: ShoppingBag, flowStep: 2 },
   { id: 'liste',   to: '/liste',     label: 'Einkaufen',      icon: ListChecks,  flowStep: 3 },
   { id: 'rezepte', to: '/rezepte',   label: 'Rezepte',        icon: ChefHat },
-  { id: 'import',  to: '/rezepte/import', label: 'Hinzufügen', icon: PlusCircle },
+  { id: 'import',  to: '/rezepte/import', label: 'Hinzufügen', icon: ClipboardPlus },
 ];
 
 function useScrolled(threshold = 40) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Check, ChevronDown, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import './Liste.css';
@@ -50,6 +50,7 @@ export function Liste() {
   const [extraName, setExtraName] = useState('');
   const [checkedOpen, setCheckedOpen] = useState(false);
   const checkedKeysRef = useRef<Set<string>>(loadChecked());
+  const checkedSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +118,14 @@ export function Liste() {
     applyItems(items.map(i => ({ ...i, checked: true })));
   };
 
+  // "Eingekauft"-Bereich aufklappen und dorthin scrollen
+  const jumpToChecked = useCallback(() => {
+    setCheckedOpen(true);
+    setTimeout(() => {
+      checkedSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50); // kurz warten bis Bereich aufgeklappt ist
+  }, []);
+
   const renderRow = (item: ShoppingItem) => {
     const days = daysOf(item);
     return (
@@ -157,7 +166,9 @@ export function Liste() {
         <div className="liste__counts">
           <span>{remaining} {remaining === 1 ? 'Zutat offen' : 'Zutaten offen'}</span>
           {checked.length > 0 && (
-            <span className="liste__counts-done">· {checked.length} eingekauft</span>
+            <button className="liste__counts-done" onClick={jumpToChecked}>
+              · {checked.length} eingekauft ↓
+            </button>
           )}
         </div>
       </header>
@@ -196,7 +207,7 @@ export function Liste() {
 
               {/* Eingekauft — aufklappbar */}
               {checked.length > 0 && (
-                <div className="liste__checked-section">
+                <div className="liste__checked-section" ref={checkedSectionRef}>
                   <button
                     className={`liste__checked-toggle ${checkedOpen ? 'is-open' : ''}`}
                     onClick={() => setCheckedOpen(o => !o)}

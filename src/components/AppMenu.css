@@ -203,6 +203,14 @@
     gap: var(--space-2);
   }
 
+  /* is-compact soll auf Mobile NICHT größer/breiter machen — bereits im Icon-Modus */
+  .app-menu.is-compact {
+    --m-item-pad-x: 8px;   /* zurück auf Mobile-Default, nicht 10px */
+    --m-nav-gap: 8px;      /* Gap bleibt gleich, nicht auf 14px springen */
+    --m-profile: 26px;     /* etwas kleiner ist OK */
+    --m-logo: 22px;        /* Logo etwas kleiner beim Scrollen */
+  }
+
   .app-menu__brand-name {
     display: none;
   }
