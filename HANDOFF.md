@@ -74,6 +74,12 @@ Archiviert (nicht mehr pflegen): `.archive/`
 - **DB-Schema dokumentiert** — `text[]` vs `jsonb` in CLAUDE.md + HANDOFF.md
 - **SQL-Pitfall** — SELECT nie in der Mitte von Delete-Scripts
 
+## 🔜 Nächste Aufgabe: Instagram-URLs den 55 URL-losen Rezepten zuordnen
+
+55 Instagram-Rezepte haben keine source_url gespeichert (alter Bulk-Import).
+Thomas hat die Original-Links noch. Optionen besprechen + umsetzen.
+→ Ziel: source_url nachrüsten damit Dedup + "Zum Original"-Link funktioniert.
+
 ## ⚠️ Pitfalls (neu gelernt)
 
 - **`tags`/`kategorie` = `text[]`** → `ARRAY['vegan','schnell']`, NICHT `'[...]'::jsonb`
