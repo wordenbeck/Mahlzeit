@@ -74,11 +74,24 @@ Archiviert (nicht mehr pflegen): `.archive/`
 - **DB-Schema dokumentiert** — `text[]` vs `jsonb` in CLAUDE.md + HANDOFF.md
 - **SQL-Pitfall** — SELECT nie in der Mitte von Delete-Scripts
 
-## 🔜 Nächste Aufgabe: Instagram-URLs den 55 URL-losen Rezepten zuordnen
+## 🔜 Nächste Session: Instagram-URL-Matching + Claude API Test
 
-55 Instagram-Rezepte haben keine source_url gespeichert (alter Bulk-Import).
-Thomas hat die Original-Links noch. Optionen besprechen + umsetzen.
-→ Ziel: source_url nachrüsten damit Dedup + "Zum Original"-Link funktioniert.
+**Kontext:** 55 Instagram-Rezepte ohne source_url (alter Bulk-Import). Thomas hat alle 70-90 URLs noch.
+
+**Plan (in dieser Reihenfolge):**
+1. Thomas gibt alle ~70-90 Instagram-URLs als Datei rein
+2. Script (Claude API) matched URLs gegen DB-Rezepte:
+   - URL schon bekannt → überspringen
+   - URL matched existierendes Rezept (kein source_url) → UPDATE source_url
+   - URL ist neu → als neues Rezept importieren
+3. Parallel: Qualitätsvergleich Groq vs. Claude — parsed 10 Rezepte mit beiden, gibt Confidence Score
+4. Entscheidung: Groq (kostenlos, langsam, 30s Pause) oder Claude Haiku (~$0.01/Rezept, schnell, besser)
+
+**Voraussetzung:** Anthropic API Key (console.anthropic.com) — Kosten ~$0.15 für den ganzen Test
+
+**Warum Claude statt Groq:**
+Groq Free = 14k TPM → 2 Rezepte/Min → 40 Rezepte = 20 Min, iPhone wach halten
+Claude Haiku = 100k TPM → kein spürbares Limit, 40 Rezepte in ~2 Min
 
 ## ⚠️ Pitfalls (neu gelernt)
 
