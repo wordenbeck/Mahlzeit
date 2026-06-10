@@ -25,16 +25,24 @@ export type RecipeListItem = Pick<
   | 'recipe_type'
 >;
 
-/** source_urls aller Recipes — für Dedup-Check beim Bulk-Import */
+/** source_urls + normalisierte Titel aller Recipes — für Dedup-Check beim Bulk-Import */
 export async function listExistingSourceUrls(): Promise<string[]> {
   const { data, error } = await supabase
     .from('recipes')
-    .select('source_url')
-    .not('source_url', 'is', null);
+    .select('source_url, titel');
   if (error) throw error;
-  return (data ?? [])
+
+  const urls = (data ?? [])
     .map(r => (r as { source_url: string | null }).source_url)
     .filter((u): u is string => !!u);
+
+  // Auch normalisierte Titel als Pseudo-URLs zurückgeben (Format: "titel::XYZ")
+  // damit BulkImport auch ohne URL auf Titel-Duplikate prüfen kann
+  const titles = (data ?? [])
+    .map(r => `titel::${(r as { titel: string }).titel?.toLowerCase().trim().replace(/\s+/g, ' ')}`)
+    .filter(t => t !== 'titel::');
+
+  return [...urls, ...titles];
 }
 
 export async function listRecipes(): Promise<RecipeListItem[]> {

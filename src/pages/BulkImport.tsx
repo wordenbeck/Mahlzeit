@@ -185,6 +185,13 @@ export function BulkImport() {
 
     const fewShots = formatRecipeFewShotExamples();
 
+    // Aktuellen DB-Stand laden für Titel-Duplikat-Check während des Imports
+    let existingSet = new Set<string>();
+    try {
+      const existing = await listExistingSourceUrls();
+      existingSet = new Set(existing);
+    } catch { /* ignorieren */ }
+
     for (let i = 0; i < startItems.length; i++) {
       if (cancelRef.current) {
         const skipped = startItems.map((it, idx) =>
@@ -243,6 +250,14 @@ export function BulkImport() {
         }
 
         const rezept = result.result.rezept;
+
+        // Titel-Duplikat-Check (fängt Fälle ohne source_url)
+        const titelKey = `titel::${rezept.titel?.toLowerCase().trim().replace(/\s+/g, ' ')}`;
+        if (existingSet.has(titelKey)) {
+          updateItem(i, { status: 'skipped', message: `Rezept mit gleichem Titel schon vorhanden: „${rezept.titel}"` });
+          continue;
+        }
+
         const saved = await saveRecipe({
           source: detectSource(url) as RecipeSource,
           source_url: url,
@@ -265,6 +280,8 @@ export function BulkImport() {
         });
 
         updateItem(i, { status: 'ok', recipeId: saved.id, recipeTitle: saved.titel });
+        // Neu gespeicherten Titel zum Set hinzufügen (kein Duplikat in gleicher Session)
+        existingSet.add(`titel::${saved.titel?.toLowerCase().trim().replace(/\s+/g, ' ')}`);
       } catch (e) {
         updateItem(i, { status: 'error', message: e instanceof Error ? e.message : String(e) });
       }
