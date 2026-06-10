@@ -2,6 +2,11 @@
 
 > Arbeitsregeln für Claude Code in diesem Projekt. Wird automatisch geladen.
 
+## 🔒 Filesystem-Zugriff
+**Nur innerhalb `/Users/thomaswordenbeck/Claude Code/CodingDojo/` schreiben.**
+Niemals Desktop, Downloads, Documents oder andere Ordner außerhalb CodingDojo.
+Das Bash-Tool hat technisch keinen Scope — diese Einschränkung ist Selbstdisziplin.
+
 ## 📄 Docs-Übersicht — welche Dateien gibt es, welche pflegen wir
 
 | Datei | Zweck | Wann aktualisieren |
@@ -111,10 +116,12 @@ Detail siehe `PROJECT-SPEC.md` → "Identity & Workspace".
 
 > Gelernt aus stundenlangem SQL-Debugging. **Vor jedem Insert ZUERST Schema checken**, nicht raten!
 
-- **`zutaten` ist `jsonb`** → Array von **Objekten**: `[{name, menge, einheit, hinweis}]` (nicht Strings!)
-- **`zubereitung` ist `jsonb`** → Array von **Strings**: `["Schritt 1", "Schritt 2"]` — **ohne** führende "1." Nummern (App nummeriert selbst)
-- **NOT NULL Pflichtfelder:** `workspace_id`, `created_by`, `source` (z.B. `'sanamana'`/`'instagram'`) — fehlen sie, schlägt der Insert fehl
-- **`schwierigkeit`** Werte: `'einfach'` | `'mittel'` | `'aufwendig'` (NICHT `'medium'`/englisch!)
+- **`tags`** = `text[]` → `ARRAY['vegan','schnell']` — **NICHT** `'["vegan"]'::jsonb`!
+- **`kategorie`** = `text[]` → `ARRAY['mittag']` — **NICHT** jsonb!
+- **`zutaten`** = `jsonb` → `'[{"name":"X","menge":1,"einheit":"g","hinweis":null}]'::jsonb`
+- **`zubereitung`** = `jsonb` → `'["Schritt 1","Schritt 2"]'::jsonb` — ohne führende Nummern
+- **NOT NULL Pflichtfelder:** `workspace_id`, `created_by`, `source` — fehlen sie, schlägt Insert fehl
+- **`schwierigkeit`** Werte: `'einfach'` | `'mittel'` | `'aufwendig'` (NICHT englisch!)
 - Aktuelle Basis-IDs: `workspace_id = e7f25de4-4fce-4aba-b1ce-70f9fe20f47d`, `created_by = 39b427ea-645c-4845-89a6-1c5a591aba17`
 - Schema-Quelle: `supabase/migrations/20260508120000_initial_schema.sql`
 

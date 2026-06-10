@@ -144,11 +144,29 @@ Zutaten in der Einkaufsliste gruppiert nach Kategorie (Gemüse / Fleisch / Milch
 
 ---
 
-## 🗃️ DB-State (Stand 2026-06-09)
+## 🗃️ Column Types — IMMER prüfen vor SQL-Generierung
+
+| Spalte | Typ | SQL-Syntax |
+|---|---|---|
+| `tags` | `text[]` | `ARRAY['vegan','schnell']` oder `ARRAY[]::text[]` |
+| `kategorie` | `text[]` | `ARRAY['mittag']` oder `ARRAY[]::text[]` |
+| `zutaten` | `jsonb` | `'[{"name":"...","menge":1,"einheit":"g","hinweis":null}]'::jsonb` |
+| `zubereitung` | `jsonb` | `'["Schritt 1","Schritt 2"]'::jsonb` |
+| `schwierigkeit` | `text` | `'einfach'` / `'mittel'` / `'aufwendig'` |
+| `recipe_type` | `text` | `'hauptgericht'` etc. |
+
+**Nie raten — immer zuerst:**
+```
+curl "$URL/rest/v1/recipes?select=*&limit=1" -H "apikey: $ANON_KEY" -H "Authorization: Bearer $ANON_KEY"
+```
+
+---
+
+## 🗃️ DB-State (Stand 2026-06-10)
 
 | Was | Wert |
 |---|---|
-| Rezepte gesamt | ~90 (66 Instagram + ~24 SanaMana) |
+| Rezepte gesamt | 120 (nach Bereinigung: 6 Duplikate + 2 Nicht-Rezepte gelöscht) |
 | Workspace ID | `e7f25de4-4fce-4aba-b1ce-70f9fe20f47d` |
 | Created-by ID | `39b427ea-645c-4845-89a6-1c5a591aba17` |
 | Bilder | ~80% haben `bild_url` (Supabase Storage + externe URLs) |
