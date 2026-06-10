@@ -19,13 +19,13 @@ export function exportRecipesToExcel(recipes: Recipe[]): void {
     'Quelle': r.source ?? '',
     'Zutaten': (r.zutaten ?? [])
       .map(z => {
-        const menge = z.menge != null ? `${z.menge}${z.einheit ? ' ' + z.einheit : ''}` : (z.einheit ?? 'n.G.');
-        return `${menge} ${z.name}${z.hinweis ? ` (${z.hinweis})` : ''}`;
+        const menge = z.menge != null ? `${z.menge}${z.einheit ? ' ' + z.einheit : ''}` : 'n.G.';
+        return `${menge} ${z.name}`;
       })
-      .join('\n'),
+      .join(' | '),
     'Zubereitung': (r.zubereitung ?? [])
       .map((s, i) => `${i + 1}. ${s}`)
-      .join('\n'),
+      .join(' | '),
     'Bild-URL': r.bild_url ?? '',
     'Erstellt am': r.created_at ? new Date(r.created_at).toLocaleDateString('de') : '',
   }));

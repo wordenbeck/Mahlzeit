@@ -36,28 +36,32 @@ if (!fs.existsSync(xlsxPath)) {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-/** Zutaten-Text → [{name, menge, einheit, hinweis}] */
+/** Zutaten-Text → [{name, menge, einheit, hinweis}]
+ *  Format: "200 g Mehl | 3 Eier | n.G. Salz"
+ */
 function parseZutaten(text) {
   if (!text || !text.trim()) return [];
-  return text.split('\n').map(line => {
-    line = line.trim();
+  // Unterstützt sowohl " | " als auch "\n" als Separator (Rückwärtskompatibilität)
+  const sep = text.includes(' | ') ? ' | ' : '\n';
+  return text.split(sep).map(part => {
+    const line = part.trim();
     if (!line) return null;
 
-    // "n.G. Name (hinweis)" oder "n.G. Name"
-    const ngMatch = line.match(/^n\.G\.\s+(.+?)(?:\s+\((.+)\))?$/i);
+    // "n.G. Name"
+    const ngMatch = line.match(/^n\.G\.\s+(.+)$/i);
     if (ngMatch) {
-      return { name: ngMatch[1].trim(), menge: null, einheit: null, hinweis: ngMatch[2] ?? null };
+      return { name: ngMatch[1].trim(), menge: null, einheit: null, hinweis: null };
     }
 
-    // "200 g Name (hinweis)"  oder  "3 Stk Name"  oder  "0.5 TL Name"
-    const numMatch = line.match(/^([\d.,]+)\s+(\S+)\s+(.+?)(?:\s+\((.+)\))?$/);
+    // "200 g Name"  oder  "3 Stk Name"  oder  "0.5 TL Name"
+    const numMatch = line.match(/^([\d.,]+)\s+(\S+)\s+(.+)$/);
     if (numMatch) {
-      const menge = parseFloat(numMatch[1].replace(',', '.'));
-      const einheit = numMatch[2];
-      const name = numMatch[3].trim();
-      const hinweis = numMatch[4] ?? null;
-      // Einheit könnte auch der Name sein wenn kein Einheit-Wort (z.B. "3 Eier")
-      return { name, menge, einheit, hinweis };
+      return {
+        name: numMatch[3].trim(),
+        menge: parseFloat(numMatch[1].replace(',', '.')),
+        einheit: numMatch[2],
+        hinweis: null,
+      };
     }
 
     // Fallback: nur Name
@@ -65,11 +69,14 @@ function parseZutaten(text) {
   }).filter(Boolean);
 }
 
-/** Zubereitung-Text → ["Schritt 1", "Schritt 2", ...] */
+/** Zubereitung-Text → ["Schritt 1", "Schritt 2", ...]
+ *  Format: "1. Mehl sieben | 2. Eier aufschlagen"
+ */
 function parseZubereitung(text) {
   if (!text || !text.trim()) return [];
-  return text.split('\n')
-    .map(line => line.replace(/^\d+\.\s+/, '').trim())
+  const sep = text.includes(' | ') ? ' | ' : '\n';
+  return text.split(sep)
+    .map(part => part.replace(/^\d+\.\s+/, '').trim())
     .filter(Boolean);
 }
 
