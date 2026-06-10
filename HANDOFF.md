@@ -1,6 +1,6 @@
 # Mahlzeit — HANDOFF
 
-> Letzte Aktualisierung: 2026-06-09
+> Letzte Aktualisierung: 2026-06-10
 > Status: **Produktionsreif für Testnutzung im Haushalt**
 
 ## 📄 Aktive Docs (immer aktuell halten)
@@ -64,10 +64,21 @@ Archiviert (nicht mehr pflegen): `.archive/`
 
 - **Plan-Grid asymmetrisch** — „links nicht so breit wie rechts", tritt oft nach Import auf. Vermutlich `auto-fill minmax(200px, 1fr)` und ein breites Card-Element zieht die Spalte. Nicht analysiert, nicht deployed-Fix.
 
-## ✅ Fixes dieser Session (2026-06-09)
+## ✅ Fixes dieser Session (2026-06-10)
 
-- **Volltextsuche** — `zutaten` + `beschreibung` in `listRecipes()` + Filter in `Rezepte.tsx` (commit 0682101)
-- **RezeptDetail Zutaten** — „nach Geschmack"/„n.G." ausgeblendet, `hinweis`-Feld (geschnitten, zum Braten etc.) ausgeblendet (commit 88f1f3e)
+- **Volltextsuche** — Zutaten + Beschreibung durchsuchbar
+- **Koch-Modus** — `/rezepte/:id/kochen`, Timeline, Dark/Light, Timer, Nav fix
+- **Excel-Export + Import-Script** — Profil-Seite, `scripts/import-from-excel.mjs`
+- **Datenbereinigung** — 120 Rezepte bereinigt, 8 gelöscht (6 Duplikate + 2 Nicht-Rezepte)
+- **Cleaning-Script** — `scripts/clean-recipes-local.mjs` (regelbasiert, kein API-Key nötig)
+- **DB-Schema dokumentiert** — `text[]` vs `jsonb` in CLAUDE.md + HANDOFF.md
+- **SQL-Pitfall** — SELECT nie in der Mitte von Delete-Scripts
+
+## ⚠️ Pitfalls (neu gelernt)
+
+- **`tags`/`kategorie` = `text[]`** → `ARRAY['vegan','schnell']`, NICHT `'[...]'::jsonb`
+- **SELECT nicht in der Mitte von Delete-Scripts** — immer ans Ende, sonst wird der Rest übersehen
+- **Filesystem: nur innerhalb CodingDojo schreiben** — nie Desktop/Downloads/Documents
 
 ---
 
