@@ -74,24 +74,62 @@ Archiviert (nicht mehr pflegen): `.archive/`
 - **DB-Schema dokumentiert** — `text[]` vs `jsonb` in CLAUDE.md + HANDOFF.md
 - **SQL-Pitfall** — SELECT nie in der Mitte von Delete-Scripts
 
-## 🔜 Nächste Session: Instagram-URL-Matching + Claude API Test
+## ✅ Session abgeschlossen: Instagram-URL-Matching + API-Qualitätstest (2026-06-10)
 
-**Kontext:** 55 Instagram-Rezepte ohne source_url (alter Bulk-Import). Thomas hat alle 70-90 URLs noch.
+**Status:** URL-Matching läuft, Claude API Test abgeschlossen ✅
 
-**Plan (in dieser Reihenfolge):**
-1. Thomas gibt alle ~70-90 Instagram-URLs als Datei rein
-2. Script (Claude API) matched URLs gegen DB-Rezepte:
-   - URL schon bekannt → überspringen
-   - URL matched existierendes Rezept (kein source_url) → UPDATE source_url
-   - URL ist neu → als neues Rezept importieren
-3. Parallel: Qualitätsvergleich Groq vs. Claude — parsed 10 Rezepte mit beiden, gibt Confidence Score
-4. Entscheidung: Groq (kostenlos, langsam, 30s Pause) oder Claude Haiku (~$0.01/Rezept, schnell, besser)
+### URLs: Struktur + Extraktion
+- **insta_urls old.md** (CodingDojo/Rezepte/): 82 URLs aus altem Bulk-Import
+- **insta_urls new.md** (CodingDojo/Rezepte/): 23 neue URLs (7 schon durchgearbeitet = 16 neu)
+- **Total:** 105 unique URLs
+- **DB-Zustand:** 120 Rezepte, 79 davon ohne source_url (= matching-Kandidaten)
 
-**Voraussetzung:** Anthropic API Key (console.anthropic.com) — Kosten ~$0.15 für den ganzen Test
+### Claude API Quality Test ✅ (10 Sample-Rezepte × 3 Modelle)
+- **Models getestet:** Haiku, Sonnet, Opus
+- **Status:** API funktioniert, response-parsing issue (wird mit simpler Text-Matching gelöst)
+- **Erkenntnis:** Text-Matching (titel/caption) ist für URL-Rezept-Zuordnung ausreichend, LLM-Parsing optional
 
-**Warum Claude statt Groq:**
-Groq Free = 14k TPM → 2 Rezepte/Min → 40 Rezepte = 20 Min, iPhone wach halten
-Claude Haiku = 100k TPM → kein spürbares Limit, 40 Rezepte in ~2 Min
+### URL-Matcher Script
+- **Funktion:** Text-Matching zwischen Instagram-Captions und DB-Rezepten (titel + beschreibung)
+- **Matching-Scores:** exact (>70), good (50-70), possible (20-50), no-match (<20)
+- **Status:** Läuft gerade (105 URLs × Instagram oEmbed API + DB matching)
+- **ETA:** ~3 Min, Report wird gespeichert in `scripts/output/url-matching-report.json`
+
+### ✅ ERGEBNISSE (2026-06-11)
+
+**Block 1 — Parser-Qualität (13 TOP-Baseline-Rezepte, echte Captions):**
+| Modell | Quality Ø | Speed | Kosten/100 | Limit |
+|---|---|---|---|---|
+| Groq llama-3.3 | 96% | 3,2s | $0 | 12k TPM + **100k/Tag** (~12 Rez/Tag) |
+| Haiku 4.5 ⭐ | 98% | 9,6s | $1,12 | keins spürbar |
+| Sonnet 4.6 | 98% | 25s | $4,93 | keins |
+| Opus 4.8 | 96% | 23s | $19,80 | keins |
+- **Erkenntnis:** Alle Modelle ~gleich gut. Groq war nie das Problem.
+- **Modell-IDs (Anthropic):** `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-8` (Short-Names, KEIN Datum-Suffix!)
+- **2 Bugs gefunden+gefixt:** (1) `.substring()` zerschneidet Emojis → lone surrogate; (2) manuelles Escaping statt `JSON.stringify`. Volle Caption + JSON.stringify = App-Methode.
+- **Default-Strategie:** Groq für In-App-Einzelparsing (gratis, nie am Limit), Haiku für Bulk.
+
+**Block 2 — URL-Vervollständigung: ✅ KOMPLETT**
+- 55/55 Rezepte ohne source_url via **Caption-zu-Caption-Matching** zugeordnet (100% Confidence, alle unique)
+- SQL `scripts/output/block2-update-urls.sql` von Thomas ausgeführt → 96/96 Instagram haben jetzt URL
+
+**Block 2b — Bild-Reparatur (in Arbeit):**
+- Die 55 alten hatten tote Insta-CDN-Bilder (403). Edge Function `refresh-recipe-image` deployed → spiegelt frisches Thumbnail in Supabase Storage. Treiber: `scripts/repair-images.ts`
+
+**Block 3 — Top-Accounts (datengetrieben):**
+- @jelly12h_ (22 Rez, Ø78%, 50% TOP) = bester Account
+- @schmaleschulter (26, Ø70%, 12% TOP) = Menge, durchwachsen
+- Scraping-Plan: Chefkoch JSON-LD (gratis, strukturiert) für Masse; Apify Free für Insta-Top-Accounts. Insta-Direktscraping zu fragil.
+
+### ⚠️ NEU entdeckte Altlast (NICHT angefasst — braucht Entscheidung)
+- **95/120 Rezepte haben `workspace_id` NULL** (71 Insta + 24 SanaMana)
+- Die 25 mit ID nutzen `897fafb5...`, NICHT die in CLAUDE.md dokumentierte `e7f25de4...`
+- App zeigt sie via globaler Sharing-Logik (`recipes_shared_global`). Bereinigung = bewusste RLS-Entscheidung nötig.
+
+### Offene Next Steps
+1. workspace_id-Altlast: bereinigen ja/nein? (RLS-Auswirkung prüfen)
+2. Few-Shot-Prompt schlanker (5→2-3 Beispiele) → Groq 2x mehr/Tag + Claude billiger
+3. Chefkoch-JSON-LD-Prototyp als Masse-Weg testen
 
 ## ⚠️ Pitfalls (neu gelernt)
 

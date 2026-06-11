@@ -157,7 +157,8 @@ export async function importRecipeFromUrl(
   url: string,
   systemPrompt: string,
   fewShotExamples: string,
-  manualCaption?: string
+  manualCaption?: string,
+  provider: 'groq' | 'claude' = 'groq'
 ): Promise<ImportRecipeFromUrlResult> {
   const { data, error } = await supabase.functions.invoke('import-recipe-from-url', {
     body: {
@@ -165,6 +166,7 @@ export async function importRecipeFromUrl(
       manual_caption: manualCaption,
       systemPrompt,
       fewShotExamples,
+      provider,
     },
   });
   if (error) {

@@ -214,7 +214,9 @@ export function BulkImport() {
 
         // Import mit Auto-Retry bei Rate-Limit: Fehlermeldung auslesen, angegebene
         // Wartezeit nehmen (sonst Fallback), Countdown zeigen, erneut versuchen.
-        let result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
+        // Bulk-Import nutzt Claude (Haiku 4.5): kein TPM/TPD-Limit wie Groq,
+        // 98% Quality, ~$1/100 Rezepte → ganzer Batch in einem Rutsch durch.
+        let result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots, undefined, 'claude');
         let attempt = 0;
         while (
           result.status === 'error' &&
@@ -229,7 +231,7 @@ export function BulkImport() {
           );
           if (cancelRef.current) break;
           updateItem(i, { status: 'running', message: `Erneuter Versuch ${attempt}/${MAX_RETRIES}…` });
-          result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots);
+          result = await importRecipeFromUrl(url, RECIPE_PARSER_SYSTEM_PROMPT, fewShots, undefined, 'claude');
         }
         if (cancelRef.current) break;
 

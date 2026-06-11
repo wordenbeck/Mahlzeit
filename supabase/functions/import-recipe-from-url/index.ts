@@ -21,12 +21,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GROQ_MODEL = Deno.env.get("GROQ_MODEL") || "llama-3.3-70b-versatile";
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+const ANTHROPIC_MODEL = Deno.env.get("ANTHROPIC_MODEL") || "claude-haiku-4-5";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 interface RequestBody {
   url: string;
   manual_caption?: string; // Fallback wenn Auto-Fetch fehlschlägt
+  provider?: "groq" | "claude"; // Default groq (Einzel-Import); claude für Bulk
 }
 
 const corsHeaders = {
@@ -344,6 +347,72 @@ Antworte nur mit dem JSON-Output gemäß Schema.`;
   return JSON.parse(content);
 }
 
+/**
+ * Ruft Claude (Anthropic Messages API) mit dem Recipe Parser Prompt auf.
+ * Default-Modell: claude-haiku-4-5 — für Bulk-Import (kein TPM/TPD-Limit wie Groq).
+ *
+ * Wichtig: Caption wird via JSON.stringify im userMessage-Objekt encodiert
+ * (kein manuelles Escaping → Emojis/Surrogate-Pairs bleiben heil). Claude
+ * antwortet teils mit ```json-Markdown → wird vor JSON.parse entfernt.
+ */
+async function callClaudeRecipeParser(
+  caption: string,
+  source: string,
+  sourceUrl: string,
+  sourceAuthor: string | null,
+  systemPrompt: string,
+  fewShotExamples: string
+): Promise<any> {
+  if (!ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY ist nicht gesetzt");
+  }
+
+  const userMessage = `${fewShotExamples}
+
+# AKTUELLE AUFGABE
+INPUT:
+\`\`\`json
+${JSON.stringify(
+  { caption, source, source_url: sourceUrl, source_author: sourceAuthor },
+  null,
+  2
+)}
+\`\`\`
+
+Antworte nur mit dem JSON-Output gemäß Schema.`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: 8000, // großzügig: lange Rezepte werden nicht abgeschnitten
+      system: systemPrompt,
+      messages: [{ role: "user", content: userMessage }],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Anthropic API Error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  const text = data.content?.[0]?.text ?? "";
+  const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const m = cleaned.match(/\{[\s\S]*\}/);
+    if (m) return JSON.parse(m[0]);
+    throw new Error("Claude-Antwort enthielt kein gültiges JSON");
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -380,7 +449,7 @@ serve(async (req) => {
       systemPrompt: string;
       fewShotExamples: string;
     };
-    const { url, manual_caption, systemPrompt, fewShotExamples } = body;
+    const { url, manual_caption, systemPrompt, fewShotExamples, provider } = body;
 
     if (!url) {
       return new Response(
@@ -437,15 +506,27 @@ serve(async (req) => {
       );
     }
 
-    // 2. Caption an Groq Recipe Parser
-    const recipeOutput = await callGroqRecipeParser(
-      caption,
-      source,
-      url,
-      author,
-      systemPrompt,
-      fewShotExamples
-    );
+    // 2. Caption an Recipe Parser — provider wählbar
+    //    'groq' (default): kostenlos, für Einzel-Import in der App
+    //    'claude': Haiku 4.5, kein TPM/TPD-Limit → für Bulk-Import
+    const useClaude = provider === "claude";
+    const recipeOutput = useClaude
+      ? await callClaudeRecipeParser(
+          caption,
+          source,
+          url,
+          author,
+          systemPrompt,
+          fewShotExamples
+        )
+      : await callGroqRecipeParser(
+          caption,
+          source,
+          url,
+          author,
+          systemPrompt,
+          fewShotExamples
+        );
 
     // 3. Thumbnail spiegeln zu Supabase Storage (Insta-CDN-URLs expiren!)
     let mirroredThumbnail: string | null = null;
