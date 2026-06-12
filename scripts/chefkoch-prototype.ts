@@ -52,14 +52,26 @@ function parseIngredient(s: string) {
 
 function parseInstructions(ri: any): string[] {
   if (!ri) return [];
-  if (Array.isArray(ri)) {
-    return ri.map((x) => (typeof x === 'string' ? x : x.text || '')).filter(Boolean);
-  }
-  if (typeof ri === 'string') {
-    // langer Text → an Zeilenumbrüchen / Satzenden splitten
-    return ri.split(/\n+|(?<=\.)\s+(?=[A-ZÄÖÜ])/).map((s) => s.trim()).filter((s) => s.length > 10);
-  }
-  return [];
+  const out: string[] = [];
+  const walk = (node: any) => {
+    if (!node) return;
+    if (typeof node === 'string') {
+      // langer Freitext → an Zeilenumbrüchen / Satzenden splitten
+      node.split(/\n+|(?<=\.)\s+(?=[A-ZÄÖÜ])/).forEach((s) => {
+        const t = s.trim();
+        if (t.length > 5) out.push(t);
+      });
+      return;
+    }
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    // HowToSection (Chefkoch) → Schritte liegen in itemListElement
+    if (node['@type'] === 'HowToSection' || node.itemListElement) { walk(node.itemListElement); return; }
+    // HowToStep → text (fallback name)
+    const t = (node.text || node.name || '').trim();
+    if (t.length > 5) out.push(t);
+  };
+  walk(ri);
+  return out;
 }
 
 function parseMaybe(v: any) { return Array.isArray(v) ? v : null; }
@@ -71,9 +83,21 @@ function qualityScore(r: any): number {
   if (Array.isArray(r.tags) && r.tags.length) s += 5;
   const z = parseMaybe(r.zutaten);
   if (z && z.length) s += (z.filter((x: any) => x?.name && x?.einheit).length / z.length) * 20;
+  // Zubereitung nach SUBSTANZ (Gesamt-Textlänge), nicht nach Schritt-Anzahl —
+  // bestraft nicht Quellen mit wenigen, dafür langen Schritten (z.B. Chefkoch).
   const zb = parseMaybe(r.zubereitung);
-  if (zb && zb.length) s += Math.min(25, zb.length * 3);
+  if (zb && zb.length) {
+    const chars = zb.join(' ').length;
+    s += chars > 200 ? 25 : chars > 80 ? 18 : chars > 30 ? 10 : 5;
+  }
   return Math.min(100, Math.round(s));
+}
+
+// Chefkoch-Schwierigkeit aus HTML (simpel/normal/pfiffig) → unser Schema
+function extractDifficulty(html: string): string | null {
+  const m = html.match(/ds-recipe-info__text">\s*(simpel|normal|pfiffig)\s*</i);
+  if (!m) return null;
+  return { simpel: 'einfach', normal: 'mittel', pfiffig: 'aufwendig' }[m[1].toLowerCase()] || null;
 }
 
 function extractRecipeLD(html: string): any | null {
@@ -118,7 +142,7 @@ async function main() {
         beschreibung: ld.description || null,
         portionen: ld.recipeYield ? parseInt(String(ld.recipeYield)) || null : null,
         zubereitungszeit_min: isoToMin(ld.totalTime || ld.cookTime || ld.prepTime),
-        schwierigkeit: null,
+        schwierigkeit: extractDifficulty(html),
         kategorie: ld.recipeCategory ? [String(ld.recipeCategory).toLowerCase()] : [],
         tags: ld.keywords ? String(ld.keywords).split(',').map((k: string) => k.trim()).filter(Boolean).slice(0, 8) : [],
         zutaten,

@@ -461,11 +461,10 @@ serve(async (req) => {
       );
     }
 
-    if (!systemPrompt || !fewShotExamples) {
+    if (!systemPrompt) {
       return new Response(
         JSON.stringify({
-          error:
-            "Parameter 'systemPrompt' und 'fewShotExamples' müssen mitgegeben werden",
+          error: "Parameter 'systemPrompt' muss mitgegeben werden",
         }),
         {
           status: 400,
