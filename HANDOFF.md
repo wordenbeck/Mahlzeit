@@ -148,10 +148,32 @@ Archiviert (nicht mehr pflegen): `.archive/`
 - Caption an LLM IMMER via JSON.stringify (kein substring/manuelles Escaping → sonst lone-surrogate-Crash bei Emojis).
 - Groq Limits: 12k TPM (kurzfristig) + 100k TPD (Tag). `supabase login`-Token nicht stabil → SUPABASE_ACCESS_TOKEN in .env.local.
 
-### Offene Next Steps
-1. Merge-Upgrade DRY_RUN reviewen → echter Lauf (DRY_RUN=0)
-2. Chefkoch-Selektions-Pipeline (Multi-Query + Filter + Dedupe + Import)
-3. workspace_id-Altlast (95/120 NULL) — geklärt: unkritisch, Aktivität ist sauber getrennt. Nur Datenhygiene falls Multi-Workspace kommt.
+### 🎯 NÄCHSTE SESSION — TOP-PRIO: Nährwerte & Lebensmittel-Qualität
+
+**Warum (Thomas' Kernbedürfnis):** "Verstehen, was gute und was schlechte Lebensmittel sind."
+Das ist KEIN reines Makro-Feature — es geht um Lebensmittel-Transparenz & -Bildung beim Kochen/Planen.
+
+**Scope (Vorschlag, gestuft):**
+1. **Makros pro Rezept/Portion**: Kalorien, Protein, Carbs, Fett, Ballaststoffe, Zucker, ges. Fett
+2. **Qualitäts-Einordnung** (das eigentliche Bedürfnis): Nutri-Score + NOVA-Verarbeitungsgrad
+   (beides liefert OpenFoodFacts oft direkt) → verständliche Ampel statt nackter Zahlen
+3. **Filter/Sortierung**: "high protein", "wenig verarbeitet", Kalorien-Range
+
+**Datenquelle:** OpenFoodFacts API (gratis, große DB, hat Nutri-Score + NOVA + Makros pro Produkt).
+Chefkoch-JSON-LD liefert NUR kcal → reicht nicht.
+
+**Aufwand/Herausforderungen:**
+- DB: Spalte `naehrwerte jsonb` (Migration) — pro Rezept + optional pro Zutat
+- Berechnung: Zutat-Name → OpenFoodFacts-Match (fuzzy, die Knacknuss!) → Menge×Nährwert → Summe/Portion
+- Zutaten-Matching ist der harte Teil (Freitext "200g Magerquark" → richtiges OFF-Produkt). LLM kann beim Matching/Normalisieren helfen.
+- UI: Nährwert-Anzeige + Ampel pro Rezept-Detail
+
+**Möglicher 1. Schritt:** Prototyp — 5 Rezepte, Zutaten gegen OpenFoodFacts matchen, Makros + Nutri-Score berechnen, Qualität der Matches bewerten. DANN entscheiden ob skalierbar.
+
+### Weitere offene Punkte
+- workspace_id-Altlast (95/120 NULL) — geklärt: unkritisch, Aktivität sauber getrennt
+- Kategorien in Einkaufsliste (UI, klein)
+- Vertagt: Magic Fill & Vorschläge (erst mit Nutzungsdaten), Bildersuche, Bulk-Import serverside, KI-Scraping/Cron
 
 ## ⚠️ Pitfalls (neu gelernt)
 
