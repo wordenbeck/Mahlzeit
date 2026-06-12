@@ -126,10 +126,32 @@ Archiviert (nicht mehr pflegen): `.archive/`
 - Die 25 mit ID nutzen `897fafb5...`, NICHT die in CLAUDE.md dokumentierte `e7f25de4...`
 - App zeigt sie via globaler Sharing-Logik (`recipes_shared_global`). Bereinigung = bewusste RLS-Entscheidung nötig.
 
+## ✅ Session 2026-06-12: Prompt-Optimierung + Datenqualität
+
+**V3-Prompt deployed** (`src/lib/prompts/recipeParserPrompt.ts`):
+- Ersetzt 5-Few-Shot-Prompt (~3200 tok) durch 1 inline-Beispiel + Pflichtfeld-Imperativ (~600 tok, −77%)
+- Auf n=25 vollen Captions validiert (Haiku+Groq): Zutaten/Anleitung/Dauer/Schwierigkeit/Tags ≈ alter Prompt
+- Groq-Durchsatz: ~12 → ~90 Rezepte/Tag. Edge Function: fewShotExamples optional.
+- **Wichtig gelernt:** Quality-Score muss pro-Feld messen (Zutaten/Anleitung/Dauer/Schwierigkeit/Tags), nicht aggregiert — sonst verstecken sich Lücken (z.B. Dauer fiel erst auf 60%, Fix: Dauer in Pflichtfeld-Liste).
+
+**Parser-Strategie final:** Einzel-Import in App → Groq (gratis), Bulk → Haiku (`claude-haiku-4-5`). Beide deployed.
+
+**Chefkoch als Masse-Weg validiert:** JSON-LD-Parse (kein LLM, gratis, kein Limit), 100% Quality nach Schritte-Fix (HowToSection-Verschachtelung). Script: `scripts/chefkoch-prototype.ts`. Rating-gefiltert (≥4.0). Selektions-Pipeline noch zu bauen.
+
+**Datenqualität — Befunde:**
+- 500-Zeichen-Caption-Kürzung: ALTLAST aus `parse-recipes-manual.js:367`. NUR Roh-Feld gekürzt, LLM-Parse nutzte volle Caption → Rezepte inhaltlich OK. Aktueller Pfad kürzt nicht.
+- 10 Rezepte OHNE Anleitung + 9 mit dünner Anleitung = 19 klare Re-Parse-Kandidaten.
+- **Merge-Upgrade läuft** (`scripts/merge-upgrade.ts`): re-parst alle 96 Insta-Rezepte mit V3, übernimmt NUR Verbesserungen (nie verschlechtern → schützt manuelle Optimierungen + Varianz). DRY_RUN=1 default, DRY_RUN=0 schreibt via Service-Role.
+
+**Pitfalls gelernt:**
+- Modell-IDs Anthropic: `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-8` (Short-Names, KEIN Datum!). Opus 4.8 deprecated custom `temperature`.
+- Caption an LLM IMMER via JSON.stringify (kein substring/manuelles Escaping → sonst lone-surrogate-Crash bei Emojis).
+- Groq Limits: 12k TPM (kurzfristig) + 100k TPD (Tag). `supabase login`-Token nicht stabil → SUPABASE_ACCESS_TOKEN in .env.local.
+
 ### Offene Next Steps
-1. workspace_id-Altlast: bereinigen ja/nein? (RLS-Auswirkung prüfen)
-2. Few-Shot-Prompt schlanker (5→2-3 Beispiele) → Groq 2x mehr/Tag + Claude billiger
-3. Chefkoch-JSON-LD-Prototyp als Masse-Weg testen
+1. Merge-Upgrade DRY_RUN reviewen → echter Lauf (DRY_RUN=0)
+2. Chefkoch-Selektions-Pipeline (Multi-Query + Filter + Dedupe + Import)
+3. workspace_id-Altlast (95/120 NULL) — geklärt: unkritisch, Aktivität ist sauber getrennt. Nur Datenhygiene falls Multi-Workspace kommt.
 
 ## ⚠️ Pitfalls (neu gelernt)
 
