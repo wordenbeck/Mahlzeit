@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iPad Layout Fixes — Vorher / Nachher</title>
+<style>
+:root {
+  --bg:#FAF7F2;--s1:#FFFFFF;--s2:#F2EDE5;--t1:#2A2620;--t2:#5C544A;--t3:#9A9080;
+  --accent:#006C49;--soft:#D1FADF;--border:rgba(0,0,0,.06);--border2:rgba(0,0,0,.12);
+  --grad:linear-gradient(135deg,#10B981,#006C49);--today:linear-gradient(135deg,#F0FDF4,#D1FADF);
+  --g1:linear-gradient(135deg,#D4E8D5,#9DBF9E);--g2:linear-gradient(135deg,#FFE0B5,#F6C27A);
+  --g3:linear-gradient(135deg,#D5E5F2,#9EC0DE);--g4:linear-gradient(135deg,#E2D8F0,#B8A8D9);
+  --g5:linear-gradient(135deg,#FCD4D4,#E8A4A4);--g6:linear-gradient(135deg,#EBD9B4,#C8A35E);
+  --sh:0 1px 2px rgba(6,78,59,.05),0 4px 12px rgba(6,78,59,.06);
+  --sh2:0 2px 4px rgba(6,78,59,.08),0 8px 24px rgba(6,78,59,.10);
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:#d4d8d5;color:var(--t1);padding:32px 16px}
+
+/* ── Page Chrome ── */
+h1{font-size:22px;font-weight:800;text-align:center;color:#1a1a1a;margin-bottom:6px}
+.intro{text-align:center;color:#4a5a52;font-size:13px;max-width:700px;margin:0 auto 32px;line-height:1.5}
+
+/* ── Section ── */
+.section{margin-bottom:48px}
+.section-title{font-size:18px;font-weight:800;color:#1a1a1a;margin-bottom:4px}
+.section-desc{font-size:13px;color:#4a5a52;margin-bottom:20px;line-height:1.5;max-width:720px}
+
+/* ── Columns ── */
+.cols{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.col{flex:1;min-width:280px}
+.col-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.col-label.before{color:#b05020}
+.col-label.after{color:#006C49}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px}
+.badge.before{background:#fff0e8;color:#b05020;border:1px solid #f0c8a8}
+.badge.after{background:#D1FADF;color:#006C49;border:1px solid #6EE7B7}
+
+/* ── iPad Frame ── */
+.ipad-frame{
+  background:#111;border-radius:20px;padding:12px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  width:100%;max-width:780px;
+}
+.ipad-screen{
+  background:var(--bg);border-radius:10px;overflow:hidden;
+  height:520px;overflow-y:auto;position:relative;
+}
+.ipad-screen::-webkit-scrollbar{display:none}
+
+/* ── App Menu ── */
+.menu{
+  position:sticky;top:0;z-index:10;
+  background:linear-gradient(135deg,#fff,#ECFDF5);
+  border-bottom:1px solid var(--soft);
+  padding:8px 16px;display:flex;align-items:center;gap:12px;
+}
+.menu-logo{width:26px;height:26px;border-radius:6px;background:var(--grad);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-logo svg{width:14px;height:14px;stroke:#fff;stroke-width:2.5;fill:none}
+.menu-brand{font-size:14px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+.menu-nav{flex:1;display:flex;align-items:center;justify-content:center;gap:4px}
+.menu-item{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-size:12px;font-weight:500;color:var(--t2);text-decoration:none;white-space:nowrap}
+.menu-item.active{background:var(--accent);color:#fff;font-weight:600}
+.menu-item svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none}
+.menu-profile{width:28px;height:28px;border-radius:99px;background:#F6C27A;color:rgba(0,0,0,.7);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── Plan: Shared ── */
+.plan-header{
+  padding:14px 20px 12px;
+  background:linear-gradient(135deg,#fff,#ECFDF5);
+  border-bottom:1px solid var(--soft);
+}
+.plan-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+.plan-title-row{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+.plan-title-row h1{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.navbtn{width:36px;height:36px;border-radius:99px;background:var(--s1);box-shadow:var(--sh);color:var(--t2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.navbtn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
+.plan-search-bar{
+  padding:8px 20px 8px;display:flex;gap:8px;align-items:center;
+  background:var(--bg);border-top:1px solid var(--border);position:sticky;top:42px;z-index:5;
+}
+.search-wrap{position:relative;flex:1}
+.search-input{width:100%;padding:8px 12px 8px 34px;border-radius:99px;background:var(--s1);border:1px solid var(--soft);font-size:13px;font-family:var(--font);outline:none;color:var(--t1)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3)}
+.search-icon svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+.fav-btn{width:38px;height:38px;flex-shrink:0;border-radius:99px;background:var(--s1);border:1px solid var(--border);color:var(--t3);display:flex;align-items:center;justify-content:center}
+.fav-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* Plan: Tage */
+.plan-day-row{display:flex;gap:5px;padding:8px 20px}
+.plan-day{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:10px;background:var(--s1);border:1.5px solid var(--border)}
+.plan-day.today{border-color:var(--accent)}
+.plan-day.planned{background:var(--grad);border-color:var(--accent)}
+.plan-day .dn{font-size:12px;font-weight:800;color:var(--accent);text-transform:capitalize}
+.plan-day .dd{font-size:10px;color:var(--t3);font-weight:500}
+.plan-day.planned .dn,.plan-day.planned .dd{color:#fff}
+.plan-day.today .dn{color:var(--accent)}
+
+/* Plan Sidebar Layout */
+.plan-grid{display:grid}
+.plan-grid.sidebar{grid-template-columns:220px 1fr}
+.plan-grid.stacked{grid-template-columns:1fr}
+
+.plan-sidebar{padding:12px 12px 12px 16px;border-right:1px solid var(--border);position:sticky;top:42px;align-self:start}
+.plan-sidebar-day{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--s1);border:1.5px solid var(--border);margin-bottom:5px}
+.plan-sidebar-day.today{border-color:var(--accent)}
+.plan-sidebar-day.planned{background:var(--grad);border-color:var(--accent)}
+.plan-sidebar-day .dn{font-size:14px;font-weight:800;color:var(--accent)}
+.plan-sidebar-day .dd{font-size:12px;color:var(--t3)}
+.plan-sidebar-day.planned .dn,.plan-sidebar-day.planned .dd{color:#fff}
+
+.plan-lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px 16px 24px}
+
+/* Recipe Card mini */
+.rc{background:var(--s1);border:1px solid var(--soft);border-radius:12px;box-shadow:var(--sh);overflow:hidden;position:relative}
+.rc-img{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:28px}
+.rc-body{padding:8px 8px 10px}
+.rc-title{font-size:13px;font-weight:700;color:var(--accent);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.4em}
+.rc-meta{font-size:11px;color:var(--t2);margin-top:4px}
+.rc-add{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:99px;background:rgba(0,108,73,.9);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(6,78,59,.35)}
+.rc-add svg{width:14px;height:14px;stroke:#fff;stroke-width:2.5;fill:none}
+
+/* ── Heute: Shared ── */
+.heute-wrap{padding:20px;background:var(--bg)}
+.heute-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+.heute-date{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+
+.hero{display:block;text-decoration:none;color:inherit;background:var(--s1);border:1.5px solid var(--accent);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-top:14px}
+.hero-img{height:0;padding-bottom:52%;position:relative;background:var(--g1)}
+.hero-body{padding:14px}
+.hero-body h2{font-size:20px;font-weight:800;color:var(--accent);letter-spacing:-.01em}
+.hero-meta{font-size:12px;color:var(--t2);margin-top:4px;display:flex;gap:8px}
+.cook-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding:12px;background:var(--grad);color:#fff;border-radius:10px;font-weight:800;font-size:14px}
+
+.tile{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);text-decoration:none;color:inherit}
+.tile svg{stroke:var(--accent);flex-shrink:0;width:18px;height:18px;stroke-width:2;fill:none}
+.tile strong{font-size:13px;display:block}
+.tile small{font-size:11px;color:var(--t3)}
+
+/* Heute BEFORE: Tiles gestapelt (1 Spalte ab 768px, 2 erst ab 1100px) */
+.heute-main-before{display:flex;gap:20px;align-items:flex-start;margin-top:0}
+.heute-hero-before{flex:1.4}
+.heute-tiles-before{flex:1;display:grid;grid-template-columns:1fr;gap:10px}
+
+/* Heute AFTER: Tiles immer 2 Spalten ab 768px */
+.heute-main-after{display:flex;gap:20px;align-items:flex-start;margin-top:0}
+.heute-hero-after{flex:1.4}
+.heute-tiles-after{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── Annotation ── */
+.annotation{
+  margin-top:12px;padding:10px 14px;
+  background:rgba(255,255,255,.8);border-radius:10px;
+  font-size:12px;color:#3a5a48;line-height:1.5;
+  border:1px solid rgba(0,108,73,.15);
+}
+.annotation strong{color:var(--accent)}
+
+/* ── Verdict ── */
+.verdict{
+  margin-top:32px;padding:20px 24px;
+  background:#fff;border-radius:14px;
+  border:1px solid var(--soft);box-shadow:var(--sh);
+  max-width:760px;
+}
+.verdict h3{font-size:15px;font-weight:800;color:var(--t1);margin-bottom:10px}
+.verdict ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.verdict li{font-size:13px;color:var(--t2);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.verdict li::before{content:"→";color:var(--accent);font-weight:700;flex-shrink:0}
+
+/* ── Divider ── */
+.divider{height:1px;background:rgba(0,0,0,.08);margin:40px 0}
+</style>
+</head>
+<body>
+
+<h1>iPad Layout Fixes — Vorher / Nachher</h1>
+<p class="intro">Simuliert auf iPad-Breite (~768px). Beide Screens gleichzeitig sehen um zu entscheiden ob der Fix sich besser anfühlt.</p>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 1: PLAN — Sidebar Breakpoint
+     ════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">1 — Plan: Sidebar-Breakpoint</div>
+  <div class="section-desc">
+    <strong>Problem:</strong> Sidebar-Layout springt schon bei 768px — genau die iPad-Breite. Die Rezept-Bibliothek hat dann rechts nur ~500px Platz, es passen kaum 2 Karten nebeneinander.<br>
+    <strong>Fix:</strong> Sidebar erst ab 900px zeigen. Auf iPad (768–899px) stattdessen kompaktes Stack-Layout mit horizontaler Tagübersicht.
+  </div>
+
+  <div class="cols">
+    <!-- BEFORE -->
+    <div class="col">
+      <div class="col-label before"><span class="badge before">Vorher</span> Sidebar ab 768px — iPad Air</div>
+      <div class="ipad-frame">
+        <div class="ipad-screen">
+          <!-- Menu -->
+          <div class="menu">
+            <div class="menu-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/><path d="M8 12h8M12 8v8"/></svg></div>
+            <span class="menu-brand">Mahlzeit</span>
+            <nav class="menu-nav">
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></a>
+              <a class="menu-item active" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 8v4l3 3"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
+            </nav>
+            <div class="menu-profile">T</div>
+          </div>
+
+          <!-- Plan Header -->
+          <div class="plan-header">
+            <div class="plan-eyebrow">KW 24 · 2026</div>
+            <div class="plan-title-row">
+              <h1>Woche planen</h1>
+              <div style="display:flex;gap:6px">
+                <div class="navbtn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+                <div class="navbtn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan Grid: Sidebar Layout (260px) -->
+          <div class="plan-grid sidebar">
+            <!-- Sidebar -->
+            <div class="plan-sidebar">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);font-weight:700;padding:0 4px 8px">Diese Woche</div>
+              <div class="plan-sidebar-day today"><span class="dn">Mo</span><span class="dd">9.6.</span></div>
+              <div class="plan-sidebar-day planned"><span class="dn">Di</span><span class="dd">10.6.</span></div>
+              <div class="plan-sidebar-day planned"><span class="dn">Mi</span><span class="dd">11.6.</span></div>
+              <div class="plan-sidebar-day"><span class="dn">Do</span><span class="dd">12.6.</span></div>
+              <div class="plan-sidebar-day"><span class="dn">Fr</span><span class="dd">13.6.</span></div>
+              <div class="plan-sidebar-day"><span class="dn">Sa</span><span class="dd">14.6.</span></div>
+              <div class="plan-sidebar-day"><span class="dn">So</span><span class="dd">15.6.</span></div>
+            </div>
+
+            <!-- Lib -->
+            <div>
+              <div class="plan-search-bar" style="top:0;position:relative;background:var(--bg);padding:8px 12px">
+                <div class="search-wrap">
+                  <div class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                  <input class="search-input" type="text" placeholder="Rezept suchen…" readonly>
+                </div>
+                <div class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+              </div>
+              <div class="plan-lib" style="grid-template-columns:repeat(2,1fr);padding:8px 12px 24px">
+                <div class="rc"><div class="rc-img" style="background:var(--g1)">🍝</div><div class="rc-body"><div class="rc-title">Spaghetti Bolognese</div><div class="rc-meta">30 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+                <div class="rc"><div class="rc-img" style="background:var(--g2)">🥗</div><div class="rc-body"><div class="rc-title">Griechischer Salat</div><div class="rc-meta">15 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+                <div class="rc"><div class="rc-img" style="background:var(--g3)">🍜</div><div class="rc-body"><div class="rc-title">Tom Kha Gai Suppe</div><div class="rc-meta">45 min · mittel</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+                <div class="rc"><div class="rc-img" style="background:var(--g4)">🍕</div><div class="rc-body"><div class="rc-title">Pizza Margherita</div><div class="rc-meta">60 min · mittel</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+                <div class="rc"><div class="rc-img" style="background:var(--g5)">🥘</div><div class="rc-body"><div class="rc-title">Linsen Dal</div><div class="rc-meta">35 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+                <div class="rc"><div class="rc-img" style="background:var(--g6)">🍳</div><div class="rc-body"><div class="rc-title">Shakshuka mit Feta</div><div class="rc-meta">25 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">
+        <strong>Problem:</strong> Sidebar 260px + Padding lässt nur ~460px für Karten. Bei <code>minmax(150px,1fr)</code> passen <strong>2 Karten</strong> rein — kein Unterschied zu iPhone. Und die 7 Tage links sind kaum lesbar (<em>vertikal gestreckt, wenig Kontext</em>).
+      </div>
+    </div>
+
+    <!-- AFTER -->
+    <div class="col">
+      <div class="col-label after"><span class="badge after">Nachher</span> Stack-Layout bis 900px + Mini-Tagesstreifen</div>
+      <div class="ipad-frame">
+        <div class="ipad-screen">
+          <!-- Menu -->
+          <div class="menu">
+            <div class="menu-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/><path d="M8 12h8M12 8v8"/></svg></div>
+            <span class="menu-brand">Mahlzeit</span>
+            <nav class="menu-nav">
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></a>
+              <a class="menu-item active" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg></a>
+              <a class="menu-item" href="#"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
+            </nav>
+            <div class="menu-profile">T</div>
+          </div>
+
+          <div class="plan-header">
+            <div class="plan-eyebrow">KW 24 · 2026</div>
+            <div class="plan-title-row">
+              <h1>Woche planen</h1>
+              <div style="display:flex;gap:6px">
+                <div class="navbtn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+                <div class="navbtn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tagesstreifen (horizontal, wie iPhone) -->
+          <div class="plan-day-row" style="padding:8px 16px">
+            <div class="plan-day today"><span class="dn">Mo</span><span class="dd">9.6.</span></div>
+            <div class="plan-day planned"><span class="dn">Di</span><span class="dd">10.6.</span></div>
+            <div class="plan-day planned"><span class="dn">Mi</span><span class="dd">11.6.</span></div>
+            <div class="plan-day"><span class="dn">Do</span><span class="dd">12.6.</span></div>
+            <div class="plan-day"><span class="dn">Fr</span><span class="dd">13.6.</span></div>
+            <div class="plan-day"><span class="dn">Sa</span><span class="dd">14.6.</span></div>
+            <div class="plan-day"><span class="dn">So</span><span class="dd">15.6.</span></div>
+          </div>
+
+          <!-- Suchleiste -->
+          <div style="padding:8px 16px;display:flex;gap:8px;align-items:center;background:var(--bg);border-top:1px solid var(--border)">
+            <div class="search-wrap">
+              <div class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+              <input class="search-input" type="text" placeholder="Rezept suchen…" readonly>
+            </div>
+            <div class="fav-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          </div>
+
+          <!-- Lib: 3 Karten nebeneinander -->
+          <div class="plan-lib" style="grid-template-columns:repeat(3,1fr);padding:10px 16px 24px;gap:10px">
+            <div class="rc"><div class="rc-img" style="background:var(--g1)">🍝</div><div class="rc-body"><div class="rc-title">Spaghetti Bolognese</div><div class="rc-meta">30 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="rc"><div class="rc-img" style="background:var(--g2)">🥗</div><div class="rc-body"><div class="rc-title">Griechischer Salat</div><div class="rc-meta">15 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="rc"><div class="rc-img" style="background:var(--g3)">🍜</div><div class="rc-body"><div class="rc-title">Tom Kha Gai Suppe</div><div class="rc-meta">45 min · mittel</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="rc"><div class="rc-img" style="background:var(--g4)">🍕</div><div class="rc-body"><div class="rc-title">Pizza Margherita</div><div class="rc-meta">60 min · mittel</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="rc"><div class="rc-img" style="background:var(--g5)">🥘</div><div class="rc-body"><div class="rc-title">Linsen Dal</div><div class="rc-meta">35 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="rc"><div class="rc-img" style="background:var(--g6)">🍳</div><div class="rc-body"><div class="rc-title">Shakshuka mit Feta</div><div class="rc-meta">25 min · einfach</div></div><div class="rc-add"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">
+        <strong>Besser:</strong> Tage als kompakter horizontaler Streifen (vertraut vom iPhone), <strong>3 Karten nebeneinander</strong> statt 2. Mehr Rezepte auf einen Blick. Sidebar erst auf echtem Desktop (≥ 900px).
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 2: HEUTE — Tiles auf iPad
+     ════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">2 — Heute: Tiles auf iPad</div>
+  <div class="section-desc">
+    <strong>Problem:</strong> Ab 768px liegen die 4 Quick-Tiles in 1 Spalte gestapelt neben dem Hero — wirken wie eine vertikale Liste, nicht wie Shortcuts.<br>
+    <strong>Fix:</strong> Tiles immer 2×2 Grid, auch ab 768px (bisher erst ab 1100px).
+  </div>
+
+  <div class="cols">
+    <!-- BEFORE -->
+    <div class="col">
+      <div class="col-label before"><span class="badge before">Vorher</span> Tiles 1-spaltig bis 1100px</div>
+      <div class="ipad-frame">
+        <div class="ipad-screen">
+          <div class="menu" style="padding:8px 16px">
+            <div class="menu-logo"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+            <span class="menu-brand">Mahlzeit</span>
+            <nav class="menu-nav">
+              <a class="menu-item active" href="#">Heute</a>
+              <a class="menu-item" href="#">Plan</a>
+              <a class="menu-item" href="#">Einkauf</a>
+              <a class="menu-item" href="#">Liste</a>
+              <a class="menu-item" href="#">Rezepte</a>
+            </nav>
+            <div class="menu-profile">T</div>
+          </div>
+          <div class="heute-wrap">
+            <div class="heute-eyebrow">Donnerstag, 12. Juni</div>
+            <div class="heute-date">Guten Morgen 👋</div>
+            <div class="heute-main-before">
+              <div class="heute-hero-before">
+                <a class="hero" href="#">
+                  <div class="hero-img"></div>
+                  <div class="hero-body">
+                    <h2>Spaghetti Bolognese</h2>
+                    <div class="hero-meta"><span>🕐 30 min</span><span>👥 4 Port.</span></div>
+                    <div class="cook-btn">Jetzt kochen →</div>
+                  </div>
+                </a>
+              </div>
+              <div class="heute-tiles-before">
+                <a class="tile" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span><strong>Woche planen</strong><small>3 von 7 Tagen belegt</small></span></a>
+                <a class="tile" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span><strong>Einkauf prüfen</strong><small>12 Zutaten</small></span></a>
+                <a class="tile" href="#"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg><span><strong>Einkaufsliste</strong><small>Bring-Export</small></span></a>
+                <a class="tile" href="#"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><span><strong>Rezepte</strong><small>90 gespeichert</small></span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">
+        <strong>Problem:</strong> 4 gestapelte breite Tiles wirken wie eine sekundäre Navigation-Liste. Der Hero-Teil ist breiter aber die Tiles fühlen sich <em>zu wichtig</em> an für ihre 1-Spalten-Reihung.
+      </div>
+    </div>
+
+    <!-- AFTER -->
+    <div class="col">
+      <div class="col-label after"><span class="badge after">Nachher</span> Tiles 2×2 Grid ab 768px</div>
+      <div class="ipad-frame">
+        <div class="ipad-screen">
+          <div class="menu" style="padding:8px 16px">
+            <div class="menu-logo"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+            <span class="menu-brand">Mahlzeit</span>
+            <nav class="menu-nav">
+              <a class="menu-item active" href="#">Heute</a>
+              <a class="menu-item" href="#">Plan</a>
+              <a class="menu-item" href="#">Einkauf</a>
+              <a class="menu-item" href="#">Liste</a>
+              <a class="menu-item" href="#">Rezepte</a>
+            </nav>
+            <div class="menu-profile">T</div>
+          </div>
+          <div class="heute-wrap">
+            <div class="heute-eyebrow">Donnerstag, 12. Juni</div>
+            <div class="heute-date">Guten Morgen 👋</div>
+            <div class="heute-main-after">
+              <div class="heute-hero-after">
+                <a class="hero" href="#">
+                  <div class="hero-img"></div>
+                  <div class="hero-body">
+                    <h2>Spaghetti Bolognese</h2>
+                    <div class="hero-meta"><span>🕐 30 min</span><span>👥 4 Port.</span></div>
+                    <div class="cook-btn">Jetzt kochen →</div>
+                  </div>
+                </a>
+              </div>
+              <div class="heute-tiles-after">
+                <a class="tile" href="#" style="flex-direction:column;gap:6px;align-items:flex-start"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span><strong>Woche planen</strong><small>3 von 7 belegt</small></span></a>
+                <a class="tile" href="#" style="flex-direction:column;gap:6px;align-items:flex-start"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><span><strong>Einkauf prüfen</strong><small>12 Zutaten</small></span></a>
+                <a class="tile" href="#" style="flex-direction:column;gap:6px;align-items:flex-start"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg><span><strong>Einkaufsliste</strong><small>Bring-Export</small></span></a>
+                <a class="tile" href="#" style="flex-direction:column;gap:6px;align-items:flex-start"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg><span><strong>Rezepte</strong><small>90 gespeichert</small></span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation">
+        <strong>Besser:</strong> 2×2 Grid — Tiles wirken wie echte <em>Shortcut-Kacheln</em>, nicht wie eine Liste. Gleiche Fläche, bessere visuelle Hierarchie. Hero dominiert links, Shortcuts rechts als kompaktes Raster.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Verdict -->
+<div class="verdict">
+  <h3>Entscheidungshilfe</h3>
+  <ul>
+    <li><strong>Plan:</strong> Nachher klar besser — mehr Karten sichtbar, vertrautes Layout. Nur 1 CSS-Breakpoint ändern.</li>
+    <li><strong>Heute Tiles:</strong> Nachher besser auf iPad, gleichwertig auf Desktop. Kleines Risiko: auf sehr schmalen iPads (768px) müssen die Tiles-Beschriftungen noch passen → im Browser testen.</li>
+    <li>Liste-Sticky-Fix (kein Mockup nötig) ist rein technisch, kein visueller Unterschied — sicher umsetzbar.</li>
+  </ul>
+</div>
+
+</body></html>
