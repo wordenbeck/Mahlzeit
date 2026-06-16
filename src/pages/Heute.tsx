@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, ChefHat, Clock, ShoppingBag, ClipboardPlus, UtensilsCrossed } from 'lucide-react';
+import { ArrowRight, Calendar, ChefHat, Clock, ShoppingBag, ClipboardPlus, UtensilsCrossed, BookOpen } from 'lucide-react';
 import './Heute.css';
 import { useAuth } from '../lib/auth';
 import { isoWeekStart, getOrCreateWeekplan, type Slot } from '../lib/weekplan';
