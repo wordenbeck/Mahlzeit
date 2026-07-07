@@ -46,7 +46,9 @@ function showUpdateToast(onReload: () => void) {
     'font:600 14px/1.2 -apple-system,system-ui,sans-serif',
     'display:flex', 'align-items:center', 'gap:12px',
   ].join(';');
-  bar.innerHTML = '<span>✨ Neue Version geladen</span>';
+  const label = document.createElement('span');
+  label.textContent = '✨ Neue Version geladen';
+  bar.appendChild(label);
   const btn = document.createElement('button');
   btn.textContent = 'Aktualisieren';
   btn.style.cssText = 'background:#fff;color:#006C49;border:none;border-radius:999px;padding:7px 14px;font:700 13px -apple-system,system-ui;';

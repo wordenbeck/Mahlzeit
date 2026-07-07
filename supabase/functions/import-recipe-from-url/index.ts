@@ -32,12 +32,48 @@ interface RequestBody {
   provider?: "groq" | "claude"; // Default groq (Einzel-Import); claude für Bulk
 }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+// CORS: nur eigene Origin + lokale Dev-Umgebung
+const ALLOWED_ORIGINS = [
+  "https://mahlzeit123.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:4173",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
+
+// SSRF-Schutz: nur https://, keine privaten IP-Ranges
+function isSafeUrl(raw: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== "https:") return false;
+  const host = parsed.hostname;
+  // Blocklist: localhost, private RFC-1918 Ranges, link-local
+  const privatePatterns = [
+    /^localhost$/i,
+    /^127\./,
+    /^10\./,
+    /^172\.(1[6-9]|2\d|3[01])\./,
+    /^192\.168\./,
+    /^169\.254\./,
+    /^::1$/,
+    /^fc00:/i,
+    /^fe80:/i,
+  ];
+  return !privatePatterns.some((p) => p.test(host));
+}
 
 /**
  * Erkennt Quelle anhand URL
@@ -414,35 +450,51 @@ Antworte nur mit dem JSON-Output gemäß Schema.`;
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // User-ID + Workspace-ID aus dem JWT bzw Profile-Lookup
+    // User-ID + Workspace-ID aus dem JWT — Auth ist Pflicht
     const authHeader = req.headers.get("Authorization") || "";
     let userId: string | null = null;
     let workspaceId: string | null = null;
-    if (authHeader.startsWith("Bearer ")) {
-      try {
-        const supabaseAuth = createClient(
-          SUPABASE_URL,
-          SUPABASE_SERVICE_ROLE_KEY
+
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Nicht authentifiziert" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    try {
+      const supabaseAuth = createClient(
+        SUPABASE_URL,
+        SUPABASE_SERVICE_ROLE_KEY
+      );
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData, error: authError } = await supabaseAuth.auth.getUser(token);
+      if (authError || !userData.user) {
+        return new Response(
+          JSON.stringify({ error: "Ungültiges Token" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
-        const token = authHeader.replace("Bearer ", "");
-        const { data: userData } = await supabaseAuth.auth.getUser(token);
-        userId = userData.user?.id || null;
-        if (userId) {
-          const { data: profile } = await supabaseAuth
-            .from("profiles")
-            .select("workspace_id")
-            .eq("id", userId)
-            .maybeSingle();
-          workspaceId = profile?.workspace_id ?? null;
-        }
-      } catch (e) {
-        console.log("Auth-Fehler:", e);
       }
+      userId = userData.user.id;
+      const { data: profile } = await supabaseAuth
+        .from("profiles")
+        .select("workspace_id")
+        .eq("id", userId)
+        .maybeSingle();
+      workspaceId = profile?.workspace_id ?? null;
+    } catch (e) {
+      console.error("Auth-Fehler:", e);
+      return new Response(
+        JSON.stringify({ error: "Auth-Fehler" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const body = (await req.json()) as RequestBody & {
@@ -454,6 +506,17 @@ serve(async (req) => {
     if (!url) {
       return new Response(
         JSON.stringify({ error: "Parameter 'url' fehlt" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // SSRF-Schutz: nur sichere externe URLs erlaubt
+    if (!isSafeUrl(url)) {
+      return new Response(
+        JSON.stringify({ error: "URL nicht erlaubt" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -560,7 +623,7 @@ serve(async (req) => {
     console.error("import-recipe-from-url error:", msg);
     return new Response(
       JSON.stringify({ status: "error", error: msg }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   }
 });

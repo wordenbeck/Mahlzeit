@@ -180,7 +180,7 @@ export function RezeptDetail() {
             <button className={`rdet__ib ${recipe.is_favorite ? 'is-active' : ''}`} onClick={handleFav} aria-label="Favorit" title="Favorit">
               <Bookmark size={16} strokeWidth={2} fill={recipe.is_favorite ? 'currentColor' : 'none'} />
             </button>
-            {r.source_url && (
+            {r.source_url && (() => { try { return new URL(r.source_url).protocol === 'https:'; } catch { return false; } })() && (
               <a className="rdet__ib" href={r.source_url} target="_blank" rel="noopener noreferrer" aria-label="Quelle" title={r.source_author ?? r.source}><ExternalLink size={16} strokeWidth={2} /></a>
             )}
           </div>
